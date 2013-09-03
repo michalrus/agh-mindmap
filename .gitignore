@@ -18,6 +18,8 @@
 # XeLaTeX temporary files
 
 *.aux
+*.blg
+*.bbl
 *.lof
 *.log
 *.lot

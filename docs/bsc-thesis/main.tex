@@ -1,114 +1,138 @@
-% przykład pracy w języku angielskim
+%
+%   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
+%       and Michał Rus <m@michalrus.com>
+%
+%   Licensed under the Apache License, Version 2.0 (the "License");
+%   you may not use this file except in compliance with the License.
+%   You may obtain a copy of the License at
+%
+%       http://www.apache.org/licenses/LICENSE-2.0
+%
+%   Unless required by applicable law or agreed to in writing, software
+%   distributed under the License is distributed on an "AS IS" BASIS,
+%   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%   See the License for the specific language governing permissions and
+%   limitations under the License.
+%
 
-\documentclass[american]{inz}
-\usepackage[OT4]{fontenc}
-\usepackage[latin2]{inputenc}
+\documentclass[american]{bsc}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 
-%\title{Miły tytuł pracy}
-%\author{Alojzy Bąbel}
-%\date{2007}
-%\advisor{dr Jan Promotor}
+\title{Mindmapping for Android}
+\titlepl{Mapy myśli dla Androida}
 
-
-% \documentclass[]{inz}
-% \usepackage[OT4]{fontenc}
-% \usepackage[latin2]{inputenc}
-
-\title{A nice title}
-% W przypadku pracy w jęz. angielskim należy również podac tytył po polsku:
-\titlepl{Miły tytuł polski}
-
-% język pracy zdefiniowany jest opcją klasy mgr, patrz 1-sza linia: 
-% \documentclass
-% obslugiwane jezyki: polish, american, english
-\author{Alojzy B±bel}
+\author{Katarzyna Szawan, Michał Rus}
 \date{2012}
-\advisor{Jan Promotor, Ph.D.}
-% % oraz promotor po polsku
-\advisorpl{dr Jan Promotor}
-
+\advisor{Igor Wojnicki, Ph.D.}
+\advisorpl{dr Igor Wojnicki}
 
 \begin{document}
 
 \maketitle
 
+\chapter{Introduction}
+\label{chap:introduction}
 
-\chapter{Wstęp}
-\label{chap:wstep}
+\section{What? The problem}
+\label{sec:what}
 
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
- 
+Mind maps are diagrams which visually gather ideas and put them in a logical structure. The subject of the thesis is project and implementation of a mind-mapping tool for Android. It should support data exchange with one of the most popular software, XMind, as well as saving data as an image or a PDF. Also, it should provide tools for collaboration---working on the same map by more than one person.
 
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
-Czyli o tym jak się wszystko zaczęło.
+\section{How? Shortly about the method}
+\label{sec:how}
 
-\section{Postawienie Problemu}
-\label{sec:problem}
+Collaboration should be implemented by setting a limitation: one leaf can be edited by only one person at a time. After a time of idleness, editing should be disabled.
 
-\section{Główny Cel}
-\label{sec:cel}
+\section{Why? The source}
+\label{sec:why}
 
+Mind-mapping tools are becoming more and more popular these days. They are used in a whole range of disciplines, both in science and arts. They are proved to be a very effective way of organising ideas, brainstorming and dealing with information overload. 
 
-\chapter{Podstawy Teoretyczne}
-\label{chap:teoria}
+\section{What for? Consequences}
+\label{sec:whatfor}
 
+At this point, there is a shortage of an Android tool, while the number of devices operating on Android is growing rapidly. Considering the fact that tablets and mobile phones are nowadays a natural way of recording notes and ideas for most people, creating an application which makes the process of collecting and organising ideas intuitive and effective seems an important task.
 
+\section{What's in next chapters?}
+\label{sec:nextchapters}
 
-\section{Opis zagadnień 1}
-\label{sec:zagadnienia1}
+Next chapters include the theoretical analysis of the problem and detailed description of the possible solution. Then, we will discuss the implementation details. In the final part we will focus on the analysis of our solution, providing tests to check how many of the initial problems were solved by the application.
 
-\section{Opis zagadnień 2}
-\label{sec:zagadnienia2}
+\chapter{Theoretical basis}
+\label{chap:theory}
 
+\section{Full discussion of the analyzed problem}
+\label{sec:fulldisc}
 
-\chapter{Projekt}
-\label{chap:projekt}
+\section{Development of introduction}
+\label{sec:introdevelopment}
 
+\section{Basis for the next chapters}
+\label{sec:nextchapterbasis}
 
-\section{Wymagania}
-\label{sec:wymagania}
+... to make them more understandable.
 
+\chapter{Project}
+\label{chap:project}
 
-\section{Projekt rozwi±zania}
-\label{sec:rozwiazanie}
+\section{Requirements}
+\label{sec:requirements}
 
+\section{Planned solution}
+\label{sec:plan}
 
+Android: Scala.
 
-\chapter{Realizacja}
-\label{chap:realizacja}
+(Optionally) Backend: Scala + Lift
 
+\chapter{Implementation}
+\label{chap:implementation}
 
-\section{Implementacja}
-\label{sec:implementacja}
+Implementation of the project
 
+\section{What was implemented and how?}
+\label{implwhat}
 
+\section{How the requirements were met?}
+\label{implrequirements}
 
-\chapter{Podsumowanie}
-\label{chap:podsumowanie}
+\section{Encountered problems and their solutions}
+\label{implproblems}
 
+\chapter{Results}
+\label{chap:results}
+
+\section{Results study}
+\label{sec:resstudy}
+
+\section{Conducted tests}
+\label{sec:tests}
+
+\chapter{Summary}
+\label{chap:summary}
+
+Remind about the objective.
+
+How the reqs were met: implications, consequences, values(?).
+
+How does the implementation solve the problem?
+
+Were all problems solved? If not: why?
 
 \bibliographystyle{plain}
-%plik z baza danych bibliograficznych w formacie BibTeX'a (bibliografia.bib)
-\bibliography{bibliografia}
+% BibTeX's (bibliography.bib)
+\bibliography{bibliography}
+
+Temporarily, until we sort out BibTeX:
+
+\begin{enumerate}
+	\item http://www.mind-mapping.org/blog/mapping-history/roots-of-visual-mapping/
+\end{enumerate}
 
 \appendix
 
-\chapter{Dodatek}
-\label{chap:dodatek}
-
-
+\chapter{Appendix}
+\label{chap:appendix}
 
 \end{document}
-

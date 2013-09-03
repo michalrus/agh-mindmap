@@ -1,5 +1,9 @@
+%
+%   Copyright 2012 Igor Wojnicki, Ph.D. <wojnicki@agh.edu.pl>
+%
+
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{inz}
+\ProvidesClass{bsc}
 
 \LoadClass[12pt]{report}
 
