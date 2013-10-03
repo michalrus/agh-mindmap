@@ -20,8 +20,7 @@ package edu.agh.mindmap.components
 
 import android.view.{LayoutInflater, ViewGroup, View}
 import android.content.Context
-import android.widget.{TextView, ArrayAdapter, ListAdapter}
-import edu.agh.mindmap.R
+import android.widget.ArrayAdapter
 
 class FunctionalListAdapter[T <: AnyRef](val context: Context, val itemLayout: Int, vals: Array[T])(val updateItem: (View, T) => Unit)
   extends ArrayAdapter[T](context, itemLayout, vals) {
@@ -29,10 +28,9 @@ class FunctionalListAdapter[T <: AnyRef](val context: Context, val itemLayout: I
   override def getView(position: Int, convertView: View, parent: ViewGroup) = {
     val view = Option(convertView) match {
       case Some(v) => v
-      case _ => {
-        val inf = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
-        inf.inflate(R.layout.recent_list_item, parent, false)
-      }
+      case _ =>
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater].
+          inflate(itemLayout, parent, false)
     }
 
     updateItem(view, vals(position))
