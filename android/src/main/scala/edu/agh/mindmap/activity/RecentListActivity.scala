@@ -20,9 +20,11 @@ package edu.agh.mindmap.activity
 
 import android.app.Activity
 import android.os.Bundle
-import edu.agh.mindmap.{R}
+import edu.agh.mindmap.R
 
-import android.widget.TextView
+import android.widget.{ListView, TextView}
+import edu.agh.mindmap.components.FunctionalListAdapter
+import edu.agh.mindmap.helper.ScalaActivity
 
 class RecentListActivity extends Activity with ScalaActivity {
   implicit val activity = this
@@ -31,6 +33,11 @@ class RecentListActivity extends Activity with ScalaActivity {
     super.onCreate(bundle)
     setContentView(R.layout.recent_list)
 
-    find[TextView](R.id.textview).setText("hello, deer!")
+    val data = ("abc" :: "def" :: "ghi" :: "jkl" :: "abc" :: "def" :: "ghi" :: "jkl" :: "abc" :: "def" :: "ghi" :: "jkl" :: Nil).toArray
+
+    find[ListView](R.id.listview).setAdapter(new FunctionalListAdapter(this, R.layout.recent_list_item, data)((v, d: String) => {
+      v.find[TextView](R.id.recent_list_item_name).setText(d)
+      v.find[TextView](R.id.recent_list_item_detail).setText("Last mod: 1990/01/09 17:38:00")
+    }))
   }
 }

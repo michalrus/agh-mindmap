@@ -16,12 +16,18 @@
  *
  */
 
-package edu.agh.mindmap.activity
+package edu.agh.mindmap.helper
 
 import android.app.Activity
+import android.view.View
 
 trait ScalaActivity extends Activity {
 
   def find[T](id: Int) = findViewById(id).asInstanceOf[T]
+
+  implicit def scalaizeView(v: View) = new ScalaView(v)
+  class ScalaView(val v: View) {
+    def find[T](id: Int) = v.findViewById(id).asInstanceOf[T]
+  }
 
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="?android:attr/listPreferredItemHeight"
+                android:padding="6dip">
+
+  <ImageView
+      android:id="@+id/recent_list_item_icon"
+      android:layout_width="wrap_content"
+      android:layout_height="fill_parent"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentTop="true"
+      android:layout_marginRight="6dip"
+      android:contentDescription="TODO"
+      android:src="@drawable/android:star_big_on"/>
+
+  <TextView
+      android:id="@+id/recent_list_item_detail"
+      android:layout_width="fill_parent"
+      android:layout_height="26dip"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentRight="true"
+      android:layout_toRightOf="@id/recent_list_item_icon"
+      android:ellipsize="marquee"
+      android:singleLine="true"
+      android:text="Detail"
+      android:textSize="12sp"/>
+
+  <TextView
+      android:id="@+id/recent_list_item_name"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_above="@id/recent_list_item_detail"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentTop="true"
+      android:layout_alignWithParentIfMissing="true"
+      android:layout_toRightOf="@id/recent_list_item_icon"
+      android:gravity="center_vertical"
+      android:text="Name"
+      android:textSize="16sp"/>
+
+</RelativeLayout>
