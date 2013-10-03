@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="edu.agh.mindmap"
+          android:versionCode="0"
+          android:versionName="0.1">
+
+  <uses-sdk
+      android:minSdkVersion="10"
+      android:targetSdkVersion="10"/>
+
+  <application
+      android:label="Scratch"
+      android:icon="@drawable/android:star_big_on"
+      android:theme="@android:style/Theme.Light"
+      android:debuggable="true">
+
+    <activity
+        android:label="agh-mindmap"
+        android:name=".RecentListActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>
