@@ -9,7 +9,7 @@
       android:targetSdkVersion="10"/>
 
   <application
-      android:label="Scratch"
+      android:label="agh-mindmap"
       android:icon="@drawable/android:star_big_on"
       android:theme="@android:style/Theme.Light"
       android:debuggable="true">
