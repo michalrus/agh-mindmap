@@ -37,11 +37,11 @@
 TODO: Remove headlines (after having written the introduction - it must contain all 5 modules). 
 \section{What? The problem}
 \label{sec:what}
-Mind maps are diagrams which visually gather ideas and put them in a logical structure. It usually consists of one or more central words, around which are placed associated ideas and concepts. Sub--branches may also represent categories.  They are used in a whole range of disciplines, both in science and arts for both commercial and personal use. They are proved to be a very effective way of organising ideas, brainstorming and dealing with information overload. The subject of the thesis is project and implementation of a mind-mapping tool for Android. It should support data exchange with one of the most popular software, XMind, as well as saving data as an image or a PDF. Also, it should provide tools for collaboration --- working on the same map by more than one person.
+Mind maps are diagrams which visually gather ideas and put them in a logical structure. It usually consists of one or more central words, around which are placed associated ideas and concepts. Sub--branches may also represent categories.  They are used in a whole range of disciplines, both in science and arts for both commercial and personal use. They are proved to be one of the best ways of organising ideas, brainstorming and dealing with information overload. The research conducted by a Nobel prize winning scientist Dr. Roger Sperry shows that the activities which integrates the functions of two brain hemispheres are the most effective. Left hemisphere is responsible for logical thinking, writing, analysing and details, while the right one - for imagination, colors, spatial memory, recognizing shapes and seeing the whole picture. He also proved that when one hemisphere is overloaded, the second 'falls asleep'. So in order to work efficiently, one must engage both hemispheres -- neither pure logic nor sole creativity would do the trick. Mindmapping uses a whole variety of activities associated with both hemispheres, thus enhancing overall effectiveness and productivity. 
 
 \section{How? Shortly about the method}
 \label{sec:how}
-The task may be divided into two modules. First is creating an Android application, which supports XMind files. It will be implemented using Scala and Android SDK. Second part of the task is including collaboration tool for many users. To achieve this, we are going to use Lift --- a free web framework  designed for Scala. Collaboration should be implemented by setting a limitation: one leaf can be edited by only one person at a time. After a time of idleness, editing should be disabled.
+The subject of the thesis is project and implementation of a mind-mapping tool for Android. It should support data exchange with one of the most popular software, XMind, as well as saving data as an image or a PDF. Also, it should provide tools for collaboration -- working on the same map by more than one person. The task may be divided into two modules. First is creating an Android application, which supports XMind files. It will be implemented using Scala and Android SDK. Second part of the task is including collaboration tool for many users. To achieve this, we are going to use Lift -- a free web framework  designed for Scala. Collaboration should be implemented by setting a limitation: one leaf can be edited by only one person at a time. After a time of idleness, editing should be disabled.
 
 \section{Why? The source}
 \label{sec:why}
@@ -60,12 +60,12 @@ Next chapters include the theoretical analysis of the problem and detailed descr
 
 \section{The representation of mind maps and XMind files}
 \label{sec:xmind}
-The basis for the representation of a mind map is an open source tool, XMind. 
-XMind files (workbooks) are saved as an archive of mainly .xml files, of which two are the most important and required to save a map. First, content.xml stored data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} being the list of files included in the archive. 
+A single mind map starts with a blank sheet, which is then filled with data. The most important part of a map is the central idea, the root topic.  Along with the development of a map more subtopics can be added, creating relationships between each other, a connected, nodal structure. The basis for the representation of a mind map is an open source tool, XMind. 
+XMind files (workbooks) are saved as an archive of mostly .xml files, of which two are the most important and required to save a map. First, \inlinecode{content.xml} stored data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} being the list of files included in the archive. An XMind file could also contain separate .xml documents for content and styles, a .jpg image file for thumbnails, and directories for related attachments.
 
 \section{Android application}
 \label{androidsdk}
-Every Android application consists of few basic components, which create a life cycle. 
+Android operating system is a Linux system in which each application is a different user. Every Android application is built using four basic components: activities, services, content providers, and broadcast receivers. 
 
 \section{Lift server and collaboration}
 \label{lift}
