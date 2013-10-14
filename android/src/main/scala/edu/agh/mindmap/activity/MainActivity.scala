@@ -8,8 +8,6 @@ import edu.agh.mindmap.R
 import edu.agh.mindmap.helper.ScalaActivity
 import android.widget.TabHost
 import android.support.v4.app.{Fragment, FragmentActivity}
-import android.content.Context
-import android.view.View
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
@@ -27,22 +25,19 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
     var lastTabTag: Option[String] = None
-
+/*
     class DummyTabFactory(val context: Context) extends TabHost.TabContentFactory {
-
-      override def createTabContent(tag: String) {
+      override def createTabContent(tag: String) = {
         val v = new View(context)
         v.setMinimumWidth(0)
         v.setMinimumHeight(0)
         v
       }
-
     }
-
-    case class TabInfo()
-
+*/
     def addTab(tag: String, label: String, creator: () => Fragment) {
-      val tabSpec = tabHost.newTabSpec(tag).setIndicator(label).setContent(new DummyTabFactory(activity))
+      val tabSpec = tabHost.newTabSpec(tag).setIndicator(label) //.setContent(new DummyTabFactory(activity))
+      // FIXME: does something go here really?
       tabHost.addTab(tabSpec)
     }
 
