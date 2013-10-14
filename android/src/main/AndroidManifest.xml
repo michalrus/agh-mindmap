@@ -6,12 +6,12 @@
 
   <uses-sdk
       android:minSdkVersion="10"
-      android:targetSdkVersion="10"/>
+      android:targetSdkVersion="11"/>
 
   <application
       android:label="agh-mindmap"
       android:icon="@drawable/android:star_big_on"
-      android:theme="@android:style/Theme.Light"
+      android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
       android:debuggable="true">
 
     <activity
