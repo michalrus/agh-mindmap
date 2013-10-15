@@ -24,8 +24,6 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
       v.find[TextView](R.id.recent_list_item_detail).setText("Last mod: 1990/01/09 17:38:00")
     }))
 
-    log("MapListFragment.onCreateView")
-
     view
   }
 

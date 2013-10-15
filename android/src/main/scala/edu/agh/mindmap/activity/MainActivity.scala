@@ -71,7 +71,6 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
 
     override def onTabChanged(tag: String) {
-      log("onTabChanged: " + tag)
       if (lastTabTag != Some(tag)) {
         val ft = activity.getSupportFragmentManager.beginTransaction
         lastTabTag match {
@@ -83,17 +82,12 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         }
         (creators.get(tag), fragments.get(tag)) match {
           case (Some(creator), None) => {
-            log("; creating fragment")
             val f = creator()
             fragments += tag -> f
             ft.add(containerId, f, tag)
           }
-          case (_, Some(f)) => {
-            log("; attaching fragment")
-            ft.attach(f)
-          }
+          case (_, Some(f)) => ft.attach(f)
           case _ =>
-            log("; unknown case")
         }
         lastTabTag = Some(tag)
         ft.commit()
