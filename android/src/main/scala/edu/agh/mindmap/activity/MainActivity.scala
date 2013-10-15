@@ -5,7 +5,7 @@ import scala.collection.mutable
 import com.actionbarsherlock.app.SherlockFragmentActivity
 import android.os.Bundle
 import edu.agh.mindmap.R
-import android.widget.TabHost
+import android.widget.{HorizontalScrollView, TabHost}
 import android.support.v4.app.{Fragment, FragmentActivity}
 import android.content.Context
 import android.view.View
@@ -16,7 +16,7 @@ import com.michalrus.helper.ScalaActivity
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   lazy val tabHost = find[TabHost](R.id.tabhost)
-  lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent)
+  lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
@@ -29,14 +29,26 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     tabManager.addTab[MapListFragment]("all4", "All maps 4")
     tabManager.addTab[MapListFragment]("all5", "All maps 5")
     tabManager.addTab[MapListFragment]("all6", "All maps 6")
+
+    Option(bundle) foreach (b => {
+      tabHost.setCurrentTabByTag(b.getString("tab"))
+      tabManager.rescrollTabView()
+    })
   }
 
-  class TabManager(val activity: FragmentActivity, tabHost: TabHost, containerId: Int) extends TabHost.OnTabChangeListener {
+  override def onSaveInstanceState(bundle: Bundle) {
+    super.onSaveInstanceState(bundle)
+    bundle.putString("tab", tabHost.getCurrentTabTag)
+  }
+
+  class TabManager(val activity: FragmentActivity with ScalaActivity, tabHost: TabHost, containerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {
 
     tabHost.setOnTabChangedListener(this)
 
+    val scrollView = activity.find[HorizontalScrollView](scrollId)
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
+
     var lastTabTag: Option[String] = None
 
     class DummyTabFactory(val context: Context) extends TabHost.TabContentFactory {
@@ -92,7 +104,14 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         lastTabTag = Some(tag)
         ft.commit()
         activity.getSupportFragmentManager.executePendingTransactions()
+        rescrollTabView()
       }
+    }
+
+    def rescrollTabView() {
+      val tv = tabHost.getCurrentTabView
+      val scroll = tv.getLeft + tv.getWidth / 2 - scrollView.getWidth / 2
+      scrollView.smoothScrollTo(scroll, 0)
     }
 
   }
