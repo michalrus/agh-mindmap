@@ -69,6 +69,7 @@ Android operating system is a Linux system in which each application is a differ
 
 \section{Lift server and collaboration}
 \label{lift}
+In this project, Lift web framework is used only as a backend for the mobile application that enables all mobile devices with the app installed to share maps and collaborate on them. Several REST web services are implemented; these are internally (server-side) asynchronously managed by a pile of very light-weight Scala actors. Each connected mobile device gets its own actor and instant bidirectional communication between devices is achieved by means of long-polling: mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
 
 \section{Full discussion of the analyzed problem}
 \label{sec:fulldisc}
