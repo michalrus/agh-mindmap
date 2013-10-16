@@ -32,7 +32,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
     Option(bundle) foreach (b => {
       tabHost.setCurrentTabByTag(b.getString("tab"))
-      tabManager.rescrollTabView()
+      laterOnUiThread {
+        tabManager.rescrollTabView()
+      }
     })
   }
 
