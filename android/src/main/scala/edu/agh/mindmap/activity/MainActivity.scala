@@ -89,7 +89,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         val ft = activity.getSupportFragmentManager.beginTransaction
         lastTabTag match {
           case Some(t) => fragments.get(t) match {
-            case Some(f) => ft.detach(f)
+            case Some(f) => ft.hide(f)
             case _ =>
           }
           case _ =>
@@ -100,7 +100,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
             fragments += tag -> f
             ft.add(containerId, f, tag)
           }
-          case (_, Some(f)) => ft.attach(f)
+          case (_, Some(f)) => if (f.isHidden) ft.show(f) else ft.attach(f)
           case _ =>
         }
         lastTabTag = Some(tag)

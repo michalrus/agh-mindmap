@@ -11,7 +11,7 @@ import edu.agh.mindmap.model.MindMap
 
 class MapListFragment extends SherlockFragment with ScalaFragment {
 
-  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle) = {
+  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.recent_list, container, false)
 
     val data = MindMap.findAll.toArray
