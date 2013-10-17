@@ -2,11 +2,27 @@ package edu.agh.mindmap.model
 
 import java.util.UUID
 
-class MindMap(val uuid: UUID = UUID.randomUUID,
-              val root: MindNode = new MindNode(this, UUID.randomUUID, None, Some(""), false, None))
+class MindMap private(val uuid: UUID,
+                      val lastMod: Long,
+                      isNew: Boolean) {
+
+  val root = if (isNew) MindNode.create(this)
+  else MindNode.findRootOf(this)
+
+}
 
 object MindMap {
 
-  def findAll: List[MindMap] = ???
+  def create = {
+    new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
+  }
+
+  def findAll: List[MindMap] = {
+    val a = create; a.root.content = Some("mapa A")
+    val b = create; b.root.content = Some("mapa B")
+    val c = create; c.root.content = Some("mapa C")
+
+    a :: b :: c :: Nil
+  }
 
 }
