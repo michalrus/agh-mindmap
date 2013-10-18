@@ -5,9 +5,15 @@ import android.widget.Button
 import android.view.View.OnClickListener
 import android.util.Log
 
-trait ViewHelper {
+object ViewHelper {
 
   def log(s: String) = Log.d("com.michalrus.helper", s)
+
+}
+
+trait ViewHelper {
+
+  def log(s: String) = ViewHelper.log(s)
 
   implicit def scalaizeView(v: View) = new ScalaView(v)
   class ScalaView(val v: View) {
