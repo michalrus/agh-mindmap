@@ -12,11 +12,34 @@ import android.view.View
 import edu.agh.mindmap.fragment.MapListFragment
 import scala.reflect.ClassTag
 import com.michalrus.helper.ScalaActivity
+import com.actionbarsherlock.view.{MenuItem, Menu}
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   lazy val tabHost = find[TabHost](R.id.tabhost)
   lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
+
+  override def onCreateOptionsMenu(menu: Menu) = {
+    def add(id: Int, s: Int, icon: Int) =
+      menu.add(Menu.NONE, id, Menu.NONE, s).
+        setIcon(icon).
+        setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
+    add(R.id.action_import, R.string.action_import, R.drawable.icon_import)
+    add(R.id.action_create, R.string.action_create, R.drawable.icon_create)
+
+    true
+  }
+
+  override def onOptionsItemSelected(item: MenuItem) = {
+    item.getItemId match {
+      case R.id.action_import => log("import")
+      case R.id.action_create => log("create")
+      case _ =>
+    }
+
+    true
+  }
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
@@ -24,11 +47,6 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     tabHost.setup()
 
     tabManager.addTab[MapListFragment]("all", "All maps")
-    tabManager.addTab[MapListFragment]("all2", "All maps 2")
-    tabManager.addTab[MapListFragment]("all3", "All maps 3")
-    tabManager.addTab[MapListFragment]("all4", "All maps 4")
-    tabManager.addTab[MapListFragment]("all5", "All maps 5")
-    tabManager.addTab[MapListFragment]("all6", "All maps 6")
 
     Option(bundle) foreach (b => {
       tabHost.setCurrentTabByTag(b.getString("tab"))
