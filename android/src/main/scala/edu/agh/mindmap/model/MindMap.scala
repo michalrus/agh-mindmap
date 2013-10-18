@@ -25,4 +25,6 @@ object MindMap {
     a :: b :: c :: Nil
   }
 
+  def importFrom(file: Nothing): MindMap = ???
+
 }
