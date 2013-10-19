@@ -10,7 +10,9 @@ class MindNode private(val uuid: UUID,
                        var hasConflict: Boolean,
                        var cloudTime: Option[Long]) {
 
-  val children = new mutable.ArrayBuffer[MindNode]
+  def children = _children.readOnly
+
+  private val _children = new mutable.ArrayBuffer[MindNode]
 
 }
 
@@ -23,7 +25,7 @@ object MindNode {
 
   def create(parent: MindNode) = {
     val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), None, false, None)
-    parent.children += child
+    parent._children += child
     child
   }
 
