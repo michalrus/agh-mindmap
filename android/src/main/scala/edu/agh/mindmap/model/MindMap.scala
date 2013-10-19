@@ -1,6 +1,8 @@
 package edu.agh.mindmap.model
 
 import java.util.UUID
+import java.io.File
+import com.michalrus.helper.ViewHelper
 
 class MindMap private(val uuid: UUID,
                       val lastMod: Long,
@@ -25,6 +27,10 @@ object MindMap {
     a :: b :: c :: Nil
   }
 
-  def importFrom(file: Nothing): MindMap = ???
+  def importFrom(file: File): MindMap = {
+    ViewHelper.log(file.getAbsolutePath)
+    // TODO: import
+    create // FIXME
+  }
 
 }

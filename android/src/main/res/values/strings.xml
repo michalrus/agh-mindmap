@@ -8,5 +8,6 @@
 
   <string name="action_create">Create</string>
   <string name="action_import">Import</string>
+  <string name="choose_xmind">Choose an XMind file</string>
 
 </resources>

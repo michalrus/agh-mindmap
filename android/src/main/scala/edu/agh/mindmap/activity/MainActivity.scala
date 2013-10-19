@@ -7,12 +7,19 @@ import android.os.Bundle
 import edu.agh.mindmap.R
 import android.widget.{HorizontalScrollView, TabHost}
 import android.support.v4.app.{Fragment, FragmentActivity}
-import android.content.Context
+import android.content.{ActivityNotFoundException, Intent, Context}
 import android.view.View
 import edu.agh.mindmap.fragment.MapListFragment
 import scala.reflect.ClassTag
 import com.michalrus.helper.ScalaActivity
 import com.actionbarsherlock.view.{MenuItem, Menu}
+import com.ipaulpro.afilechooser.utils.FileUtils
+import android.app.Activity
+import edu.agh.mindmap.model.MindMap
+
+object MainActivity {
+  val FileChooserRequestCode = 31337
+}
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
@@ -33,12 +40,34 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   override def onOptionsItemSelected(item: MenuItem) = {
     item.getItemId match {
-      case R.id.action_import => log("import")
+      case R.id.action_import => showImportDialog()
       case R.id.action_create => log("create")
       case _ =>
     }
 
     true
+  }
+
+  def showImportDialog() {
+    val target = FileUtils.createGetContentIntent
+    val intent = Intent.createChooser(target, getString(R.string.choose_xmind))
+    try {
+      startActivityForResult(intent, MainActivity.FileChooserRequestCode)
+    } catch {
+      case _: ActivityNotFoundException =>
+    }
+  }
+
+  override def onActivityResult(request: Int, result: Int, data: Intent) {
+    request match {
+      case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
+        try {
+          val file = FileUtils.getFile(data.getData)
+          val map = MindMap.importFrom(file)
+          // TODO: open a new tab with this map
+        }
+      case _ =>
+    }
   }
 
   override def onCreate(bundle: Bundle) {
