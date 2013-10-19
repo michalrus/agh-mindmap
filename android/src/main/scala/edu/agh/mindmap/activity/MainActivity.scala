@@ -68,6 +68,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         }
       case _ =>
     }
+    super.onActivityResult(request, result, data)
   }
 
   override def onCreate(bundle: Bundle) {
