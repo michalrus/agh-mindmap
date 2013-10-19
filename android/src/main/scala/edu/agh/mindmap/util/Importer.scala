@@ -7,15 +7,6 @@ import scala.xml.{Node, XML}
 
 class ImporterException extends Exception
 
-object Test {
-
-  def sum(a: Int)(b: Int) = a + b
-
-  def sumN(a: Int, b: Int) = sum(a)(b)
-
-
-}
-
 object Importer {
 
   def importFrom(file: File): Seq[MindMap] = try {
@@ -24,12 +15,14 @@ object Importer {
     val br = new BufferedReader(new InputStreamReader(is))
     val sb = new StringBuilder
 
-    def loop {
+    def loop() {
       br.readLine match {
-        case line if line != null => sb append line; loop
+        case line if line != null => sb append line; loop()
         case _ =>
       }
     }
+
+    loop()
 
     val xml = XML loadString sb.result
 
