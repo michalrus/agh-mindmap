@@ -3,8 +3,7 @@ package edu.agh.mindmap.util
 import java.io.{BufferedReader, InputStreamReader, File}
 import edu.agh.mindmap.model.{MindNode, MindMap}
 import java.util.zip.ZipFile
-import scala.annotation.tailrec
-import scala.xml.{Node, NodeSeq, XML}
+import scala.xml.{Node, XML}
 
 class ImporterException extends Exception
 
@@ -13,7 +12,6 @@ object Test {
   def sum(a: Int)(b: Int) = a + b
 
   def sumN(a: Int, b: Int) = sum(a)(b)
-
 
 
 }
@@ -43,12 +41,12 @@ object Importer {
       map.root.content = Some((root \ "title").head.text)
 
       def extractor(topic: Node, parent: MindNode) {
-        (topic \ "topic").zipWithIndex.foreach(i_childXml => {
-          val (childXml, i) = x
-          val child = MindNode.createChildOf(parent, i) 
-          child.content = Some((child \ "title").head.text)
-          extractor(childXml, child)
-        })
+        (topic \ "topic").view.zipWithIndex.foreach {
+          case (childXml, i) =>
+            val child = MindNode.createChildOf(parent, i)
+            child.content = Some((childXml \ "title").head.text)
+            extractor(childXml, child)
+        }
       }
 
       extractor(root, map.root)

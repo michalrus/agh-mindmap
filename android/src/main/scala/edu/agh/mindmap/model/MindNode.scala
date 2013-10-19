@@ -21,8 +21,8 @@ object MindNode {
 
   def findRootOf(map: MindMap): MindNode = ???
 
-  def createRootOf(map: MindMap, ordering: Double) =
-    new MindNode(UUID.randomUUID, map, None, ordering, None, false, None)
+  def createRootOf(map: MindMap) =
+    new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
 
   def createChildOf(parent: MindNode, ordering: Double) = {
     val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, None, false, None)
