@@ -27,6 +27,6 @@ object MindMap {
     a :: b :: c :: Nil
   }
 
-  def importFrom(file: File): MindMap = Importer importFrom file
+  def importFrom(file: File): Seq[MindMap] = Importer importFrom file
 
 }

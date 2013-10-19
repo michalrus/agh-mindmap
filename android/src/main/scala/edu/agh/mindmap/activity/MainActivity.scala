@@ -16,6 +16,7 @@ import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.Activity
 import edu.agh.mindmap.model.MindMap
+import edu.agh.mindmap.util.ImporterException
 
 object MainActivity {
   val FileChooserRequestCode = 31337
@@ -63,8 +64,12 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
         try {
           val file = FileUtils.getFile(data.getData)
+          // TODO:
           val map = MindMap.importFrom(file)
           // TODO: open a new tab with this map
+        } catch {
+          case _: ImporterException => // TODO: alert
+          case _: Exception => // TODO: alert (invalid file)
         }
       case _ =>
     }
