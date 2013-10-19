@@ -8,7 +8,7 @@ class MindMap private(val uuid: UUID,
                       val lastMod: Long,
                       isNew: Boolean) {
 
-  val root = if (isNew) MindNode.create(this)
+  val root = if (isNew) MindNode.createRootOf(this, 0)
   else MindNode.findRootOf(this)
 
 }

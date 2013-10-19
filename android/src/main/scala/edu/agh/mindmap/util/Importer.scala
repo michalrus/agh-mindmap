@@ -14,7 +14,7 @@ object Importer {
 
     map.root.content = Some("Beware, I'm the root node!")
 
-    val someChildNode = MindNode.create(map.root)
+    val someChildNode = MindNode.createChildOf(map.root, 1)
     someChildNode.content = Some("I'm a child node!")
 
     // TODO: ...
