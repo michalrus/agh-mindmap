@@ -1,5 +1,6 @@
 package edu.agh.mindmap.model
 
+import scala.collection.mutable
 import java.util.UUID
 
 class MindNode private(val uuid: UUID,
@@ -8,6 +9,9 @@ class MindNode private(val uuid: UUID,
                        var content: Option[String],
                        var hasConflict: Boolean,
                        var cloudTime: Option[Long]) {
+
+  val children = new mutable.ArrayBuffer[MindNode]
+
 }
 
 object MindNode {
