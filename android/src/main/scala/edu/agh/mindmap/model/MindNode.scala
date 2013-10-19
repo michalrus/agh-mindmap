@@ -21,7 +21,10 @@ object MindNode {
   def create(map: MindMap) =
     new MindNode(UUID.randomUUID, map, None, None, false, None)
 
-  def create(parent: MindNode) =
-    new MindNode(UUID.randomUUID, parent.map, Some(parent), None, false, None)
+  def create(parent: MindNode) = {
+    val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), None, false, None)
+    parent.children += child
+    child
+  }
 
 }
