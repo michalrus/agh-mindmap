@@ -10,7 +10,7 @@ class MindNode private(val uuid: UUID,
                        var hasConflict: Boolean,
                        var cloudTime: Option[Long]) {
 
-  def children = _children.readOnly
+  def children = _children.toVector
 
   private val _children = new mutable.ArrayBuffer[MindNode]
 
