@@ -1,3 +1,3 @@
-addSbtPlugin("org.scala-sbt" % "sbt-android" % "0.7.1-SNAPSHOT")
+addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % "1.1.1")
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.1")
+addSbtPlugin("com.hanhuy.sbt" % "sbt-idea" % "1.6.0")

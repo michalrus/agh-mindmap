@@ -18,6 +18,7 @@
 # SBT and IntelliJ Idea files
 
 /.idea*
+/.history
 /target/
 /project/target/
 /project/project/target/
