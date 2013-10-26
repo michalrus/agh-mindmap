@@ -15,8 +15,14 @@ class MindMap private(val uuid: UUID,
 
 object MindMap {
 
+  import collection.mutable
+
+  val db = new mutable.HashMap[UUID, MindMap]
+
   def create = {
-    new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
+    val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
+    db += map.uuid -> map
+    map
   }
 
   def findAll: List[MindMap] = {
@@ -27,6 +33,8 @@ object MindMap {
 
     a :: b :: c :: d :: Nil
   }
+
+  def findByUuid(uuid: UUID) = db get uuid
 
   def importFrom(file: File): Seq[MindMap] = Importer importFrom file
 
