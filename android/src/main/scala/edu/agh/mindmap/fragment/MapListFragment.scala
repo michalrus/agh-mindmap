@@ -4,9 +4,11 @@ import com.actionbarsherlock.app.SherlockFragment
 import android.os.Bundle
 import android.view.{View, ViewGroup, LayoutInflater}
 import edu.agh.mindmap.R
-import android.widget.{ArrayAdapter, TextView, ListView}
+import android.widget.{AdapterView, ArrayAdapter, TextView, ListView}
 import com.michalrus.helper.ScalaFragment
 import edu.agh.mindmap.model.MindMap
+import android.widget.AdapterView.OnItemClickListener
+import edu.agh.mindmap.activity.MainActivity
 
 class MapListFragment extends SherlockFragment with ScalaFragment {
 
@@ -17,7 +19,14 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
 
     val itemXml = R.layout.recent_list_item
 
-    view.find[ListView](R.id.listview).setAdapter(new ArrayAdapter(getActivity, itemXml, data) {
+    val listView = view.find[ListView](R.id.listview)
+
+    val tabManager = getActivity match {
+      case a: MainActivity => Some(a.tabManager)
+      case _ => None
+    }
+
+    listView.setAdapter(new ArrayAdapter(getActivity, itemXml, data) {
       override def getView(position: Int, convertView: View, parent: ViewGroup) = {
         val v = Option(convertView) match {
           case Some(x) => x
@@ -32,6 +41,18 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
           setText(new java.util.Date(map.lastMod).toString)
 
         v
+      }
+    })
+
+    listView.setOnItemClickListener(new OnItemClickListener {
+      override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
+        tabManager foreach {
+          tm =>
+            val map = data(position).uuid.toString
+            if (!tm.focusTabOfTag(map)) {
+              // FIXME create tab
+            }
+        }
       }
     })
 

@@ -24,7 +24,7 @@ object MainActivity {
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
-  lazy val tabHost = find[TabHost](R.id.tabhost)
+  private lazy val tabHost = find[TabHost](R.id.tabhost)
   lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
 
   override def onCreateOptionsMenu(menu: Menu) = {
@@ -85,9 +85,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
     Option(bundle) foreach (b => {
       tabHost.setCurrentTabByTag(b.getString("tab"))
-      laterOnUiThread {
-        tabManager.rescrollTabView()
-      }
+      tabManager.rescrollTabView()
     })
   }
 
@@ -137,6 +135,15 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       tabHost.addTab(tabSpec)
     }
 
+    def focusTabOfTag(tag: String): Boolean =
+      fragments get tag match {
+        case Some(_) =>
+          tabHost setCurrentTabByTag tag
+          rescrollTabView()
+          true
+        case _ => false
+      }
+
     override def onTabChanged(tag: String) {
       if (lastTabTag != Some(tag)) {
         val ft = activity.getSupportFragmentManager.beginTransaction
@@ -163,7 +170,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       }
     }
 
-    def rescrollTabView() {
+    def rescrollTabView() = laterOnUiThread {
       val tv = tabHost.getCurrentTabView
       val scroll = tv.getLeft + tv.getWidth / 2 - scrollView.getWidth / 2
       scrollView.smoothScrollTo(scroll, 0)
