@@ -17,10 +17,10 @@ import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.Activity
 import edu.agh.mindmap.model.MindMap
 import edu.agh.mindmap.util.ImporterException
-import java.util.UUID
 
 object MainActivity {
   val FileChooserRequestCode = 31337
+  val MapListTabTag = "all"
 }
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
@@ -66,6 +66,10 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         try {
           val file = FileUtils.getFile(data.getData)
           val maps = MindMap.importFrom(file)
+          tabManager.fragments get MainActivity.MapListTabTag foreach {
+            case lf: MapListFragment => lf addMaps maps
+            case _ =>
+          }
           if (maps.nonEmpty)
             viewMindMap(maps.head)
         } catch {
@@ -82,7 +86,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     setContentView(R.layout.main)
     tabHost.setup()
 
-    tabManager.addTab[MapListFragment]("all", "All maps")
+    tabManager.addTab[MapListFragment](MainActivity.MapListTabTag, "All maps")
 
     Option(bundle) foreach (b => {
       tabHost.setCurrentTabByTag(b.getString("tab"))
