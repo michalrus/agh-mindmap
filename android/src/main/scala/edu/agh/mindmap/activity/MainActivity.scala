@@ -135,14 +135,19 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       tabHost.addTab(tabSpec)
     }
 
-    def focusTabOfTag(tag: String): Boolean =
-      fragments get tag match {
+    def focusTabOfTag(tag: String): Boolean = {
+      log("focusTabOfTag " + tag)
+      creators get tag match {
         case Some(_) =>
+          log("  found")
           tabHost setCurrentTabByTag tag
           rescrollTabView()
           true
-        case _ => false
+        case _ =>
+          log("  not found")
+          false
       }
+    }
 
     override def onTabChanged(tag: String) {
       if (lastTabTag != Some(tag)) {

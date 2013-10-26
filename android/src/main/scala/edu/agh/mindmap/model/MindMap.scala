@@ -23,8 +23,9 @@ object MindMap {
     val a = create; a.root.content = Some("mapa A")
     val b = create; b.root.content = Some("mapa B")
     val c = create; c.root.content = Some("mapa C")
+    val d = create; d.root.content = Some("mapa D")
 
-    a :: b :: c :: Nil
+    a :: b :: c :: d :: Nil
   }
 
   def importFrom(file: File): Seq[MindMap] = Importer importFrom file

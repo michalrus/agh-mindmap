@@ -17,6 +17,11 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
 
     val data = MindMap.findAll.toArray
 
+    data.zipWithIndex.foreach {
+      case (mm, i) =>
+        log("mindmap " + i + ": " + mm.uuid)
+    }
+
     val itemXml = R.layout.recent_list_item
 
     val listView = view.find[ListView](R.id.listview)
@@ -48,9 +53,14 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
       override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
         tabManager foreach {
           tm =>
-            val map = data(position).uuid.toString
-            if (!tm.focusTabOfTag(map)) {
-              // FIXME create tab
+            val map = data(position)
+            val uuid = map.uuid.toString
+            if (!tm.focusTabOfTag(uuid)) {
+              val b = new Bundle
+              b.putString("uuid", uuid)
+
+              tm.addTab[MapFragment](uuid, map.root.content.getOrElse(""))
+              tm.focusTabOfTag(uuid)
             }
         }
       }
