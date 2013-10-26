@@ -85,7 +85,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
     Option(bundle) foreach (b => {
       tabHost.setCurrentTabByTag(b.getString("tab"))
-      tabManager.rescrollTabView()
+      laterOnUiThread {
+        tabManager.rescrollTabView()
+      }
     })
   }
 
@@ -140,10 +142,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       creators get tag match {
         case Some(_) =>
           log("  found")
-          laterOnUiThread {
-            tabHost setCurrentTabByTag tag
-            rescrollTabView()
-          }
+          val sX = tabHost.getScrollX
+          tabHost setCurrentTabByTag tag
+          tabHost setScrollX sX
           true
         case _ =>
           log("  not found")
@@ -173,11 +174,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         lastTabTag = Some(tag)
         ft.commit()
         activity.getSupportFragmentManager.executePendingTransactions()
-        rescrollTabView()
+        laterOnUiThread {
+          rescrollTabView()
+        }
       }
     }
 
-    def rescrollTabView() = laterOnUiThread {
+    def rescrollTabView() {
       val tv = tabHost.getCurrentTabView
       val scroll = tv.getLeft + tv.getWidth / 2 - scrollView.getWidth / 2
       scrollView.smoothScrollTo(scroll, 0)
