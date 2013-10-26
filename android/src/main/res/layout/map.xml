@@ -6,11 +6,14 @@
               android:layout_height="match_parent">
   <TextView
           android:layout_width="match_parent"
-          android:layout_height="match_parent"
+          android:layout_height="wrap_content"
           android:text="BlABLABLA"
           />
 
-
+  <edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
+          android:layout_width="match_parent"
+          android:layout_height="30dp"
+          />
 
 </LinearLayout>
 
