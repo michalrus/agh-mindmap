@@ -17,11 +17,6 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
 
     val data = MindMap.findAll.toArray
 
-    data.zipWithIndex.foreach {
-      case (mm, i) =>
-        log("mindmap " + i + ": " + mm.uuid)
-    }
-
     val itemXml = R.layout.recent_list_item
 
     val listView = view.find[ListView](R.id.listview)

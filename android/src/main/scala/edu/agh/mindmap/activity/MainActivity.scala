@@ -138,17 +138,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
 
     def focusTabOfTag(tag: String): Boolean = {
-      log("focusTabOfTag " + tag)
       creators get tag match {
         case Some(_) =>
-          log("  found")
           val sX = tabHost.getScrollX
           tabHost setCurrentTabByTag tag
           tabHost setScrollX sX
           true
-        case _ =>
-          log("  not found")
-          false
+        case _ => false
       }
     }
 
