@@ -21,8 +21,8 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
 
     val listView = view.find[ListView](R.id.listview)
 
-    val tabManager = getActivity match {
-      case a: MainActivity => Some(a.tabManager)
+    val mainActivity = getActivity match {
+      case a: MainActivity => Some(a)
       case _ => None
     }
 
@@ -46,18 +46,7 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
 
     listView.setOnItemClickListener(new OnItemClickListener {
       override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-        tabManager foreach {
-          tm =>
-            val map = data(position)
-            val uuid = map.uuid.toString
-            if (!tm.focusTabOfTag(uuid)) {
-              val b = new Bundle
-              b.putString("uuid", uuid)
-
-              tm.addTab[MapFragment](uuid, map.root.content.getOrElse(""))
-              tm.focusTabOfTag(uuid)
-            }
-        }
+        mainActivity foreach (_ viewMindMap data(position))
       }
     })
 

@@ -17,7 +17,7 @@ object MindMap {
 
   import collection.mutable
 
-  val db = new mutable.HashMap[UUID, MindMap]
+  val db = new mutable.HashMap[UUID, MindMap]  // FIXME: this should be a real database
 
   def create = {
     val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
@@ -36,6 +36,14 @@ object MindMap {
 
   def findByUuid(uuid: UUID) = db get uuid
 
-  def importFrom(file: File): Seq[MindMap] = Importer importFrom file
+  def importFrom(file: File): Seq[MindMap] = {
+    val maps = Importer importFrom file
+
+    maps foreach {
+      m => db += m.uuid -> m
+    }
+
+    maps
+  }
 
 }

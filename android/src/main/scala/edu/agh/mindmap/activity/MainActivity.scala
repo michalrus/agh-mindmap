@@ -9,7 +9,7 @@ import android.widget.{HorizontalScrollView, TabHost}
 import android.support.v4.app.{Fragment, FragmentActivity}
 import android.content.{ActivityNotFoundException, Intent, Context}
 import android.view.View
-import edu.agh.mindmap.fragment.MapListFragment
+import edu.agh.mindmap.fragment.{MapFragment, MapListFragment}
 import scala.reflect.ClassTag
 import com.michalrus.helper.ScalaActivity
 import com.actionbarsherlock.view.{MenuItem, Menu}
@@ -17,6 +17,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.Activity
 import edu.agh.mindmap.model.MindMap
 import edu.agh.mindmap.util.ImporterException
+import java.util.UUID
 
 object MainActivity {
   val FileChooserRequestCode = 31337
@@ -25,7 +26,7 @@ object MainActivity {
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   private lazy val tabHost = find[TabHost](R.id.tabhost)
-  lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
+  private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
 
   override def onCreateOptionsMenu(menu: Menu) = {
     def add(id: Int, s: Int, icon: Int) =
@@ -64,9 +65,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
         try {
           val file = FileUtils.getFile(data.getData)
-          // TODO:
-          val map = MindMap.importFrom(file)
-          // TODO: open a new tab with this map
+          val maps = MindMap.importFrom(file)
+          if (maps.nonEmpty)
+            viewMindMap(maps.head)
         } catch {
           case _: ImporterException => // TODO: alert
           case _: Exception => // TODO: alert (invalid file)
@@ -94,6 +95,17 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   override def onSaveInstanceState(bundle: Bundle) {
     super.onSaveInstanceState(bundle)
     bundle.putString("tab", tabHost.getCurrentTabTag)
+  }
+
+  def viewMindMap(map: MindMap) {
+    val uuid = map.uuid.toString
+    if (!tabManager.focusTabOfTag(uuid)) {
+      val b = new Bundle
+      b.putString("uuid", uuid)
+
+      tabManager.addTab[MapFragment](uuid, map.root.content.getOrElse(""))
+      tabManager.focusTabOfTag(uuid)
+    }
   }
 
   class TabManager(val activity: FragmentActivity with ScalaActivity, tabHost: TabHost, containerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {
@@ -142,7 +154,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         case Some(_) =>
           val sX = tabHost.getScrollX
           tabHost setCurrentTabByTag tag
-          tabHost setScrollX sX
+          tabHost setScrollX sX // setCurrentTabByTag scrolls without anim, that's why
           true
         case _ => false
       }
