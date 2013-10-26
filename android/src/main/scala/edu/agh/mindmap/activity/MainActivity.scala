@@ -140,8 +140,10 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       creators get tag match {
         case Some(_) =>
           log("  found")
-          tabHost setCurrentTabByTag tag
-          rescrollTabView()
+          laterOnUiThread {
+            tabHost setCurrentTabByTag tag
+            rescrollTabView()
+          }
           true
         case _ =>
           log("  not found")
