@@ -70,8 +70,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
             case lf: MapListFragment => lf addMaps maps
             case _ =>
           }
-          //if (maps.nonEmpty)
-          //  viewMindMap(maps.head) // FIXME: why is this f'd-up?!
+          if (maps.nonEmpty)
+            viewMindMap(maps.head)
         } catch {
           case _: ImporterException => // TODO: alert
           case _: Exception => // TODO: alert (invalid file)
@@ -108,7 +108,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       b.putString("uuid", uuid)
 
       tabManager.addTab[MapFragment](uuid, map.root.content.getOrElse(""))
-      tabManager.focusTabOfTag(uuid)
+      laterOnUiThread {
+        tabManager.focusTabOfTag(uuid)
+      }
     }
   }
 
