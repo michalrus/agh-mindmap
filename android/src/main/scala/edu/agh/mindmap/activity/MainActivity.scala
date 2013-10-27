@@ -21,6 +21,7 @@ import edu.agh.mindmap.util.ImporterException
 object MainActivity {
   val FileChooserRequestCode = 31337
   val MapListTabTag = "all"
+  val TabTitleMaxLength = 8
 }
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
@@ -156,7 +157,10 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
 
     def addTab[F](tag: String, label: String, args: Bundle = null)(implicit classTag: ClassTag[F]) {
-      val tabSpec = tabHost.newTabSpec(tag).setIndicator(label).setContent(new DummyTabFactory(activity))
+      val indicator = if (label.length < MainActivity.TabTitleMaxLength) label
+        else label take MainActivity.TabTitleMaxLength + '\u2026'
+
+      val tabSpec = tabHost newTabSpec tag setIndicator indicator setContent new DummyTabFactory(activity)
       creators += tag -> (() => Fragment.instantiate(activity, classTag.runtimeClass.getName, args))
 
       // Check to see if we already have a fragment for this tab, probably
