@@ -14,5 +14,6 @@
     <string name="import_error_body">Make sure it\'s a valid XMind file.</string>
     <string name="file_error_title">Could not open file.</string>
     <string name="file_error_body">The file you\'ve chosen could not be opened for reading.</string>
+    <string name="button_ok">OK</string>
 
 </resources>

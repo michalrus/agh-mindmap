@@ -14,7 +14,7 @@ import scala.reflect.ClassTag
 import com.michalrus.helper.ScalaActivity
 import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
-import android.app.Activity
+import android.app.{AlertDialog, Activity}
 import edu.agh.mindmap.model.MindMap
 import edu.agh.mindmap.util.ImporterException
 
@@ -64,10 +64,11 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
   }
 
-  def alertOk(title: Int, body: Int) {
-    val (t, b) = (getString(title), getString(body))
-
-    log("alert! title: " + t + "; body: " + b) // FIXME
+  def alertOk(title: Int, message: Int) {
+    val b = new AlertDialog.Builder(this)
+    b setMessage message setTitle title setCancelable false
+    b setPositiveButton (R.string.button_ok, null)
+    b.create.show()
   }
 
   def withMapListFragment[A](f: MapListFragment => A) {
