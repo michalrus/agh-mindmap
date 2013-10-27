@@ -43,11 +43,15 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   override def onOptionsItemSelected(item: MenuItem) = {
     item.getItemId match {
       case R.id.action_import => showImportDialog()
-      case R.id.action_create => log("create")
+      case R.id.action_create => createNewMap()
       case _ =>
     }
 
     true
+  }
+
+  def createNewMap() {
+    log("createNewMap called") // FIXME
   }
 
   def showImportDialog() {
