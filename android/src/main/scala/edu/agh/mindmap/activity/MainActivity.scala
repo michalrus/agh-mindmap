@@ -70,16 +70,20 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     log("alert! title: " + t + "; body: " + b) // FIXME
   }
 
+  def withMapListFragment[A](f: MapListFragment => A) {
+    tabManager.fragments get MainActivity.MapListTabTag foreach {
+      case lf: MapListFragment => f(lf)
+      case _ =>
+    }
+  }
+
   override def onActivityResult(request: Int, result: Int, data: Intent) {
     request match {
       case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
         try {
           val file = FileUtils.getFile(data.getData)
           val maps = MindMap.importFrom(file) // TODO: do this asynchronously?
-          tabManager.fragments get MainActivity.MapListTabTag foreach {
-            case lf: MapListFragment => lf addMaps maps
-            case _ =>
-          }
+          withMapListFragment(_ addMaps maps)
           if (maps.nonEmpty)
             viewMindMap(maps.head)
         } catch {

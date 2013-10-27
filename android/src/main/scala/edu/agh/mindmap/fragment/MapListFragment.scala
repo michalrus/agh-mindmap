@@ -17,6 +17,8 @@ object MapListFragment {
 
 class MapListFragment extends SherlockFragment with ScalaFragment {
 
+  def addMap(map: MindMap) = addMaps(map :: Nil)
+
   def addMaps(maps: Seq[MindMap]) {
     maps foreach (m => adapter add m)
     adapter notifyDataSetChanged()
