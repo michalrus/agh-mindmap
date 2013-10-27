@@ -65,7 +65,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
         try {
           val file = FileUtils.getFile(data.getData)
-          val maps = MindMap.importFrom(file)
+          val maps = MindMap.importFrom(file) // FIXME: do this asynchronously?
           tabManager.fragments get MainActivity.MapListTabTag foreach {
             case lf: MapListFragment => lf addMaps maps
             case _ =>
