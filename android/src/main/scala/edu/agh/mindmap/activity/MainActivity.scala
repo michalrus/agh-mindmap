@@ -116,6 +116,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     bundle.putString("tab", tabHost.getCurrentTabTag)
   }
 
+  override def onBackPressed() {
+    tabHost.getCurrentTabTag match {
+      case MainActivity.MapListTabTag => super.onBackPressed()
+      case _ => tabManager focusTabOfTag MainActivity.MapListTabTag
+    }
+  }
+
   def viewMindMap(map: MindMap) {
     val uuid = map.uuid.toString
     if (!tabManager.focusTabOfTag(uuid)) {
