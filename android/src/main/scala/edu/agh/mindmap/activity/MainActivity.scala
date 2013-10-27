@@ -60,6 +60,12 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
   }
 
+  def alertOk(title: Int, body: Int) {
+    val (t, b) = (getString(title), getString(body))
+
+    log("alert! title: " + t + "; body: " + b) // FIXME
+  }
+
   override def onActivityResult(request: Int, result: Int, data: Intent) {
     request match {
       case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
@@ -73,8 +79,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           if (maps.nonEmpty)
             viewMindMap(maps.head)
         } catch {
-          case _: ImporterException => // TODO: alert
-          case _: Exception => // TODO: alert (invalid file)
+          case _: ImporterException => alertOk(R.string.import_error_title, R.string.import_error_body)
+          case _: Exception => alertOk(R.string.file_error_title, R.string.file_error_body)
         }
       case _ =>
     }
