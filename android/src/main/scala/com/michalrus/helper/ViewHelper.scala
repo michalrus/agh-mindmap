@@ -13,6 +13,8 @@ object ViewHelper {
 
 trait ViewHelper {
 
+  import language.implicitConversions
+
   def log(s: String) = ViewHelper.log(s)
 
   implicit def scalaizeView(v: View) = new ScalaView(v)
