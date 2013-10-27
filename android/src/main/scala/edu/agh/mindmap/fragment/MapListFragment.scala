@@ -44,13 +44,15 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
     }
   }
 
+  def withMainActivity[A](f: MainActivity => A) {
+    getActivity match {
+      case a: MainActivity => f(a)
+      case _ =>
+    }
+  }
+
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.recent_list, container, false)
-
-    val mainActivity = getActivity match {
-      case a: MainActivity => Some(a)
-      case _ => None
-    }
 
     val listView = view.find[ListView](R.id.listview)
 
@@ -59,7 +61,7 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
     listView setOnItemClickListener new OnItemClickListener {
       override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
         val map = adapter getItem position
-        mainActivity foreach (_ viewMindMap map)
+        withMainActivity (_ viewMindMap map)
       }
     }
 
