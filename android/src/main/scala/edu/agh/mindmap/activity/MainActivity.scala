@@ -65,13 +65,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       case MainActivity.FileChooserRequestCode if result == Activity.RESULT_OK && data != null =>
         try {
           val file = FileUtils.getFile(data.getData)
-          val maps = MindMap.importFrom(file) // FIXME: do this asynchronously?
+          val maps = MindMap.importFrom(file) // TODO: do this asynchronously?
           tabManager.fragments get MainActivity.MapListTabTag foreach {
             case lf: MapListFragment => lf addMaps maps
             case _ =>
           }
-          if (maps.nonEmpty)
-            viewMindMap(maps.head)
+          //if (maps.nonEmpty)
+          //  viewMindMap(maps.head) // FIXME: why is this f'd-up?!
         } catch {
           case _: ImporterException => // TODO: alert
           case _: Exception => // TODO: alert (invalid file)

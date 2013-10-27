@@ -18,26 +18,20 @@ object MapListFragment {
 class MapListFragment extends SherlockFragment with ScalaFragment {
 
   def addMaps(maps: Seq[MindMap]) {
-    log("adding maps!")
-    maps foreach {
-      m =>
-        log(";  " + m.root.content.getOrElse("?!"))
-        adapter add m // FIXME: why doesn't this update the listView?
-    }
+    maps foreach (m => adapter add m)
+    adapter notifyDataSetChanged()
   }
 
-  private lazy val data = MindMap.findAll.toArray
+  private lazy val adapter = new ArrayAdapter(getActivity, MapListFragment.ItemXml, collection.JavaConversions.bufferAsJavaList(MindMap.findAll.toBuffer)) {
+    private lazy val inflater = getActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
 
-  private lazy val inflater = getActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
-
-  private lazy val adapter = new ArrayAdapter(getActivity, MapListFragment.ItemXml, data) {
     override def getView(position: Int, convertView: View, parent: ViewGroup) = {
       val v = Option(convertView) match {
         case Some(x) => x
         case _ => inflater.inflate(MapListFragment.ItemXml, parent, false)
       }
 
-      val map = data(position)
+      val map = getItem(position)
 
       v.find[TextView](R.id.recent_list_item_name).
         setText(map.root.content.getOrElse(""))
@@ -51,20 +45,21 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.recent_list, container, false)
 
-    val listView = view.find[ListView](R.id.listview)
-
     val mainActivity = getActivity match {
       case a: MainActivity => Some(a)
       case _ => None
     }
 
+    val listView = view.find[ListView](R.id.listview)
+
     listView setAdapter adapter
 
-    listView.setOnItemClickListener(new OnItemClickListener {
+    listView setOnItemClickListener new OnItemClickListener {
       override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-        mainActivity foreach (_ viewMindMap data(position))
+        val map = adapter getItem position
+        mainActivity foreach (_ viewMindMap map)
       }
-    })
+    }
 
     view
   }
