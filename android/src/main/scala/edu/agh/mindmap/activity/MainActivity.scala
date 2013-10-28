@@ -184,8 +184,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
 
     def addTab[F](tag: String, label: String, args: Bundle = null)(implicit classTag: ClassTag[F]) {
-      val indicator = if (label.length < MainActivity.TabTitleMaxLength) label
-        else label take MainActivity.TabTitleMaxLength + '\u2026'
+      val indicator = if (label.length <= MainActivity.TabTitleMaxLength) label
+      else (label take MainActivity.TabTitleMaxLength) + '\u2026'
 
       log("indicator: " + indicator)
       log("label length: " + label.length)
