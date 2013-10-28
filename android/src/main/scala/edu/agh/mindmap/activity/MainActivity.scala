@@ -29,26 +29,49 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   private lazy val tabHost = find[TabHost](R.id.tabhost)
   private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
 
-  override def onCreateOptionsMenu(menu: Menu) = {
-    def add(id: Int, s: Int, icon: Int) =
-      menu.add(Menu.NONE, id, Menu.NONE, s).
-        setIcon(icon).
-        setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+  // /me hates you, Android, for this:
+  private var actionImport: Option[MenuItem] = None
+  private var actionCreate: Option[MenuItem] = None
+  private var actionClose: Option[MenuItem] = None
 
-    add(R.id.action_import, R.string.action_import, R.drawable.icon_import)
-    add(R.id.action_create, R.string.action_create, R.drawable.icon_create)
+  override def onCreateOptionsMenu(menu: Menu) = {
+    def add(id: Int, s: Int, icon: Int) = {
+      val i = menu add (Menu.NONE, id, Menu.NONE, s)
+      i setIcon icon setShowAsAction MenuItem.SHOW_AS_ACTION_ALWAYS
+      i
+    }
+
+    actionImport = Some(add(R.id.action_import, R.string.action_import, R.drawable.icon_import))
+    actionCreate = Some(add(R.id.action_create, R.string.action_create, R.drawable.icon_create))
+    actionClose = Some(add(R.id.action_close, R.string.action_close, R.drawable.icon_close))
+
+    showHideActions()
 
     true
+  }
+
+  def showHideActions() {
+    val isMapList_? = tabHost.getCurrentTabTag == MainActivity.MapListTabTag
+    actionImport foreach (_ setVisible isMapList_?)
+    actionCreate foreach (_ setVisible isMapList_?)
+    actionClose foreach (_ setVisible !isMapList_?)
   }
 
   override def onOptionsItemSelected(item: MenuItem) = {
     item.getItemId match {
       case R.id.action_import => showImportDialog()
       case R.id.action_create => createNewMap()
+      case R.id.action_close => closeCurrentMap()
       case _ =>
     }
 
     true
+  }
+
+  def closeCurrentMap() {
+    val tag = tabHost.getCurrentTabTag
+    if (tag != MainActivity.MapListTabTag)
+      tabManager removeTab (tag, tagAfterwards = MainActivity.MapListTabTag)
   }
 
   def createNewMap() {
@@ -144,6 +167,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     val scrollView = activity.find[HorizontalScrollView](scrollId)
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
+    val tags = new mutable.ArrayBuffer[String]
 
     var lastTabTag: Option[String] = None
 
@@ -162,6 +186,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
       val tabSpec = tabHost newTabSpec tag setIndicator indicator setContent new DummyTabFactory(activity)
       creators += tag -> (() => Fragment.instantiate(activity, classTag.runtimeClass.getName, args))
+      tags += tag
 
       // Check to see if we already have a fragment for this tab, probably
       // from a previously saved state.  If so, deactivate it, because our
@@ -179,6 +204,56 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       }
 
       tabHost.addTab(tabSpec)
+    }
+
+    def removeTab(tag: String, tagAfterwards: String) {
+// FIXME: tonight I hate you, Android
+/*      val tw = tabHost.getTabWidget
+
+      // update specs, remove tab view(s)
+      def findIdx(start: Int = 0): Int =
+        if (start >= tags.size) -1
+        else if (tags(start) == tag) start
+        else findIdx(start + 1)
+
+      val tagsSize = tags.size
+      log("tags.size = " + tags.size)
+      def loop() {
+        val idx = findIdx()
+        log("idx = " + idx)
+        if (idx > 0) {
+          log("removing idx=" + idx)
+          tags remove idx
+          tw removeView (tw getChildTabViewAt idx)
+          loop()
+        }
+      }
+      loop()
+
+      // remove tab view(s)
+//      val scrollX = tabHost.getScrollX
+//      tabHost clearAllTabs()
+//      specs foreach (s => tabHost addTab s)
+//      tabHost setScrollX scrollX
+
+      // switch to another tab
+      if (tagsSize != tags.size)
+*/
+        focusTabOfTag(tagAfterwards)
+
+      // update creators
+      creators -= tag
+
+      // update fragments, remove the fragment
+      fragments get tag match {
+        case Some(fragment) =>
+          val ft = activity.getSupportFragmentManager.beginTransaction
+          ft remove fragment
+          ft commit()
+
+          fragments -= tag
+        case _ =>
+      }
     }
 
     def focusTabOfTag(tag: String): Boolean = {
@@ -217,6 +292,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         laterOnUiThread {
           rescrollTabView()
         }
+
+        showHideActions()
       }
     }
 

@@ -3,5 +3,6 @@
 
   <item name="action_create" type="id"/>
   <item name="action_import" type="id"/>
+  <item name="action_close" type="id"/>
 
 </resources>
