@@ -27,7 +27,7 @@ object MainActivity {
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   private lazy val tabHost = find[TabHost](R.id.tabhost)
-  private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.tab_scroll)
+  private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
 
   // /me hates you, Android, for this:
   private var actionImport: Option[MenuItem] = None
@@ -163,14 +163,14 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
   }
 
-  class TabManager(val activity: FragmentActivity with ScalaActivity, tabHost: TabHost, containerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {
+  class TabManager(val activity: FragmentActivity with ScalaActivity, tabHost: TabHost, fakeContainerId: Int, realContainerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {
 
     tabHost.setOnTabChangedListener(this)
 
     val scrollView = activity.find[HorizontalScrollView](scrollId)
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
-    val tags = new mutable.ArrayBuffer[String]
+    val tabSpecs = new mutable.ArrayBuffer[TabHost#TabSpec]
 
     var lastTabTag: Option[String] = None
 
@@ -187,9 +187,12 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       val indicator = if (label.length < MainActivity.TabTitleMaxLength) label
         else label take MainActivity.TabTitleMaxLength + '\u2026'
 
+      log("indicator: " + indicator)
+      log("label length: " + label.length)
+      log("max length: " + MainActivity.TabTitleMaxLength)
+
       val tabSpec = tabHost newTabSpec tag setIndicator indicator setContent new DummyTabFactory(activity)
       creators += tag -> (() => Fragment.instantiate(activity, classTag.runtimeClass.getName, args))
-      tags += tag
 
       // Check to see if we already have a fragment for this tab, probably
       // from a previously saved state.  If so, deactivate it, because our
@@ -206,48 +209,38 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         case _ =>
       }
 
-      tabHost.addTab(tabSpec)
+      tabSpecs += tabSpec
+      tabHost addTab tabSpec
     }
 
     def removeTab(tag: String, tagAfterwards: String) {
-// FIXME: tonight I hate you, Android
-/*      val tw = tabHost.getTabWidget
-
-      // update specs, remove tab view(s)
-      def findIdx(start: Int = 0): Int =
-        if (start >= tags.size) -1
-        else if (tags(start) == tag) start
-        else findIdx(start + 1)
-
-      val tagsSize = tags.size
-      log("tags.size = " + tags.size)
+      // remove unwanted TabSpec(s)
+      val tabSpecsSize = tabSpecs.size
       def loop() {
-        val idx = findIdx()
-        log("idx = " + idx)
+        val idx = tabSpecs indexWhere (_.getTag == tag)
         if (idx > 0) {
-          log("removing idx=" + idx)
-          tags remove idx
-          tw removeView (tw getChildTabViewAt idx)
+          tabSpecs remove idx
           loop()
         }
       }
       loop()
 
-      // remove tab view(s)
-//      val scrollX = tabHost.getScrollX
-//      tabHost clearAllTabs()
-//      specs foreach (s => tabHost addTab s)
-//      tabHost setScrollX scrollX
+      // if anything changed...
+      if (tabSpecsSize != tabSpecs.size) {
+        // recreate tab view(s)
+        val scrollX = tabHost.getScrollX
+        tabHost clearAllTabs()
+        tabSpecs foreach (s => tabHost addTab s)
+        tabHost setScrollX scrollX
 
-      // switch to another tab
-      if (tagsSize != tags.size)
-*/
+        // switch to another tab
         focusTabOfTag(tagAfterwards)
+      }
 
-      // update creators
+      // update creators map
       creators -= tag
 
-      // update fragments, remove the fragment
+      // update fragments map, remove the fragment
       fragments get tag match {
         case Some(fragment) =>
           val ft = activity.getSupportFragmentManager.beginTransaction
@@ -284,7 +277,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           case (Some(creator), None) => {
             val f = creator()
             fragments += tag -> f
-            ft.add(containerId, f, tag)
+            ft.add(realContainerId, f, tag)
           }
           case (_, Some(f)) => if (f.isHidden) ft.show(f) else ft.attach(f)
           case _ =>
