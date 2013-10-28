@@ -75,7 +75,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   }
 
   def createNewMap() {
-    log("createNewMap called") // FIXME
+    val newMap = MindMap.create
+    newMap.root.content = Some("nowa Mapa")
+    viewMindMap(newMap)
   }
 
   def showImportDialog() {
