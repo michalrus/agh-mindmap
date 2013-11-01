@@ -33,118 +33,14 @@
 
 \maketitle 
 
-\chapter{Introduction}
-\label{chap:introduction}
-TODO: Remove headlines (after having written the introduction - it must contain all 5 modules). 
-\section{What? The problem}
-\label{sec:what}
-Mind maps are diagrams which visually gather ideas and put them in a logical structure. It usually consists of one or more central words, around which are placed associated ideas and concepts. Sub--branches may also represent categories.  They are used in a whole range of disciplines, both in science and arts for both commercial and personal use. 
-
-\section{How? Shortly about the method}
-\label{sec:how}
-The subject of the thesis is project and implementation of a mind-mapping tool for Android. It should support data exchange with one of the most popular software, XMind, as well as saving data as an image or a PDF. Also, it should provide tools for collaboration -- working on the same map by more than one person. The task may be divided into two modules. First is creating an Android application, which supports XMind files. It will be implemented using Scala and Android SDK. Second part of the task is including collaboration tool for many users. To achieve this, we are going to use Lift -- a free web framework  designed for Scala. Collaboration should be implemented by setting a limitation: one leaf can be edited by only one person at a time. After a time of idleness, editing should be disabled.
-
-\section{Why? The source}
-\label{sec:why}
-Mind-mapping tools are becoming more and more popular these days. At this point, there is a shortage of an Android mind--mapping tools, while the number of devices operating on Android is growing rapidly. 
-
-\section{What for? Consequences}
-\label{sec:whatfor}
-Mind--mapping tools are used in a whole range of disciplines, both in science and arts. They are proved to be a very effective way of organising ideas, brainstorming and dealing with information overload. Considering the fact that tablets and mobile phones are nowadays a natural way of recording notes and ideas for most people, creating an application which makes the process of collecting and organising ideas intuitive and effective seems an important task.
-
-\section{What's in next chapters?}
-\label{sec:nextchapters}
-Next chapters include the theoretical analysis of the problem and detailed description of the possible solution. Then, we will discuss the implementation details. In the final part we will focus on the analysis of our solution, providing tests to check how many of the initial problems were solved by the application.
-
-\chapter{Theoretical basis}
-\label{chap:theory}
-
-\section{The representation of mind maps and XMind files}
-\label{sec:xmind}
-
-
-Mind maps are proved to be one of the best ways of organising ideas, brainstorming and dealing with information overload. The research conducted by a Nobel prize winning scientist Dr. Roger Sperry shows that the activities which integrate the functions of two brain hemispheres are the most effective. Left hemisphere is responsible for logical thinking, writing, analysing and details, while the right one - for imagination, colors, spatial memory, recognizing shapes and seeing the whole picture. He also proved that when one hemisphere is overloaded, the second 'falls asleep'. So in order to work efficiently, one must engage both hemispheres -- neither pure logic nor sole creativity would do the trick. Mindmapping uses a whole variety of activities associated with both hemispheres, thus enhancing overall effectiveness and productivity. 
-
-There are many available programs for mindmapping. Among commercial solutions, the most popular software is Mindjet MindManager and iMindMap. Free software includes XMind, FreeMind and MindMeister. there is also a number of Web Applications. The basis for our representation of a mind map is an open source tool, XMind. A single mind map starts with a blank sheet, which is then filled with data. The most important part of a map is the central idea, the root topic.  Along with the development of a map more subtopics can be added, creating relationships between each other, a connected, nodal structure. XMind files (workbooks) are saved as an archive of mostly .xml files, of which two are the most important and required to save a map. First, \inlinecode{content.xml} stores data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An XMind file could also contain separate .xml documents for content and styles, a .jpg image file for thumbnails, and directories for related attachments. In our application we will implement importing and exporting xmind files.
-
-\section{Android application}
-\label{androidsdk}
-
-
-Android is a Linux system in which each application is a different user. Every Android application runs in isolation from others - as a separate Linux process with its own virtual machine, thus implementing the principle of least privilege. However,  there are ways to communicate with other applications or device features (like camera, extra storage, Bluetooth etc.). In fact, it is considered to be unique for Android architecture that every application can start an activity of other application. 
-
-Every android application is built using four basic types of components: activities, services, content providers, and broadcast receivers, each having its own lifecycle which defines how the component is created and destroyed. An activity is usually describes as a single 'screen' with user interface, an application consists of many activities which are independent from each other. A service runs in the background, within the main thread. It can be started by another component which then could bind to it in, thus communicating with it. A content provider deals with application data, it encapsulates the data and provides an interface for managing it. A broadcast receiver  listens and responds to system messages and notifications. All types of components except content providers can be activated by and asynchronous message- an intent. A content provider is activated by a request from a ContentResolver.
-
-In order to start an application, Android system must know its components in the \inlinecode{manifest.xml} file. It takes care of a number of things: it declares API information (supported version(s) of Android system), hardware requirements and other libraries from outside the SDK which are used in the application. An Android SDK generally uses quite a lot of \inlinecode{.xml} files. It provides reusable layouts with a detailed declaration of the user interface and creates a handy way of declaring resources used in the application.
-
-\section{Lift and collaboration}
-\label{lift}
-
-
-The language we chose for this program is Scala -- a multi paradigm, object-functional programming language. It compiles to Java bytecodes, so it offers full compatibility with Android SDK, making the code more elegant and robust. Lift is a web framework written in Scala. In this project, it is used only as a backend for the mobile application that enables all mobile devices with the app installed to share maps and collaborate on them. Several REST web services are implemented; these are internally (server-side) asynchronously managed by a pile of very light-weight Scala actors. It is a main concurrency construct used in Scala. 
-
-Actors could be think of as concurrent processes which communicate by sending messages. Each connected mobile device gets its own actor and instant bidirectional communication between devices is achieved by means of long-polling: mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
-
-\chapter{Project}
-\label{chap:project}
-
-\section{Requirements}
-\label{sec:requirements}
-
-\section{Planned solution}
-\label{sec:plan}
-
-\subsection{Data representation}
-\label{sec:plan:dat}
-Mind maps edited in our software will be kept  in a database which consists of two tables. One represents a mind map with a UUID, and other -- a single node, which has the following fields: UUID, mind map UUID, content, parent (which keeps ID of a parent node), timestamp of the last modification (it must be server time) and a flag which says whether there's a conflict in the content of this node. The fact that a single node remembers only its parent may  cause a number of problems with conflicts in which one user deletes (online) a whole branch and other modifies its nodes offline. However, it also makes database store no excess data. 
-
-\subsection{Collaboration}
-\label{sec:plan:coll}
-The most challenging part of the thesis is implementing online collaboration and synchronisation of a map when one of contributors lost the Internet connection.  
-
-\chapter{Implementation}
-\label{chap:implementation}
-
-Implementation of the project
-
-\section{What was implemented and how?}
-\label{implwhat}
-
-\subsection{Collaboration}
-\label{impl-collaboration}
-Our application allows to edit maps collaboratively either over the internet in real time or off-line. Off-line means that all changes introduced by fellow editors wiil get synchronized when particular person gets back on-line.There is a central server implemented using Akka.io which provides this functionality by means of RESTful services. 
-
-Each mind map is represented by its own, \todo{Insert img} random UUID, so are all of its nodes, including root node.  
-
-
-\section{How the requirements were met?}
-\label{implrequirements}
-
-\section{Encountered problems and their solutions}
-\label{implproblems}
-
-\chapter{Results}
-\label{chap:results}
-
-\section{Results study}
-\label{sec:resstudy}
-
-\section{Conducted tests}
-\label{sec:tests}
-
-\chapter{Summary}
-\label{chap:summary}
-
-Remind about the objective.
-
-How the reqs were met: implications, consequences, values(?).
-
-How does the implementation solve the problem?
-
-Were all problems solved? If not: why?
+\input{introduction}
+\input{theory}
+\input{project}
+\input{implementation}
+\input{results}
+\input{summary}
 
 \bibliographystyle{plain}
-% BibTeX's (bibliography.bib)
 \bibliography{bibliography}
 
 Temporarily, until we sort out BibTeX:
@@ -156,7 +52,6 @@ Temporarily, until we sort out BibTeX:
 
 \appendix
 
-\chapter{Appendix}
-\label{chap:appendix}
+\input{appendix}
 
 \end{document}

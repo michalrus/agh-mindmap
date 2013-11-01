@@ -1,0 +1,20 @@
+\chapter{Implementation}
+\label{chap:implementation}
+
+Implementation of the project
+
+\section{What was implemented and how?}
+\label{implwhat}
+
+\subsection{Collaboration}
+\label{impl-collaboration}
+Our application allows to edit maps collaboratively either over the internet in real time or off-line. Off-line means that all changes introduced by fellow editors wiil get synchronized when particular person gets back on-line.There is a central server implemented using Akka.io which provides this functionality by means of RESTful services. 
+
+Each mind map is represented by its own, \todo{Insert img} random UUID, so are all of its nodes, including root node.
+
+
+\section{How the requirements were met?}
+\label{implrequirements}
+
+\section{Encountered problems and their solutions}
+\label{implproblems}
