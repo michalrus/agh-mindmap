@@ -130,6 +130,7 @@ O\'{s}wiadczam, \'{s}wiadoma(y) odpowiedzialno\'{s}ci karnej za po\'{s}wiadczeni
     \def\@advisor{\@advisorpl}
 
     \tpstuff
+    \input{abstract}
     \tocstuff
   }
 }
