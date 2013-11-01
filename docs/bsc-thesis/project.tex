@@ -25,11 +25,11 @@
 \label{sec:plan}
 
 \subsection{Data representation}
-\label{sec:plan:dat}
+\label{subsec:data-repr}
 
-Mind maps edited in our software will be kept  in a database which consists of two tables. One represents a mind map with a UUID, and other -- a single node, which has the following fields: UUID, mind map UUID, content, parent (which keeps ID of a parent node), timestamp of the last modification (it must be server time) and a flag which says whether there's a conflict in the content of this node. The fact that a single node remembers only its parent may  cause a number of problems with conflicts in which one user deletes (online) a whole branch and other modifies its nodes offline. However, it also makes database store no excess data.
+Mind maps edited in our software will be kept in a database which consists of two tables. \todo{Entities diagram of the DB}One represents a mind map with a UUID, and the other --- a single node which has the following fields: UUID, its mind map UUID, content, parent (which keeps UUID of a parent node), \todo{timestamp \& conflict are hard to understand just from this}timestamp of the last modification (provided by server, this is not a local time) and a flag which says whether there's a conflict in the content of this node. The fact that a single node remembers only its parent may  cause a number of problems with conflicts in which one user deletes (online) a whole branch and other modifies its nodes offline. However, it also makes database store no excess data.
 
 \subsection{Collaboration}
-\label{sec:plan:coll}
+\label{subsec:collaboration}
 
-The most challenging part of the thesis is implementing online collaboration and synchronisation of a map when one of contributors lost the Internet connection.
+The most challenging part of the \todo{can we use `thesis' as an alias for `paper'/`implementation'?}thesis is implementing online collaboration and synchronisation of a map when one of contributors lost the Internet connection.
