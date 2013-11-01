@@ -45,10 +45,15 @@ All types of components except content providers can be activated by an asynchro
 
 In order to start an application, Android system must know its components in the \inlinecode{AndroidManifest.xml} file. It takes care of a number of things: it declares API information (supported version(s) of Android system), hardware requirements and other libraries from outside the SDK which are used in the application. An Android SDK generally uses quite a lot of \inlinecode{.xml} files. It provides reusable layouts with a detailed declaration of the user interface and creates a handy way of declaring resources used in the application.
 
-\section{\todo{Write about Akka, forget Lift}Akka.io and collaboration}
-\label{lift}
+\section{Akka.io and collaboration}
+\label{sec:akka}
 
-The language we chose for this program is Scala -- a multi paradigm, object-functional programming language. It compiles to Java bytecode, so it offers full compatibility with Android SDK, making the code more elegant and robust.
-%Lift is a web framework written in Scala. In this project, it is used only as a backend for the mobile application that enables all mobile devices with the app installed to share maps and collaborate on them. Several REST web services are implemented; these are internally (server-side) asynchronously managed by a pile of very light-weight Scala actors. It is a main concurrency construct used in Scala.
+The language we chose for this program is Scala: a multi paradigm, object-functional programming language. It compiles to Java bytecode, so it offers full compatibility with Android SDK, making the code more elegant and robust. \cite{Odersky:2008:Programming}
 
-%Actors could be thought of as concurrent processes which communicate by sending messages. Each connected mobile device gets its own actor and instant bidirectional communication between devices is achieved by means of long-polling: mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
+Akka is an actor model for Scala and Java languages: ``a toolkit and runtime for building highly concurrent, distributed, and fault tolerant event-driven applications on the JVM.'' Actor model is a high-level abstraction of concurrent programming. All operations are performed in a non-blocking fashion. Each actor is a very lightweight event-driven process; this makes it possible to create approximately 2.7 million actors per 1 GB of heap memory. \cite{Akka:2013:Docs}
+
+Actors can be thought of as concurrent processes which communicate by sending messages. At the same time they are really efficient: 1 actor is not equivalent to 1 JVM thread.
+
+In this project, Akka is used as a backend for the mobile application. It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
+
+Each connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of long-polling: mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
