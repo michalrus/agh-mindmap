@@ -26,8 +26,10 @@
 
 \subsection{Data representation}
 \label{sec:plan:dat}
+
 Mind maps edited in our software will be kept  in a database which consists of two tables. One represents a mind map with a UUID, and other -- a single node, which has the following fields: UUID, mind map UUID, content, parent (which keeps ID of a parent node), timestamp of the last modification (it must be server time) and a flag which says whether there's a conflict in the content of this node. The fact that a single node remembers only its parent may  cause a number of problems with conflicts in which one user deletes (online) a whole branch and other modifies its nodes offline. However, it also makes database store no excess data.
 
 \subsection{Collaboration}
 \label{sec:plan:coll}
+
 The most challenging part of the thesis is implementing online collaboration and synchronisation of a map when one of contributors lost the Internet connection.
