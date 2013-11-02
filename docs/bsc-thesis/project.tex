@@ -49,7 +49,7 @@ Akka is used as a backend for the mobile application. It enables all mobile devi
 
 Each REST-connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of `long-polling': mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
 
-See  section~\ref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
+See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
 
 \todo[inline]{What messages do the actors \emph{within} the system exchange?}
 
@@ -58,7 +58,7 @@ See  section~\ref{subsec:android-akka-comm} for details about Android--Akka comm
 \subsection{Data representation}
 \label{subsec:data-repr}
 
-Mind maps edited in our software will be kept in a database (figure~\ref{fig:erd}) which consists of two tables.
+Mind maps edited in our software will be kept in a database (\cref{fig:erd}) which consists of two tables.
 
 \begin{enumerate}
 	\item The first represents a mind map with a UUID.
@@ -95,7 +95,7 @@ Real-time collaboration (along with \emph{offline} synchronization) is by any me
 
 \todo[inline]{Fill in Android--Akka communication.}
 
-The fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions, see subtree recreation algorithm in section~\ref{subsec:subtree-recreation}.
+The fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions, see subtree recreation algorithm in \cref{subsec:subtree-recreation}.
 
 \subsection{Subtree recreation algorithm}
 \label{subsec:subtree-recreation}
@@ -118,7 +118,7 @@ This algorithm has to be used when given a scenario in which:
 \subsection{User interface mock-ups}
 \label{subsec:ui-mockups}
 
-\todo[inline]{{\textbackslash}ref this figures below in text}
+\todo[inline]{{\textbackslash}cref this figures below in text}
 
 \begin{figure}[h]
 	\centering
