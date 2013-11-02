@@ -21,7 +21,7 @@
 \section{Requirements}
 \label{sec:requirements}
 
-\todo[inline]{What else goes here?\ldots}
+\todo[inline]{\michal{K., requirements? What else goes here?\ldots}}
 
 As this is a proof-of-concept system, no user privileges will be implemented (although these would be easy to add, considering highly modular and clean organization of code). Thus, any device will be able to modify any existing map.
 
@@ -38,12 +38,12 @@ Our application allows its users to edit maps collaboratively, either over the I
 \subsection{Component: Android application}
 \label{subsec:component-android}
 
-\todo[inline]{Project Android: what subcomponents? (Own and from system library!)}
+\todo[inline]{\michal{M., project Android: what subcomponents? (Own and from system library!)}}
 
 \subsection{Component: Akka.io application}
 \label{subsec:component-akka}
 
-\todo[inline]{Project Akka: what subcomponents? (Own and from library!)}
+\todo[inline]{\michal{M., project Akka: what subcomponents? (Own and from library!)}}
 
 Akka is used as a backend for the mobile application. It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
 
@@ -51,14 +51,14 @@ Each REST-connected mobile device gets its own actor. Instant bidirectional comm
 
 See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
 
-\todo[inline]{What messages do the actors \emph{within} the system exchange?}
+\todo[inline]{\michal{M., what messages do the actors \emph{within} the system exchange?}}
 
-\todo[inline]{How does Akka communicate with Postgres?}
+\todo[inline]{\michal{M., how does Akka communicate with Postgres?}}
 
 \subsection{Data representation}
 \label{subsec:data-repr}
 
-Mind maps edited in our software will be kept in a database (\cref{fig:erd}) which consists of two tables.
+Mind maps edited in our software will be kept in a SQL database (\cref{fig:erd}) which consists of two tables.
 
 \begin{enumerate}
 	\item The first represents a mind map with a UUID.
@@ -72,11 +72,11 @@ Mind maps edited in our software will be kept in a database (\cref{fig:erd}) whi
 	\end{itemize}
 \end{enumerate}
 
-Both local database in Android devices (SQLite) and server-side database (PostgreSQL) share the same schema.
+Both local database in Android devices (SQLite) and server-side database (PostgreSQL) share the same scheme.
 
 \begin{figure}[h]
 	\centering
-	\missingfigure{ERD of \inlinecode{mind\_map} and \inlinecode{mind\_node}.}
+	\missingfigure{\michal{ERD of \inlinecode{mind\_map} and \inlinecode{mind\_node}.}}
 	\caption{Entity relationship diagram of the database.}
 	\label{fig:erd}
 \end{figure}
@@ -86,14 +86,14 @@ Both local database in Android devices (SQLite) and server-side database (Postgr
 
 XMind files (`workbooks') are saved as a ZIP archive of mostly \inlinecode{.xml} files, two of which are the most important and are always present. First, \inlinecode{content.xml} stores data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments. \cite{XMind:2009:Format}
 
-\todo[inline]{Finish XMind import: write about the recursive import method.}
+\todo[inline]{\michal{M./K., finish XMind import: write about the recursive import method.}}
 
 \subsection{Android--Akka communication}
 \label{subsec:android-akka-comm}
 
 Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
 
-\todo[inline]{Fill in Android--Akka communication.}
+\todo[inline]{\michal{M., sketch Android--Akka communication.}}
 
 The fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions, see subtree recreation algorithm in \cref{subsec:subtree-recreation}.
 
@@ -113,7 +113,7 @@ This algorithm has to be used when given a scenario in which:
 	\item Now, subtree S has to be somehow recreated from Alice's version.
 \end{enumerate}
 
-\todo[inline]{M., come up with subtree recreation algo.}
+\todo[inline]{\michal{M., come up with subtree recreation algo.}}
 
 \subsection{User interface mock-ups}
 \label{subsec:ui-mockups}
@@ -130,7 +130,7 @@ This algorithm has to be used when given a scenario in which:
 
 \begin{figure}[h]
 	\centering
-	\missingfigure{List view mock-up}
+	\missingfigure{\michal{K., list view mock-up}}
 	\caption{Mock-up of mind map list, initial screen.}
 	\label{fig:mockup-maplist}
 \end{figure}
@@ -147,9 +147,9 @@ This algorithm has to be used when given a scenario in which:
 
 \begin{figure}[h]
 	\centering
-	\missingfigure{Mind map view mock-up}
+	\missingfigure{\michal{K., mind map view mock-up}}
 	\caption{Mock-up of mind map view.}
 	\label{fig:mockup-mindmap}
 \end{figure}
 
-\todo[inline]{More mock-ups?}
+\todo[inline,caption=\michal{K., any more mock-ups needed?}]{}
