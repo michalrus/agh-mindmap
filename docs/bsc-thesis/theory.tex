@@ -55,8 +55,6 @@ The language we chose for this system (for both client- and server-side) is Scal
 \section{Akka.io for server-side}
 \label{sec:akka}
 
-\todo[inline]{Why talk about Akka? What server-side? Why server-side at all? Mention collaboration \emph{here}! ONE SENTENCE! Also mention collaboration in Abstract!}
-
 Akka is an actor model for Scala (and Java) languages: ``a toolkit and runtime for building highly concurrent, distributed, and fault tolerant event-driven applications on the JVM.'' Actor model is a high-level abstraction of concurrent programming. All operations are performed in a non-blocking fashion. Any number of servers can form one (or more) big actor system. Each actor is a very lightweight event-driven process; this makes it possible to create approximately 2.7 million actors per 1 GB of heap memory. \cite{Akka:2013:Docs}
 
 Actors can be thought of as concurrent processes which communicate by sending messages. At the same time they are really efficient: especially 1 actor is \emph{not} equivalent to 1 thread, and \emph{not even 1} lightweight JVM thread.
