@@ -18,12 +18,7 @@
 \chapter{Project}
 \label{chap:project}
 
-\section{Requirements}
-\label{sec:requirements}
-
-\todo[inline]{\michal{K., requirements? What else goes here?\ldots}}
-
-As this is a proof-of-concept system, no user privileges will be implemented (although these would be easy to add, considering highly modular and clean organization of code). Thus, any device will be able to modify any existing map.
+\input{requirements}
 
 \section{Planned solution}
 \label{sec:plan}
@@ -35,121 +30,10 @@ Our application allows its users to edit maps collaboratively, either over the I
 	\item and a cluster of any number of servers running a distributed, highly parallelized Akka actor system with a REST interface.
 \end{itemize}
 
-\subsection{Component: Android application}
-\label{subsec:component-android}
-
-\todo[inline]{\michal{M., project Android: what subcomponents? (Own and from system library!)}}
-
-\subsection{Component: Akka.io application}
-\label{subsec:component-akka}
-
-\todo[inline]{\michal{M., project Akka: what subcomponents? (Own and from library!)}}
-
-Akka is used as a backend for the mobile application. It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
-
-Each REST-connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of `long-polling': mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
-
-See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
-
-\todo[inline]{\michal{M., what messages do the actors \emph{within} the system exchange?}}
-
-\todo[inline]{\michal{M., how does Akka communicate with Postgres?}}
-
-\subsection{Data representation}
-\label{subsec:data-repr}
-
-Mind maps edited in our software will be kept in a SQL database (\cref{fig:erd}) which consists of two tables.
-
-\begin{enumerate}
-	\item The first represents a mind map with a UUID.
-	\item The second --- a single `mind node' which has the following fields: \begin{itemize}
-		\item UUID,
-		\item its mind map's UUID,
-		\item some textual content,
-		\item parent node UUID,
-		\item timestamp of the last modification (provided only by server, this is \emph{not a local time}),
-		\item and a flag which says whether there was a merge conflict in the past, which has not yet been taken care of by the user.
-	\end{itemize}
-\end{enumerate}
-
-Both local database in Android devices (SQLite) and server-side database (PostgreSQL) share the same scheme.
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\michal{ERD of \inlinecode{mind\_map} and \inlinecode{mind\_node}.}}
-	\caption{Entity relationship diagram of the database.}
-	\label{fig:erd}
-\end{figure}
-
-\subsection{XMind import}
-\label{subsec:xmind-exchange}
-
-XMind files (`workbooks') are saved as a ZIP archive of mostly \inlinecode{.xml} files, two of which are the most important and are always present. First, \inlinecode{content.xml} stores data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments. \cite{XMind:2009:Format}
-
-\todo[inline]{\michal{M./K., finish XMind import: write about the recursive import method.}}
-
-\subsection{Android--Akka communication}
-\label{subsec:android-akka-comm}
-
-Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
-
-\todo[inline]{\michal{M., sketch Android--Akka communication.}}
-
-The fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions, see subtree recreation algorithm in \cref{subsec:subtree-recreation}.
-
-\subsection{Subtree recreation algorithm}
-\label{subsec:subtree-recreation}
-
-This algorithm has to be used when given a scenario in which:
-
-\begin{enumerate}
-	\item At least two users (Alice and Bob) share a map.
-	\item The map gets synchronized on their devices in common state A.
-	\item Alice goes offline.
-	\item Bob, still online, deletes subtree S (changes state to B).
-	\item Alice, still offline edits one of of children nodes in subtree S (changes state to B').
-	\item Alice goes online and tries to synchronize.
-	\item Server does not know a UUID of the children node, thus cannot naïvely merge B and B'.
-	\item Now, subtree S has to be somehow recreated from Alice's version.
-\end{enumerate}
-
-\todo[inline]{\michal{M., come up with subtree recreation algo.}}
-
-\subsection{User interface mock-ups}
-\label{subsec:ui-mockups}
-
-\Cref{fig:mockup-maplist} below show a \emph{mock-up} (a sketch) of the main, initial screen of the Android application. The user can:
-
-\begin{itemize}
-	\item choose an existing map to edit,
-	\item select and delete a map by long-pressing it,
-	\item add a new map,
-	\item import an existing XMind map,
-	\item switch to any other opened map by means of tabs at the top.
-\end{itemize}
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\michal{K., list view mock-up}}
-	\caption{Mock-up of mind map list, initial screen.}
-	\label{fig:mockup-maplist}
-\end{figure}
-
-\Cref{fig:mockup-mindmap} shows a similar preview of a map view: a screen that is shown to the user when he chooses/adds/imports a map in \cref{fig:mockup-maplist}. Here, the user can:
-
-\begin{itemize}
-	\item edit content of any `mind node' by tapping on it,
-	\item remove any node (and its subtree) by long-pressing it and selecting `remove',
-	\item move any node (reassign its parent node) by long-pressing it and selecting `change parent', and then tapping on the new parent,
-	\item add a child node to any node by tapping on `+' button next to the parent node,
-	\item see (in real-time) changes introduced by other editors currently editing this map.
-\end{itemize}
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\michal{K., mind map view mock-up}}
-	\caption{Mock-up of mind map view.}
-	\label{fig:mockup-mindmap}
-\end{figure}
-
-\todo[inline,caption=\michal{K., any more mock-ups needed?}]{}
+\input{component-android}
+\input{component-akka}
+\input{data-representation}
+\input{xmind-import}
+\input{android-akka-communication}
+\input{subtree-recreation-algo}
+\input{ui-mockups}

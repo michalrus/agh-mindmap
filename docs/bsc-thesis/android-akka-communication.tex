@@ -1,0 +1,25 @@
+%
+%   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
+%       and Michał Rus <m@michalrus.com>
+%
+%   Licensed under the Apache License, Version 2.0 (the "License");
+%   you may not use this file except in compliance with the License.
+%   You may obtain a copy of the License at
+%
+%       http://www.apache.org/licenses/LICENSE-2.0
+%
+%   Unless required by applicable law or agreed to in writing, software
+%   distributed under the License is distributed on an "AS IS" BASIS,
+%   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%   See the License for the specific language governing permissions and
+%   limitations under the License.
+%
+
+\subsection{Android--Akka communication}
+\label{subsec:android-akka-comm}
+
+Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
+
+\todo[inline]{\michal{M., sketch Android--Akka communication.}}
+
+The fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions, see subtree recreation algorithm in \cref{subsec:subtree-recreation}.

@@ -1,0 +1,31 @@
+%
+%   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
+%       and Michał Rus <m@michalrus.com>
+%
+%   Licensed under the Apache License, Version 2.0 (the "License");
+%   you may not use this file except in compliance with the License.
+%   You may obtain a copy of the License at
+%
+%       http://www.apache.org/licenses/LICENSE-2.0
+%
+%   Unless required by applicable law or agreed to in writing, software
+%   distributed under the License is distributed on an "AS IS" BASIS,
+%   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%   See the License for the specific language governing permissions and
+%   limitations under the License.
+%
+
+\subsection{Component: Akka.io application}
+\label{subsec:component-akka}
+
+\todo[inline]{\michal{M., project Akka: what subcomponents? (Own and from library!)}}
+
+Akka is used as a backend for the mobile application. It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
+
+Each REST-connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of `long-polling': mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
+
+See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
+
+\todo[inline]{\michal{M., what messages do the actors \emph{within} the system exchange?}}
+
+\todo[inline]{\michal{M., how does Akka communicate with Postgres?}}
