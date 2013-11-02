@@ -1,4 +1,4 @@
-﻿#
+#
 #   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
 #       and Michał Rus <m@michalrus.com>
 #
@@ -30,10 +30,15 @@
 *.lof
 *.log
 *.lot
-*.pdf
+main.pdf
 *.synctex.gz
 *.toc
 
 # Latexian temporary file
 
 *LatexianTemp_*
+
+# Visio
+
+~*
+*.~*
