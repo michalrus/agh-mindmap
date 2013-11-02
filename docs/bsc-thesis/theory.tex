@@ -30,7 +30,7 @@ A single XMind map starts with a blank sheet, which is then filled with data. Th
 \section{Android application}
 \label{sec:android-theory}
 
-Android is a Linux system in which each application is run as a different user. \todo{Add source: your book, K.!}Every Android application runs in isolation from others, as a separate Linux process with its own virtual machine ({\em Dalvik}), thus implementing the principle of least privilege. Obviously, there are ways to communicate with other applications or device features (like camera, extra storage, Bluetooth etc.). In fact, it is considered to be unique for Android architecture that every application can start an activity of other application (as long as this other application's activity is marked as externally `startable' in its \inlinecode{AndroidManifest.xml}).
+Android is a Linux system in which each application is run as a different user. Every Android application runs in isolation from others, as a separate Linux process with its own virtual machine ({\em Dalvik}), thus implementing the principle of least privilege. Obviously, there are ways to communicate with other applications or device features (like camera, extra storage, Bluetooth etc.). In fact, it is considered to be unique for Android architecture that every application can start an activity of other application (as long as this other application's activity is marked as externally `startable' in its \inlinecode{AndroidManifest.xml}). \cite{Collins:Android}
 
 Every Android application is built using four basic types of components: activities (with fragments), services, content providers, and broadcast receivers, each having its own lifecycle which defines how the component is created and destroyed (among others).
 
