@@ -118,7 +118,15 @@ This algorithm has to be used when given a scenario in which:
 \subsection{User interface mock-ups}
 \label{subsec:ui-mockups}
 
-\todo[inline]{{\textbackslash}cref this figures below in text}
+\Cref{fig:mockup-maplist} below show a \emph{mock-up} (a sketch) of the main, initial screen of the Android application. The user can:
+
+\begin{itemize}
+	\item choose an existing map to edit,
+	\item select and delete a map by long-pressing it,
+	\item add a new map,
+	\item import an existing XMind map,
+	\item switch to any other opened map by means of tabs at the top.
+\end{itemize}
 
 \begin{figure}[h]
 	\centering
@@ -126,6 +134,16 @@ This algorithm has to be used when given a scenario in which:
 	\caption{Mock-up of mind map list, initial screen.}
 	\label{fig:mockup-maplist}
 \end{figure}
+
+\Cref{fig:mockup-mindmap} shows a similar preview of a map view: a screen that is shown to the user when he chooses/adds/imports a map in \cref{fig:mockup-maplist}. Here, the user can:
+
+\begin{itemize}
+	\item edit content of any `mind node' by tapping on it,
+	\item remove any node (and its subtree) by long-pressing it and selecting `remove',
+	\item move any node (reassign its parent node) by long-pressing it and selecting `change parent', and then tapping on the new parent,
+	\item add a child node to any node by tapping on `+' button next to the parent node,
+	\item see (in real-time) changes introduced by other editors currently editing this map.
+\end{itemize}
 
 \begin{figure}[h]
 	\centering
