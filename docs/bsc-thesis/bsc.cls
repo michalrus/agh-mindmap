@@ -25,7 +25,7 @@
 \RequirePackage{graphicx}
 
 \RequirePackage{float}
-\floatstyle{boxed}
+\floatstyle{plain}
 \restylefloat{figure}
 
 \def\advisor#1{\gdef\@advisor{#1}} 

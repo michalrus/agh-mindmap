@@ -23,14 +23,14 @@
 
 Mind maps are proved to be one of the best ways of organising ideas, brainstorming and dealing with information overload. The research conducted by a Nobel prize winning scientist Dr. Roger Sperry shows that the activities which integrate the functions of two brain hemispheres are the most effective. \cite{Voneida:1998:Sperry} Left hemisphere is responsible for logical thinking, writing, analysing and details, while the right one --- for imagination, colors, spatial memory, recognizing shapes and seeing the whole picture. He has also proved that when one hemisphere is overloaded, the second `falls asleep.' So, in order to work efficiently, one must engage both hemispheres --- neither pure logic, nor sole creativity would `do the trick.' Mindmapping uses a whole variety of activities associated with both hemispheres, thus enhancing overall effectiveness and productivity.
 
-There are many available programs for mindmapping. Among commercial solutions, the most popular software is {\em Mindjet MindManager} and {\em iMindMap}. Free software includes {\em XMind}, {\em FreeMind} and \emph{MindMeister}. \cite{Wiki:Software} There is also a number of web applications: \emph{MindMeister.com}, \emph{bubbl.us}. However, the basis for our representation of a mind map is an open source tool, {\em XMind}. A single mind map starts with a blank sheet, which is then filled with data.
+There are many available programs for mindmapping. Among commercial solutions, the most popular software is {\em Mindjet MindManager} and {\em iMindMap}. Free software includes {\em XMind}, {\em FreeMind} and \emph{MindMeister}. \cite{Wiki:Software} There is also a number of web applications: \emph{MindMeister.com}, \emph{bubbl.us}. However, the basis for our representation of a mind map is an open source tool, {\em XMind}.
 
-The most important part of a map is the central idea, the root topic/node. Along with the development of a map, more subtopics can be added, creating relationships between each other: a connected, nodal structure. \todo{Not supposed to be in chapter~\ref{chap:project}?}{\em XMind} files (workbooks) are saved as a ZIP archive of mostly \inlinecode{.xml} files, two of which are the most important and are always present. First, \inlinecode{content.xml} stores data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments. \cite{XMind:2009:Format} In our application, we will implement importing and exporting these {\em XMind} files.
+A single XMind map starts with a blank sheet, which is then filled with data. The most important part of the map is its central idea, the root topic/node. Along with the development of a map, more subtopics can be added, creating relationships between each other: a connected, nodal structure. In our application, we will implement importing and exporting these {\em XMind} files.
 
 \section{Android application}
 \label{sec:android-theory}
 
-Android is a Linux system in which each application is run as a different user. \todo{Source: your book, K.}Every Android application runs in isolation from others, as a separate Linux process with its own virtual machine ({\em Dalvik}), thus implementing the principle of least privilege. Obviously, there are ways to communicate with other applications or device features (like camera, extra storage, Bluetooth etc.). In fact, it is considered to be unique for Android architecture that every application can start an activity of other application (as long as this other application's activity is marked as externally `startable' in its \inlinecode{Manifest.xml}).
+Android is a Linux system in which each application is run as a different user. \todo{Add source: your book, K.!}Every Android application runs in isolation from others, as a separate Linux process with its own virtual machine ({\em Dalvik}), thus implementing the principle of least privilege. Obviously, there are ways to communicate with other applications or device features (like camera, extra storage, Bluetooth etc.). In fact, it is considered to be unique for Android architecture that every application can start an activity of other application (as long as this other application's activity is marked as externally `startable' in its \inlinecode{Manifest.xml}).
 
 Every Android application is built using four basic types of components: activities (with fragments), services, content providers, and broadcast receivers, each having its own lifecycle which defines how the component is created and destroyed (among others).
 
@@ -45,15 +45,18 @@ All types of components except content providers can be activated by an asynchro
 
 In order to start an application, Android system must know its components in the \inlinecode{AndroidManifest.xml} file. It takes care of a number of things: it declares API information (supported version(s) of Android system), hardware requirements and other libraries from outside the SDK which are used in the application. An Android SDK generally uses quite a lot of \inlinecode{.xml} files. It provides reusable layouts with a detailed declaration of the user interface and creates a handy way of declaring resources used in the application.
 
-\section{Akka.io and collaboration}
+\section{Scala}
+\label{sec:scala}
+
+The language we chose for this system (for both client- and server-side) is Scala: a multi-paradigm, object-functional programming language. It compiles to Java bytecode, so it offers full compatibility with Android SDK, at the same time making the code unmeasureably more elegant and robust. \cite{Odersky:2008:Programming}
+
+\todo[inline]{More about Scala?\ldots\\J. Wąs said, ``Nie lać wody!''. (If you'll excuse a lill' of Polish.)}
+
+\section{Akka.io for server-side}
 \label{sec:akka}
 
-The language we chose for this program is Scala: a multi paradigm, object-functional programming language. It compiles to Java bytecode, so it offers full compatibility with Android SDK, making the code more elegant and robust. \cite{Odersky:2008:Programming}
+\todo[inline]{Why talk about Akka? What server-side? Why server-side at all? Mention collaboration \emph{here}! ONE SENTENCE!}
 
-Akka is an actor model for Scala and Java languages: ``a toolkit and runtime for building highly concurrent, distributed, and fault tolerant event-driven applications on the JVM.'' Actor model is a high-level abstraction of concurrent programming. All operations are performed in a non-blocking fashion. Each actor is a very lightweight event-driven process; this makes it possible to create approximately 2.7 million actors per 1 GB of heap memory. \cite{Akka:2013:Docs}
+Akka is an actor model for Scala (and Java) languages: ``a toolkit and runtime for building highly concurrent, distributed, and fault tolerant event-driven applications on the JVM.'' Actor model is a high-level abstraction of concurrent programming. All operations are performed in a non-blocking fashion. Any number of servers can form one (or more) big actor system. Each actor is a very lightweight event-driven process; this makes it possible to create approximately 2.7 million actors per 1 GB of heap memory. \cite{Akka:2013:Docs}
 
-Actors can be thought of as concurrent processes which communicate by sending messages. At the same time they are really efficient: 1 actor is not equivalent to 1 JVM thread.
-
-In this project, Akka is used as a backend for the mobile application. It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
-
-Each connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of long-polling: mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor.
+Actors can be thought of as concurrent processes which communicate by sending messages. At the same time they are really efficient: especially 1 actor is \emph{not} equivalent to 1 thread, and \emph{not even 1} lightweight JVM thread.

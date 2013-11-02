@@ -21,18 +21,41 @@
 \section{What was implemented and how?}
 \label{sec:got-implemented}
 
-\subsection{UI screenshots?}
-\label{subsec:ui}
+\subsection{\todo{Shouldn't be in chapter \ref{chap:results}?} UI screenshots}
+\label{subsec:ui-screenshots}
 
-\todo{Move to chapter~\ref{chap:project}?}Each mind map is represented by its own, random UUID, so are all of its nodes, including root node.
+\todo[inline]{\textbackslash{}ref screenshots and their corresponding mockups in text here.}
 
-\subsection{\todo{Should go to chapter~\ref{chap:project}?}Collaboration}
-\label{subsec:collaboration}
+\begin{figure}[h]
+	\centering
+	\missingfigure{List view screen}
+	\caption{View of mind map list, initial screen.}
+	\label{fig:screen-maplist}
+\end{figure}
 
-Our application allows its users to edit maps collaboratively, either over the Internet in real time, or offline. {\em Offline} means that all changes introduced by fellow editors {\em offline} will get synchronized when particular person gets back on-line. \todo{We already know this...}There is a central server implemented using Akka.io which provides this functionality by means of RESTful services.
+\begin{figure}[h]
+	\centering
+	\missingfigure{Mind map view screen}
+	\caption{View of mind map.}
+	\label{fig:screen-maplist}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\missingfigure{2 devices, collaboration}
+	\caption{View of collaboration.}
+	\label{fig:screen-collaboration}
+\end{figure}
 
 \section{How the requirements were met?}
 \label{sec:met-requirements}
 
+\todo[inline]{What goes here?\\Also: it doubles with chapter~\ref{chap:summary}, 3rd point. (?!)}
+
 \section{Encountered problems and their solutions}
 \label{sec:impl-problems}
+
+\subsection{No removing of tabs in Android's TabHost}
+\label{subsec:problem-tabhost}
+
+\todo[inline]{Resolved: \href{https://github.com/michalrus/agh-mindmap/commit/ebe22968dc091f575ab16be0d0051dbfb7f3e434}{ebe22968dc091f575ab16be0d0051dbfb7f3e434}. All tabs had to be removed and then readded. Also we had to manually use another container for our Fragments.}

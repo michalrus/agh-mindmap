@@ -1,4 +1,4 @@
-#
+﻿#
 #   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
 #       and Michał Rus <m@michalrus.com>
 #
@@ -19,6 +19,8 @@
 
 *.bcf
 *.run.xml
+*.out
+*.tdo
 
 # XeLaTeX temporary files
 

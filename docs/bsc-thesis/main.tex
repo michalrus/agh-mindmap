@@ -20,7 +20,8 @@
 \documentclass[american]{bsc}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{todonotes}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{hyperref}
 
 \usepackage{biblatex}
 \addbibresource{bibliography.bib}
@@ -35,7 +36,9 @@
 
 \begin{document}
 
-\maketitle 
+\maketitle
+
+\listoftodos
 
 \input{introduction}
 \input{theory}
