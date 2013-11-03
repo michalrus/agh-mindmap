@@ -62,7 +62,7 @@
 
 Most browsers have a limit for concurrently open connections to the same server set to a value close to 2. This means it would be best to encapsulate message passing in \emph{one} constantly open connection, to leave the other free to be used in any way needed. E.g. to download some media resources.
 
-This is not such an issue when Android is concerned, because as many connections can be opened as needed. However, as it is internally easy to add other front-ends (web application), it's wise to project the REST actors (\cref{subsec:component-akka}) to operate one one connection only.
+This is not such an issue when Android is concerned, because as many connections can be opened as needed. However, as it is internally easy to add other front-ends (web application), it's wise to project the REST actors (\cref{subsec:component-akka}) to operate on one connection only.
 
 \subsection{No removing of tabs in Android's TabHost}
 \label{subsec:problem-tabhost}
