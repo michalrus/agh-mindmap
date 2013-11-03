@@ -18,7 +18,7 @@
 \subsection{Subtree recreation algorithm}
 \label{subsec:subtree-recreation}
 
-This algorithm has to be used when given a scenario in which:
+This algorithm has to be used on the server-side, when given a scenario in which:
 
 \begin{enumerate}
 	\item At least two users (Alice and Bob) share a map.
@@ -31,4 +31,12 @@ This algorithm has to be used when given a scenario in which:
 	\item Now, subtree S has to be somehow recreated from Alice's version.
 \end{enumerate}
 
-\todo[inline]{\michal{M., come up with subtree recreation algo.}}
+The following steps then need to be taken:
+
+\begin{enumerate}
+	\item Akka, after receiving an update message and finding out that it does not know \emph{some} parents, responds with a request to resend the message, but, this time, with with full `genealogy' of the unknown parents.
+	\item Android resends this update message at the same time adding a list of lists of parents up to the root node.
+	\item Akka then knows where the lost subtrees were attached to and sends one more request for them.
+	\item Android responds with original update message along with full requested subtrees from its local storage.
+	\item Akka updates its DB and notifies all connected devices about the changes.
+\end{enumerate}

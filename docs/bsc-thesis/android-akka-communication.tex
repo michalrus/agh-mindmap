@@ -35,14 +35,15 @@ As it turns out, we're able to make it work using just two main messages (and re
 	\begin{itemize}
 		\item creates mind map(s) of UUID contained in node's map UUID field (if they don't already not exists),
 		\item checks if the DB will be in consistent state after introducing Android's changes. DB is said to be inconsistent when there are references in node's parent field to other nodes that are not present in DB (dangling references),
+		\item any deletions are rejected if there is a previously synchronized change in to-be-deleted subtree (in such case this to-be-deleted subtree is sent again to the deleter in message in \cref{akka-update-message}),
 		\item changes are merged if consistency will be retained afterwards, node's timestamps are set to current server time,
 		\item if, however, consistency cannot be retained, Akka behaves in accordance to \cref{akka-unknown-parent} of exceptional cases below.
 		\item There's also a possibility of a conflict, see \cref{akka-conflict} of exceptional cases below.
 	\end{itemize}
 
-	\item After any change to server-side DB, Akka notifies all connected Androids, including the one that initiated the change. The notification message contains all changed nodes sorted in aforementioned parent-first order.
+	\item \label{akka-update-message} After any change to server-side DB, Akka notifies all connected Androids, including the one that initiated the change. The notification message contains all changed nodes sorted in aforementioned parent-first order.
 
-	\item Android, after receiving this update message, updates its local DB. There's again, a possibility that there was a node updated inside a subtree that was locally deleted. Then, again, subtree recreation algorithm (\cref{subsec:subtree-recreation}) has to be used, this time its client-side version (analogous to server-side).
+	\item Android, after receiving this update message, updates its local DB.
 \end{enumerate}
 
 And the two exceptional cases are as follows:
@@ -54,7 +55,7 @@ And the two exceptional cases are as follows:
 		\item If, however, the conflicting field is node's \inlinecode{parent}, then we \emph{repin} the node accordnig to our last disposition. Changing node's parent does not destroy data and it's easy to reverse for contributors.
 	\end{itemize}
 
-	\item \label{akka-unknown-parent} It is possible that either Android or Akka will get an update request with a node which parent is \emph{not} known to them. This might happen for two reasons:
+	\item \label{akka-unknown-parent} It is possible that Akka will get an update request with a node which parent is \emph{not} in the DB. This might happen for two reasons:
 	\begin{itemize}
 		\item malicious request,
 		\item or, more probably, the request is trying to update a subtree that was previously deleted (and this deletion was not synchronized at the moment of `physical' update).
