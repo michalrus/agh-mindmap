@@ -18,6 +18,11 @@
 \subsection{XMind import}
 \label{subsec:xmind-exchange}
 
-XMind files (`workbooks') are saved as a ZIP archive of mostly \inlinecode{.xml} files, two of which are the most important and are always present. First, \inlinecode{content.xml} stores data and its hierarchy, and the second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments. \cite{XMind:2009:Format}
+XMind files (`workbooks') are saved as a ZIP archive of mostly \inlinecode{.xml} files. Two of them are the most important and always present. First, \inlinecode{content.xml} stores the actual data and its hierarchy. The second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments. \cite{XMind:2009:Format}
 
-\todo[inline]{\michal{M./K., finish XMind import: write about the recursive import method.}}
+XML is a way of storing data as a labeled tree created of nested tags with various attributes. Most of the attributes in  XMind tags will not be  necessary, and some of the are not even used in XMind. Specifically, we want to omit data that are used to determine a style assigned to the sheet. The first step to import an {\em XMind} file is opening it as a ZIP archive, and loading  \inlinecode{content.xml}  into an InputStream, and then converting it to a String. Then the actual parsing may be started. 
+
+ Scala deals with XML very well and it allows a convenient navigation through the data using '\textbackslash' and '\textbackslash\textbackslash', meaning respectively accessing child and grandchild tags. The content of a tag can be called by using a \inlinecode{.text} method. Content file may consist of a lot of sheets (represented by <sheet> tag with id attribute ), so parsing should be done within a loop, resulting in the same number of mind maps as the number of sheets. When the sheet is found, a new MindMap object  is created. Then a content of the root node is set by finding sheet's first child (sheet's children are represented as <topic>'s) and reading the content if its child - <title>. A single topic represents a node, which is then saved as a MindNode object. Nodes are created recursively.
+
+\todo[inline]{\michal{M./K., finish XMind import: write about the recursive import method.}
+\kasia{Is it enough ? Also, i'm not sure i'm using correct conventions - inlinetext tag should be used with file name? }}
