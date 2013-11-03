@@ -20,6 +20,48 @@
 
 Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
 
-\todo[inline]{\michal{M., sketch Android--Akka communication.}}
+As it turns out, we're able to make it work using just two main messages (and resolving two exceptional cases). However, the fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions (solved by subtree recreation algorithm in \cref{subsec:subtree-recreation}). Communication with an Android device from the \emph{moment it gets online} is as follows:
 
-The fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions, see subtree recreation algorithm in \cref{subsec:subtree-recreation}.
+\begin{enumerate}
+	\item Android looks for the newest timestamp in \inlinecode{mind\_node} table --- this is the last time we had contact with Akka.
+
+	\item Android sends a message to Akka. The message contains:
+	\begin{itemize}
+		\item request for all changes that happened after that \emph{newest timestamp},
+		\item all local changes --- that is a list of all nodes that have their timestamp set to \inlinecode{NULL}. This list of modified nodes needs to be sorted so that \emph{parents} come before \emph{children} for any two nodes in the list. \Cref{akka-unknown-parent} of exceptional cases below explains why.
+	\end{itemize}
+
+	\item Akka receives the message and:
+	\begin{itemize}
+		\item creates mind map(s) of UUID contained in node's map UUID field (if they don't already not exists),
+		\item checks if the DB will be in consistent state after introducing Android's changes. DB is said to be inconsistent when there are references in node's parent field to other nodes that are not present in DB (dangling references),
+		\item changes are merged if consistency will be retained afterwards, node's timestamps are set to current server time,
+		\item if, however, consistency cannot be retained, Akka behaves in accordance to \cref{akka-unknown-parent} of exceptional cases below.
+		\item There's also a possibility of a conflict, see \cref{akka-conflict} of exceptional cases below.
+	\end{itemize}
+
+	\item After any change to server-side DB, Akka notifies all connected Androids, including the one that initiated the change. The notification message contains all changed nodes sorted in aforementioned parent-first order.
+
+	\item Android, after receiving this update message, updates its local DB. There's again, a possibility that there was a node updated inside a subtree that was locally deleted. Then, again, subtree recreation algorithm (\cref{subsec:subtree-recreation}) has to be used, this time its client-side version (analogous to server-side).
+\end{enumerate}
+
+And the two exceptional cases are as follows:
+
+\begin{enumerate}
+	\item \label{akka-conflict} It might happen that another Android, A, updated a node, when currently synchonizing Android, B, was offline (and A, too, changed the node while offline). This causes a `merge conflict'. All merge conflicts are resolved automatically and strategies vary depeneding on which field causes the conflict:
+	\begin{itemize}
+		\item If theres a conflict in node's \emph{content}, then both conflicting contents are concatenated with a new line, \inlinecode{\textbackslash{}m} and the node's \inlinecode{has\_conflict} field is set to \inlinecode{true}. (This results in marking the field somehow in the UI, possibly with red.)
+		\item If, however, the conflicting field is node's \inlinecode{parent}, then we \emph{repin} the node accordnig to our last disposition. Changing node's parent does not destroy data and it's easy to reverse for contributors.
+	\end{itemize}
+
+	\item \label{akka-unknown-parent} It is possible that either Android or Akka will get an update request with a node which parent is \emph{not} known to them. This might happen for two reasons:
+	\begin{itemize}
+		\item malicious request,
+		\item or, more probably, the request is trying to update a subtree that was previously deleted (and this deletion was not synchronized at the moment of `physical' update).
+	\end{itemize}
+
+	List of updated nodes send in the request is sorted in parent-first order. This allows for a performance boost at receiving site. Akka needs only to look at modified node list's head to check whether it knows about parents of updated nodes.
+
+	In the second case, subtree recreation algorithm has to be used (\cref{subsec:subtree-recreation}).
+\end{enumerate}
+

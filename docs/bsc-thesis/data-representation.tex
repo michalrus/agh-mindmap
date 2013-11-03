@@ -27,7 +27,7 @@ Mind maps edited in our software will be kept in a SQL database (\cref{fig:erd})
 		\item its mind map's UUID,
 		\item some textual content,
 		\item parent node UUID,
-		\item timestamp of the last modification (provided only by server, this is \emph{not a local time}),
+		\item timestamp of the last modification (provided only by server, this is \emph{not a local time}; if Android modifies a node this is set to \inlinecode{NULL}; thus, local client time is \emph{never} used for synchronization protocol, as it could be set wrong),
 		\item and a flag which says whether there was a merge conflict in the past, which has not yet been taken care of by the user.
 	\end{itemize}
 \end{enumerate}
