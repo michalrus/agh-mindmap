@@ -18,4 +18,21 @@
 \subsection{Component: Android application}
 \label{subsec:component-android}
 
-\todo[inline]{\michal{M., project Android: what subcomponents? (Own and from system library!)}}
+\todo[inline]{\michal{Project Android: what subcomponents? (Own and from system library!)}}
+
+\begin{itemize}
+	\item System:
+	\begin{itemize}
+		\item \inlinecode{ListView}
+		\item \inlinecode{TabHost} + \inlinecode{TabView}'s
+		\item \todo{\michal{A lot can be written here!}}\inlinecode{ActionBarSherlock}
+		\item \inlinecode{ScrollView} + \inlinecode{HorizontalScrollView} --- for our custom map view.
+	\end{itemize}
+
+	\item Own:
+	\begin{itemize}
+		\item \inlinecode{MainActivity} --- tabs, has fragments switchable by these tabs.
+		\item \inlinecode{MapListFragment} --- alist of maps.
+		\item \inlinecode{MapViewFragment}
+	\end{itemize}
+\end{itemize}
