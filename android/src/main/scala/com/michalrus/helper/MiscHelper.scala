@@ -2,7 +2,7 @@ package com.michalrus.helper
 
 trait MiscHelper {
 
-  val rng = new java.util.Random {
+  class Random extends java.util.Random {
     /** Returns pseudo-random integer from range [a;b] */
     def nextInt(a: Int, b: Int): Int = {
       val c = a min b
@@ -10,6 +10,8 @@ trait MiscHelper {
       nextInt(d - c + 1) + c
     }
   }
+
+  val rng = new Random
 
   import language.implicitConversions
 

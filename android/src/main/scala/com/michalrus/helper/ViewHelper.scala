@@ -1,10 +1,12 @@
 package com.michalrus.helper
 
-import android.view.View
-import android.widget.Button
+import android.view.{ViewGroup, View}
+import android.widget.{RelativeLayout, ImageView, Button}
 import android.view.View.OnClickListener
 import android.util.{TypedValue, Log}
 import android.content.res.Resources
+import android.graphics.Color
+import android.app.Activity
 
 object ViewHelper {
 
@@ -13,6 +15,10 @@ object ViewHelper {
 }
 
 trait ViewHelper {
+
+  def rng: MiscHelper#Random
+
+  protected def currentActivity: Activity
 
   protected def resources: Resources
 
@@ -35,6 +41,24 @@ trait ViewHelper {
         def onClick(v: View) = f
       })
     }
+  }
+
+  def randomColor = {
+    val hue = rng.nextFloat * 360
+    val s, v = 1f
+    Color.HSVToColor(Array(hue, s, v))
+  }
+
+  def randomRect(minW: Int, maxW: Int, minH: Int, maxH: Int) = {
+    val w = rng nextInt (dp2px(minW).toInt, dp2px(maxW).toInt)
+    val h = rng nextInt (dp2px(minH).toInt, dp2px(maxH).toInt)
+
+    val params = new ViewGroup.MarginLayoutParams(w, h)
+
+    val iv = new ImageView(currentActivity)
+    iv setBackgroundColor randomColor
+    iv setLayoutParams params
+    iv
   }
 
 }
