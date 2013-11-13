@@ -37,8 +37,4 @@ trait ViewHelper {
     }
   }
 
-  implicit def blockToRunnable[A](f: => A) = new Runnable {
-    def run() = f
-  }
-
 }

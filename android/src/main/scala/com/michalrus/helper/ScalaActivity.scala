@@ -2,7 +2,7 @@ package com.michalrus.helper
 
 import android.app.Activity
 
-trait ScalaActivity extends Activity with ViewHelper {
+trait ScalaActivity extends Activity with ViewHelper with MiscHelper {
 
   override protected lazy val resources = getResources
 
