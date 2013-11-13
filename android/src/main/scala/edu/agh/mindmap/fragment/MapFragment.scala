@@ -7,6 +7,8 @@ import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.MindMap
+import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
+import android.widget.ScrollView
 
 class MapFragment extends SherlockFragment with ScalaFragment {
 
@@ -19,7 +21,11 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       case _: Exception => new UUID(0, 0)
     }
 
-    val map = MindMap.findByUuid(uuid)
+    val map = MindMap findByUuid uuid
+
+    val hScroll = view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
+    val vScroll = view.find[ScrollView](R.id.vscroll)
+    hScroll.inner = vScroll
 
     // FIXME
 

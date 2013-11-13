@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-  <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:text="BlABLABLA"
-          />
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
   <edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
-          android:layout_width="match_parent"
-          android:layout_height="30dp"
+      android:id="@+id/hscroll"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/vscroll"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+      <TextView
+          android:layout_height="500dp"
+          android:layout_width="500dp"
+          android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla malesuada velit eu tortor fermentum volutpat. Nunc vitae laoreet arcu. Suspendisse a nunc pharetra, sollicitudin enim nec, congue felis. Suspendisse malesuada nibh a lacus luctus, eu vulputate nulla scelerisque. Nulla tincidunt vel nulla eu tempor. Vestibulum accumsan vulputate purus, in consequat est blandit vitae. Mauris non sagittis lorem.
+<br/><br/>
+Nunc nec cursus mi. Nullam dictum tempus metus accumsan ultrices. Donec sed odio pharetra, euismod risus non, suscipit ante. Etiam quis justo quis dui fermentum feugiat. Aenean pharetra ultricies neque, sit amet euismod nibh scelerisque vel. Aliquam dignissim suscipit mauris malesuada mattis. Curabitur semper enim sed purus tempus fringilla. Cras id tellus ipsum. Morbi erat risus, mollis sit amet facilisis eget, tempor non tortor. In cursus magna in fringilla mollis. Donec tristique dignissim tellus, vel blandit nibh suscipit et. Suspendisse bibendum ante id nisi auctor, id rutrum sapien sollicitudin. Mauris egestas tincidunt nulla, sed luctus arcu condimentum sit amet.
+<br/><br/>
+Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Maecenas ornare magna ac auctor ornare. Duis at laoreet massa. Morbi ac ipsum id arcu feugiat rutrum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Maecenas quis eleifend leo. Mauris eget faucibus magna, vitae dapibus orci. Aenean rhoncus, quam id interdum consectetur, risus mi pretium lectus, sit amet pharetra turpis risus quis dui.
+<br/><br/>
+Curabitur nec leo porta, molestie dolor sit amet, auctor velit. Morbi feugiat eleifend est eu dapibus. In venenatis vel orci commodo laoreet. Cras mattis sagittis est id auctor. Morbi nec nibh augue. Cras bibendum risus ultricies lacus adipiscing, et volutpat sapien interdum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam aliquet, urna et hendrerit rutrum, neque purus tempor odio, quis dictum lectus nisi ut tortor. Sed eleifend augue massa, quis mollis dui tincidunt et. Mauris vitae ornare velit, eget semper sem. Morbi vitae est sit amet lorem gravida semper.
+<br/><br/>
+Nam sed nunc eleifend, hendrerit libero vitae, lacinia purus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Duis nec sem et dolor aliquet commodo. Maecenas ornare vitae neque et lacinia. Nam tristique arcu mauris, quis lacinia leo tempor non. In hac habitasse platea dictumst. Vestibulum consequat dictum enim, quis varius turpis lacinia eget. Sed et ultricies ligula. Integer varius viverra lorem, eget imperdiet urna tincidunt ac. Vestibulum ornare nunc non pulvinar varius."
           />
+
+    </ScrollView>
+
+  </edu.agh.mindmap.component.HorizontalScrollViewWithPropagation>
 
 </LinearLayout>
 
