@@ -4,6 +4,8 @@ import android.app.Activity
 
 trait ScalaActivity extends Activity with ViewHelper {
 
+  override protected lazy val resources = getResources
+
   def find[T](id: Int) = findViewById(id).asInstanceOf[T]
 
   def laterOnUiThread(r: Runnable) = delayOnUiThread(0)(r)

@@ -3,7 +3,8 @@ package com.michalrus.helper
 import android.view.View
 import android.widget.Button
 import android.view.View.OnClickListener
-import android.util.Log
+import android.util.{TypedValue, Log}
+import android.content.res.Resources
 
 object ViewHelper {
 
@@ -12,6 +13,11 @@ object ViewHelper {
 }
 
 trait ViewHelper {
+
+  protected def resources: Resources
+
+  def dp2px (dp: Float) =
+    TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, resources.getDisplayMetrics)
 
   import language.implicitConversions
 
