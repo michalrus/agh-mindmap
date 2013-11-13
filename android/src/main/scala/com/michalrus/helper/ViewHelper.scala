@@ -45,20 +45,9 @@ trait ViewHelper {
 
   def randomColor = {
     val hue = rng.nextFloat * 360
-    val s, v = 1f
+    val s = .6f
+    val v = 1f
     Color.HSVToColor(Array(hue, s, v))
-  }
-
-  def randomRect(minW: Int, maxW: Int, minH: Int, maxH: Int) = {
-    val w = rng nextInt (dp2px(minW).toInt, dp2px(maxW).toInt)
-    val h = rng nextInt (dp2px(minH).toInt, dp2px(maxH).toInt)
-
-    val params = new ViewGroup.MarginLayoutParams(w, h)
-
-    val iv = new ImageView(currentActivity)
-    iv setBackgroundColor randomColor
-    iv setLayoutParams params
-    iv
   }
 
 }
