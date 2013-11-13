@@ -8,12 +8,14 @@
   <edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
       android:id="@+id/hscroll"
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="match_parent"
+      android:scrollbars="none">
 
     <ScrollView
         android:id="@+id/vscroll"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:layout_width="match_parent"
+        android:scrollbars="none">
 
       <TextView
           android:layout_height="500dp"
