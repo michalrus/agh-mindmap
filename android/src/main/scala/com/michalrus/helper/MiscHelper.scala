@@ -6,11 +6,7 @@ object MiscHelper {
 
   def log(s: String) = Log d ("com.michalrus.helper", s)
 
-}
-
-trait MiscHelper {
-
-  def log(s: String) = MiscHelper log s
+  val rng = new MiscHelper.Random
 
   class Random extends java.util.Random {
     /** Returns pseudo-random integer from range [a;b] */
@@ -21,7 +17,13 @@ trait MiscHelper {
     }
   }
 
-  val rng = new Random
+}
+
+trait MiscHelper {
+
+  def log(s: String) = MiscHelper log s
+
+  val rng = MiscHelper.rng
 
   import language.implicitConversions
 

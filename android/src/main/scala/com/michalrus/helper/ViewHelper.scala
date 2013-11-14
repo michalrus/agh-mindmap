@@ -10,7 +10,7 @@ import android.app.Activity
 
 trait ViewHelper {
 
-  def rng: MiscHelper#Random
+  def rng: MiscHelper.Random
   protected def currentActivity: Activity
 
   def dp2px (dp: Float) =
