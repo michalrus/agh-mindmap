@@ -6,6 +6,4 @@ trait ScalaFragment extends SherlockFragment with ViewHelper with MiscHelper wit
 
   override protected lazy val currentActivity = getActivity
 
-  override protected lazy val resources = getResources
-
 }

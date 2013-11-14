@@ -8,26 +8,15 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.app.Activity
 
-object ViewHelper {
-
-  def log(s: String) = Log.d("com.michalrus.helper", s)
-
-}
-
 trait ViewHelper {
 
   def rng: MiscHelper#Random
-
   protected def currentActivity: Activity
 
-  protected def resources: Resources
-
   def dp2px (dp: Float) =
-    TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, resources.getDisplayMetrics)
+    TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, currentActivity.getResources.getDisplayMetrics)
 
   import language.implicitConversions
-
-  def log(s: String) = ViewHelper.log(s)
 
   implicit def scalaizeView(v: View) = new ScalaView(v)
   class ScalaView(val v: View) {

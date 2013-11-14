@@ -6,8 +6,6 @@ trait ScalaActivity extends Activity with ViewHelper with MiscHelper with Concur
 
   override protected lazy val currentActivity = this
 
-  override protected lazy val resources = getResources
-
   def find[T](id: Int) = findViewById(id).asInstanceOf[T]
 
 }

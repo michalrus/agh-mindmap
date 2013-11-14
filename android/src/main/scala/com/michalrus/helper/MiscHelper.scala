@@ -1,6 +1,16 @@
 package com.michalrus.helper
 
+import android.util.Log
+
+object MiscHelper {
+
+  def log(s: String) = Log d ("com.michalrus.helper", s)
+
+}
+
 trait MiscHelper {
+
+  def log(s: String) = MiscHelper log s
 
   class Random extends java.util.Random {
     /** Returns pseudo-random integer from range [a;b] */
