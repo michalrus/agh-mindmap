@@ -187,10 +187,6 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       val indicator = if (label.length <= MainActivity.TabTitleMaxLength) label
       else (label take MainActivity.TabTitleMaxLength) + '\u2026'
 
-      log("indicator: " + indicator)
-      log("label length: " + label.length)
-      log("max length: " + MainActivity.TabTitleMaxLength)
-
       val tabSpec = tabHost newTabSpec tag setIndicator indicator setContent new DummyTabFactory(activity)
       creators += tag -> (() => Fragment.instantiate(activity, classTag.runtimeClass.getName, args))
 
