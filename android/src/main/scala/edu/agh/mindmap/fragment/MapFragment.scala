@@ -6,7 +6,7 @@ import android.view.{ViewGroup, LayoutInflater}
 import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
-import edu.agh.mindmap.model.MindMap
+import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
 import android.widget.{ImageView, RelativeLayout, ScrollView}
 
@@ -37,8 +37,44 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     view
   }
 
+  object Wrapper {
+    import collection.mutable
+
+    private val memo = new mutable.HashMap[UUID, Wrapper]
+
+    def apply(node: MindNode): Wrapper = memo get node.uuid match {
+      case Some(wr) => wr
+      case _ =>
+        val wr = new Wrapper(node)
+        memo += node.uuid -> wr
+        wr
+    }
+  }
+
+  class Wrapper private(node: MindNode) {
+    private var _w, _h = 0
+    private var _folded = false
+    recalculate()
+
+    def w = _w
+    def h = _h
+    def folded = _folded
+    def folded_=(v: Boolean) = _folded = v; recalculate()
+
+    private def recalculate() {
+      // TODO: use Wrapper(node.children. ...)
+      // TODO: recalculate node's parents? isn't that a cycle?
+      _w = ???
+      _h = ???
+    }
+  }
+
   private def paintMap() {
     val paper = getView.find[RelativeLayout](R.id.paper)
+
+    map foreach { map =>
+      // TODO: Wrapper(map.root).folded = ...
+    }
 
     // FIXME really
 
