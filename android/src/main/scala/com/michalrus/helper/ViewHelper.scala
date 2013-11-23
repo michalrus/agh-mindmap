@@ -13,10 +13,10 @@ trait ViewHelper {
   def rng: MiscHelper.Random
   protected def currentActivity: Activity
 
-  def dp2px (dp: Float) =
+  def dp2px (dp: Float): Float =
     TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, currentActivity.getResources.getDisplayMetrics)
 
-  def dp2px (dp: Int) = dp2px(dp.toFloat).toInt
+  def dp2px (dp: Int): Int = dp2px(dp.toFloat).toInt
 
   import language.implicitConversions
 

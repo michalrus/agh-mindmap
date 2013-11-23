@@ -65,7 +65,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     def w = _w
     def h = _h
     def folded = _folded
-    def folded_=(v: Boolean) = _folded = v; recalculate()
+    def folded_=(v: Boolean) = {
+      _folded = v
+      recalculate()
+    }
 
     private def recalculate() {
       // TODO: use Wrapper(node.children. ...)
@@ -84,8 +87,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     object Rect {
       def random(minW: Int, maxW: Int, minH: Int, maxH: Int) = {
-        val w = rng nextInt (dp2px(minW).toInt, dp2px(maxW).toInt)
-        val h = rng nextInt (dp2px(minH).toInt, dp2px(maxH).toInt)
+        val w = rng nextInt (dp2px(minW), dp2px(maxW))
+        val h = rng nextInt (dp2px(minH), dp2px(maxH))
         Rect(w, h)
       }
     }
@@ -94,9 +97,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       def drawOn(vg: ViewGroup, color: Int = randomColor) {
         val iv = new ImageView(currentActivity)
         iv setBackgroundColor color
-        val rp = new RelativeLayout.LayoutParams(dp2px(w).toInt, dp2px(h).toInt)
-        rp.leftMargin = dp2px(x).toInt
-        rp.topMargin = dp2px(y).toInt
+        val rp = new RelativeLayout.LayoutParams(dp2px(w), dp2px(h))
+        rp.leftMargin = dp2px(x)
+        rp.topMargin = dp2px(y)
         vg addView (iv, rp)
       }
     }
@@ -144,17 +147,21 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       }
     }
 
-    position(rtrees, left = false, x0 = 300)
-    position(ltrees, left = true, x0 = 300)
-
-    def setPaperSize(w: Int, h: Int) {
-      ???
-    }
-
-    //setPaperSize(1000, 1000)
+    position(rtrees, left = false, x0 = 300) // FIXME: x0!
+    position(ltrees, left = true, x0 = 300) // FIXME: x0!
 
     rtrees foreach (_ drawOn (paper, 0xffff0000))
     ltrees foreach (_ drawOn (paper, 0xff00ff00))
+
+    def setPaperSize(w: Int, h: Int) {
+      val lp = paper.getLayoutParams
+      lp.width = dp2px(w)
+      lp.height = dp2px(h)
+      paper requestLayout()
+    }
+
+    paper setBackgroundColor 0xff0000ff
+    setPaperSize(2000, 2000) // FIXME: paper size!
   }
 
 }

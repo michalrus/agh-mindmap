@@ -19,8 +19,8 @@
 
       <RelativeLayout
         android:id="@+id/paper"
-        android:layout_width="1000dp"
-        android:layout_height="1000dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_margin="30dp"
         />
 
