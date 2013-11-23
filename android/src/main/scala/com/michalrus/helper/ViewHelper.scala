@@ -16,6 +16,8 @@ trait ViewHelper {
   def dp2px (dp: Float) =
     TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, currentActivity.getResources.getDisplayMetrics)
 
+  def dp2px (dp: Int) = dp2px(dp.toFloat).toInt
+
   import language.implicitConversions
 
   implicit def scalaizeView(v: View) = new ScalaView(v)
