@@ -10,6 +10,11 @@ import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
 import android.widget.{ImageView, RelativeLayout, ScrollView}
 
+object MapFragment {
+  val ArcShortRadius = 200
+  val SubtreeMargin = 1
+}
+
 class MapFragment extends SherlockFragment with ScalaFragment {
 
   private var inflater: Option[LayoutInflater] = None
@@ -52,6 +57,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   }
 
   class Wrapper private(node: MindNode) {
+    var x, y = 0
     private var _w, _h = 0
     private var _folded = false
     recalculate()
@@ -76,38 +82,79 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       // TODO: Wrapper(map.root).folded = ...
     }
 
-    // FIXME really
-
-    val n = rng nextInt (4, 7)
-
-    case class Rect(w: Int, h: Int) {
+    object Rect {
+      def random(minW: Int, maxW: Int, minH: Int, maxH: Int) = {
+        val w = rng nextInt (dp2px(minW).toInt, dp2px(maxW).toInt)
+        val h = rng nextInt (dp2px(minH).toInt, dp2px(maxH).toInt)
+        Rect(w, h)
+      }
+    }
+    case class Rect (w: Int, h: Int) {
       var x, y = 0
+      def drawOn(vg: ViewGroup, color: Int = randomColor) {
+        val iv = new ImageView(currentActivity)
+        iv setBackgroundColor color
+        val rp = new RelativeLayout.LayoutParams(dp2px(w).toInt, dp2px(h).toInt)
+        rp.leftMargin = dp2px(x).toInt
+        rp.topMargin = dp2px(y).toInt
+        vg addView (iv, rp)
+      }
     }
 
-    def drawRect(r: Rect) {
-      val iv = new ImageView(currentActivity)
-      iv setBackgroundColor randomColor
-
-      val rp = new RelativeLayout.LayoutParams(r.w, r.h)
-      rp.leftMargin = dp2px(r.x).toInt
-      rp.topMargin = dp2px(r.y).toInt
-
-      paper addView (iv, rp)
-    }
-
-    def randomRect(minW: Int, maxW: Int, minH: Int, maxH: Int) = {
-      val w = rng nextInt (dp2px(minW).toInt, dp2px(maxW).toInt)
-      val h = rng nextInt (dp2px(minH).toInt, dp2px(maxH).toInt)
-      Rect(w, h)
-    }
-
-    val root = randomRect(70, 70, 30, 30)
-
-    // TODO: simulate positions
+    val root = Rect random (70, 70, 30, 30)
     root.x = 20
     root.y = 40
+    //root drawOn paper
 
-    drawRect(root)
+    val n = rng nextInt (11, 15)
+    val trees = (Vector fill n)(Rect random (50, 200, 30, 200))
+
+    val (rtrees, ltrees) = {
+      val hsum = (0 /: trees)(_ + _.h) / 2.0
+      def loop(i: Int, acc: Int): Int =
+        if (acc > hsum) i
+        else loop(i + 1, acc + trees(i).h)
+      trees splitAt loop(0, 0)
+    }
+
+    def hei(ts: Vector[Rect]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
+    val rheight = hei(rtrees)
+    val lheight = hei(ltrees)
+    val height = rheight max lheight
+
+    def pad(th: Int) = (height - th) / 2
+    val rpad = pad(rheight)
+    val lpad = pad(lheight)
+
+    def position(trees: Vector[Rect], left: Boolean, x0: Int) {
+      val sgn = if (left) -1 else 1
+      val hei = if (left) lheight else rheight
+      val pad = if (left) lpad else rpad
+      val y0 = pad
+
+      var y = y0
+      trees foreach { t =>
+        y += MapFragment.SubtreeMargin
+        t.y = y
+        y += t.h + MapFragment.SubtreeMargin
+
+        val middleY = t.y + t.h / 2
+        t.x = x0 - (if (left) t.w else 0)
+        t.x += (sgn * math.sin(math.Pi * (middleY - y0) / hei) * MapFragment.ArcShortRadius).toInt
+      }
+    }
+
+    position(rtrees, left = false, x0 = 300)
+    position(ltrees, left = true, x0 = 300)
+
+    def setPaperSize(w: Int, h: Int) {
+      ???
+    }
+
+    //setPaperSize(1000, 1000)
+
+    rtrees foreach (_ drawOn (paper, 0xffff0000))
+    ltrees foreach (_ drawOn (paper, 0xff00ff00))
   }
 
 }
