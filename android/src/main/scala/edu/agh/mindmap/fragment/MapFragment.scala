@@ -2,18 +2,21 @@ package edu.agh.mindmap.fragment
 
 import com.michalrus.helper.ScalaFragment
 import com.actionbarsherlock.app.SherlockFragment
-import android.view.{ViewGroup, LayoutInflater}
+import android.view.{View, ViewGroup, LayoutInflater}
 import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
-import android.widget.{ImageView, RelativeLayout, ScrollView}
+import android.widget.{TextView, ImageView, RelativeLayout, ScrollView}
 
 object MapFragment {
   val ArcShortRadius = 200
   val PaperPadding = 50
   val SubtreeMargin = 1
+
+  val NodeH = 30
+  val NodeW = 80
 }
 
 class MapFragment extends SherlockFragment with ScalaFragment {
@@ -22,6 +25,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   private var map: Option[MindMap] = None
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
+    this.inflater = Some(inflater)
+
     val view = inflater.inflate(R.layout.map, container, false)
 
     val hScroll = view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
@@ -36,8 +41,6 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         new UUID(0, 0)
       }
     }
-
-    log(uuid.toString)
 
     map = MindMap findByUuid uuid
 
@@ -68,6 +71,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     private var _folded = false
     recalculate()
 
+    def isRoot = node.map.root == node
     def w = _w
     def h = _h
     def folded = _folded
@@ -76,34 +80,61 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       recalculate()
     }
 
-    private def recalculate() {
-      // TODO: use Wrapper(node.children. ...)
-      // TODO: recalculate node's parents? isn't that a cycle?
-      _w = dp2px(rng nextInt (50, 200)) // FIXME!
-      _h = dp2px(rng nextInt (30, 200))
-    }
+    private def recalculate() =
+      if (isRoot) {
+        _w = MapFragment.NodeW
+        _h = MapFragment.NodeH
+      } else {
+        // TODO: use Wrapper(node.children. ...)
+        // TODO: recalculate node's parents? isn't that a cycle?
+        _w = MapFragment.NodeW // FIXME
+        _h = MapFragment.NodeH
+      }
+
+    private var view: Option[View] = None
 
     def drawOn(vg: ViewGroup, color: Int = randomColor) {
-      log("drawOn")
+      def updateRp(rp: RelativeLayout.LayoutParams) {
+        rp.width = dp2px(w)
+        rp.height = dp2px(h)
+        rp.leftMargin = dp2px(x)
+        rp.topMargin = dp2px(y)
+      }
+      def updateV(v: View) {
+        val tf = v.find[TextView](R.id.content)
+        tf.setBackgroundColor(color)
+        node.content foreach (tf setText _)
+        v setBackgroundColor color
+      }
 
-      val iv = new ImageView(currentActivity)
-      iv setBackgroundColor color
-      val rp = new RelativeLayout.LayoutParams(dp2px(w), dp2px(h))
-      rp.leftMargin = dp2px(x)
-      rp.topMargin = dp2px(y)
-      vg addView (iv, rp)
+      view match {
+        case Some(v) =>
+          v.getLayoutParams match {
+            case rp: RelativeLayout.LayoutParams =>
+              updateRp(rp)
+              v requestLayout()
+              updateV(v)
+            case _ =>
+          }
+        case _ => inflater foreach { inflater =>
+          val v = inflater inflate (R.layout.mind_node, null)
+          view = Some(v)
+
+          val rp = new RelativeLayout.LayoutParams(dp2px(w), dp2px(h))
+          updateRp(rp)
+          vg addView (v, rp)
+          updateV(v)
+        }
+      }
+
     }
   }
 
   private def paintMap() {
     val paper = getView.find[RelativeLayout](R.id.paper)
 
-    log("paintMap")
-
     map foreach { map =>
       val root = Wrapper(map.root)
-
-      log("paintMap:2")
 
       val trees = map.root.children map (Wrapper(_))
 
