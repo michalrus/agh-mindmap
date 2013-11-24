@@ -113,8 +113,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       val hsum = (0 /: trees)(_ + _.h) / 2.0
       val accH = (trees.tail scanLeft trees.head.h)(_ + _.h)
       val idx = ((accH map (h => (h - hsum).abs)).zipWithIndex minBy(_._1))._2
-      trees splitAt idx
-      // FIXME: why you always on the left :< why you not work
+      trees splitAt (idx + 1)
     }
 
     def hei(ts: Vector[Rect]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
