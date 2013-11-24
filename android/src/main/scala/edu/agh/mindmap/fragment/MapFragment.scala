@@ -35,7 +35,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     map = MindMap findByUuid uuid
 
-    laterOnUiThread {
+    laterOnUiThread { // Why later?...
       paintMap()
     }
 
@@ -131,11 +131,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     def position(trees: Vector[Rect], left: Boolean, x0: Int) {
       val sgn = if (left) -1 else 1
-      val hei = if (left) lheight else rheight
       val pad = if (left) lpad else rpad
-      val y0 = pad
+      val y0 = 0
 
-      var y = y0
+      var y = y0 + pad
       trees foreach { t =>
         y += MapFragment.SubtreeMargin
         t.y = y
@@ -143,7 +142,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
         val middleY = t.y + t.h / 2
         t.x = x0 - (if (left) t.w else 0)
-        t.x += (sgn * math.sin(math.Pi * (middleY - y0) / hei) * MapFragment.ArcShortRadius).toInt
+        t.x += (sgn * math.sin(math.Pi * (middleY - y0) / height) * MapFragment.ArcShortRadius).toInt
       }
     }
 
