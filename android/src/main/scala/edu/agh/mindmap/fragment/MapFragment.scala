@@ -105,11 +105,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     }
 
     val root = Rect random (70, 70, 30, 30)
-    root.x = 20
-    root.y = 40
-    //root drawOn paper
 
-    val n = rng nextInt (11, 15)
+    val n = rng nextInt (4, 6)
     val trees = (Vector fill n)(Rect random (50, 200, 30, 200))
 
     val (rtrees, ltrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
@@ -129,10 +126,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     val rpad = pad(rheight)
     val lpad = pad(lheight)
 
-    def position(trees: Vector[Rect], left: Boolean, x0: Int) {
+    def position(trees: Vector[Rect], left: Boolean) {
       val sgn = if (left) -1 else 1
       val pad = if (left) lpad else rpad
-      val y0 = 0
+      val x0, y0 = 0
 
       var y = y0 + pad
       trees foreach { t =>
@@ -146,11 +143,14 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       }
     }
 
-    position(rtrees, left = false, x0 = 300) // FIXME: x0!
-    position(ltrees, left = true, x0 = 300) // FIXME: x0!
+    position(rtrees, left = false)
+    position(ltrees, left = true)
 
-    rtrees foreach (_ drawOn (paper, 0xffff0000))
-    ltrees foreach (_ drawOn (paper, 0xff00ff00))
+    val minx = (ltrees map (_.x)).min
+    val maxx = (rtrees map (t => t.x + t.w)).max
+
+    val paperW = -minx + maxx + root.w
+    val paperH = height
 
     def setPaperSize(w: Int, h: Int) {
       val lp = paper.getLayoutParams
@@ -159,8 +159,19 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       paper requestLayout()
     }
 
+    setPaperSize(paperW, paperH)
+
+    ltrees foreach (_.x += -minx)
+    rtrees foreach (_.x += -minx + root.w)
+
+    root.x = -minx
+    root.y = paperH / 2 - root.h / 2
+    root drawOn paper
+
+    rtrees foreach (_ drawOn (paper, 0xffff0000))
+    ltrees foreach (_ drawOn (paper, 0xff00ff00))
+
     paper setBackgroundColor 0xff0000ff
-    setPaperSize(2000, 2000) // FIXME: paper size!
   }
 
 }
