@@ -29,10 +29,15 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     hScroll.inner = vScroll
 
     val uuid = try {
-      UUID.fromString(bundle getString "uuid")
+      UUID.fromString(getArguments getString "uuid")
     } catch {
-      case _: Exception => new UUID(0, 0)
+      case e: Exception => {
+        log(e.toString)
+        new UUID(0, 0)
+      }
     }
+
+    log(uuid.toString)
 
     map = MindMap findByUuid uuid
 
@@ -74,105 +79,98 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     private def recalculate() {
       // TODO: use Wrapper(node.children. ...)
       // TODO: recalculate node's parents? isn't that a cycle?
-      _w = ???
-      _h = ???
+      _w = dp2px(rng nextInt (50, 200)) // FIXME!
+      _h = dp2px(rng nextInt (30, 200))
+    }
+
+    def drawOn(vg: ViewGroup, color: Int = randomColor) {
+      log("drawOn")
+
+      val iv = new ImageView(currentActivity)
+      iv setBackgroundColor color
+      val rp = new RelativeLayout.LayoutParams(dp2px(w), dp2px(h))
+      rp.leftMargin = dp2px(x)
+      rp.topMargin = dp2px(y)
+      vg addView (iv, rp)
     }
   }
 
   private def paintMap() {
     val paper = getView.find[RelativeLayout](R.id.paper)
 
+    log("paintMap")
+
     map foreach { map =>
-      // TODO: Wrapper(map.root).folded = ...
-    }
+      val root = Wrapper(map.root)
 
-    object Rect {
-      def random(minW: Int, maxW: Int, minH: Int, maxH: Int) = {
-        val w = rng nextInt (dp2px(minW), dp2px(maxW))
-        val h = rng nextInt (dp2px(minH), dp2px(maxH))
-        Rect(w, h)
+      log("paintMap:2")
+
+      val trees = map.root.children map (Wrapper(_))
+
+      val (rtrees, ltrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
+        val hsum = (0 /: trees)(_ + _.h) / 2.0
+        val accH = (trees.tail scanLeft trees.head.h)(_ + _.h)
+        val idx = ((accH map (h => (h - hsum).abs)).zipWithIndex minBy(_._1))._2
+        trees splitAt (idx + 1)
       }
-    }
-    case class Rect (w: Int, h: Int) {
-      var x, y = 0
-      def drawOn(vg: ViewGroup, color: Int = randomColor) {
-        val iv = new ImageView(currentActivity)
-        iv setBackgroundColor color
-        val rp = new RelativeLayout.LayoutParams(dp2px(w), dp2px(h))
-        rp.leftMargin = dp2px(x)
-        rp.topMargin = dp2px(y)
-        vg addView (iv, rp)
+
+      def hei(ts: Vector[Wrapper]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
+      val rheight = hei(rtrees)
+      val lheight = hei(ltrees)
+      val height = rheight max lheight max root.h
+
+      def pad(th: Int) = (height - th) / 2
+      val rpad = pad(rheight)
+      val lpad = pad(lheight)
+
+      def position(trees: Vector[Wrapper], left: Boolean) {
+        val sgn = if (left) -1 else 1
+        val pad = if (left) lpad else rpad
+        val x0, y0 = 0
+
+        var y = y0 + pad
+        trees foreach { t =>
+          y += MapFragment.SubtreeMargin
+          t.y = y
+          y += t.h + MapFragment.SubtreeMargin
+
+          val middleY = t.y + t.h / 2
+          t.x = x0 - (if (left) t.w else 0)
+          t.x += (sgn * math.sin(math.Pi * (middleY - y0) / height) * MapFragment.ArcShortRadius).toInt
+        }
       }
-    }
 
-    val root = Rect random (70, 70, 30, 30)
+      position(rtrees, left = false)
+      position(ltrees, left = true)
 
-    val n = rng nextInt (4, 6)
-    val trees = (Vector fill n)(Rect random (50, 200, 30, 200))
+      val minx = if (ltrees.isEmpty) 0 else (ltrees map (_.x)).min
+      val maxx = if (rtrees.isEmpty) 0 else (rtrees map (t => t.x + t.w)).max
 
-    val (rtrees, ltrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
-      val hsum = (0 /: trees)(_ + _.h) / 2.0
-      val accH = (trees.tail scanLeft trees.head.h)(_ + _.h)
-      val idx = ((accH map (h => (h - hsum).abs)).zipWithIndex minBy(_._1))._2
-      trees splitAt (idx + 1)
-    }
+      val paperW = -minx + maxx + root.w
+      val paperH = height
 
-    def hei(ts: Vector[Rect]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
-    val rheight = hei(rtrees)
-    val lheight = hei(ltrees)
-    val height = rheight max lheight
-
-    def pad(th: Int) = (height - th) / 2
-    val rpad = pad(rheight)
-    val lpad = pad(lheight)
-
-    def position(trees: Vector[Rect], left: Boolean) {
-      val sgn = if (left) -1 else 1
-      val pad = if (left) lpad else rpad
-      val x0, y0 = 0
-
-      var y = y0 + pad
-      trees foreach { t =>
-        y += MapFragment.SubtreeMargin
-        t.y = y
-        y += t.h + MapFragment.SubtreeMargin
-
-        val middleY = t.y + t.h / 2
-        t.x = x0 - (if (left) t.w else 0)
-        t.x += (sgn * math.sin(math.Pi * (middleY - y0) / height) * MapFragment.ArcShortRadius).toInt
+      def setPaperSize(w: Int, h: Int) {
+        val lp = paper.getLayoutParams
+        lp.width = dp2px(w)
+        lp.height = dp2px(h)
+        paper requestLayout()
       }
+
+      ltrees foreach (_.x += -minx)
+      rtrees foreach (_.x += -minx + root.w)
+
+      root.x = -minx
+      root.y = paperH / 2 - root.h / 2
+
+      val rects = root +: ltrees ++: rtrees
+
+      // paper size and padding
+      val pp = MapFragment.PaperPadding
+      setPaperSize(paperW + 2 * pp, paperH + 2 * pp)
+      rects foreach { t => t.x += pp; t.y += pp }
+
+      rects foreach (_ drawOn paper)
     }
-
-    position(rtrees, left = false)
-    position(ltrees, left = true)
-
-    val minx = (ltrees map (_.x)).min
-    val maxx = (rtrees map (t => t.x + t.w)).max
-
-    val paperW = -minx + maxx + root.w
-    val paperH = height
-
-    def setPaperSize(w: Int, h: Int) {
-      val lp = paper.getLayoutParams
-      lp.width = dp2px(w)
-      lp.height = dp2px(h)
-      paper requestLayout()
-    }
-
-    ltrees foreach (_.x += -minx)
-    rtrees foreach (_.x += -minx + root.w)
-
-    root.x = -minx
-    root.y = paperH / 2 - root.h / 2
-
-    val rects = root +: ltrees ++: rtrees
-
-    // paper size and padding
-    val pp = MapFragment.PaperPadding
-    setPaperSize(paperW + 2 * pp, paperH + 2 * pp)
-    rects foreach { t => t.x += pp; t.y += pp }
-
-    rects foreach (_ drawOn paper)
   }
 
 }

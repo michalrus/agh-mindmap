@@ -156,7 +156,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       val b = new Bundle
       b.putString("uuid", uuid)
 
-      tabManager.addTab[MapFragment](uuid, map.root.content.getOrElse(""))
+      tabManager.addTab[MapFragment](uuid, map.root.content.getOrElse(""), b)
       laterOnUiThread {
         tabManager.focusTabOfTag(uuid)
       }
