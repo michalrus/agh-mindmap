@@ -12,6 +12,7 @@ import android.widget.{ImageView, RelativeLayout, ScrollView}
 
 object MapFragment {
   val ArcShortRadius = 200
+  val PaperPadding = 50
   val SubtreeMargin = 1
 }
 
@@ -158,19 +159,20 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       paper requestLayout()
     }
 
-    setPaperSize(paperW, paperH)
-
     ltrees foreach (_.x += -minx)
     rtrees foreach (_.x += -minx + root.w)
 
     root.x = -minx
     root.y = paperH / 2 - root.h / 2
-    root drawOn paper
 
-    rtrees foreach (_ drawOn (paper, 0xffff0000))
-    ltrees foreach (_ drawOn (paper, 0xff00ff00))
+    val rects = root +: ltrees ++: rtrees
 
-    paper setBackgroundColor 0xff0000ff
+    // paper size and padding
+    val pp = MapFragment.PaperPadding
+    setPaperSize(paperW + 2 * pp, paperH + 2 * pp)
+    rects foreach { t => t.x += pp; t.y += pp }
+
+    rects foreach (_ drawOn paper)
   }
 
 }
