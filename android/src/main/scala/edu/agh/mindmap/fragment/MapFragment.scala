@@ -112,12 +112,12 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     val n = rng nextInt (11, 15)
     val trees = (Vector fill n)(Rect random (50, 200, 30, 200))
 
-    val (rtrees, ltrees) = {
+    val (rtrees, ltrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
       val hsum = (0 /: trees)(_ + _.h) / 2.0
-      def loop(i: Int, acc: Int): Int =
-        if (acc > hsum) i
-        else loop(i + 1, acc + trees(i).h)
-      trees splitAt loop(0, 0)
+      val accH = (trees.tail scanLeft trees.head.h)(_ + _.h)
+      val idx = ((accH map (h => (h - hsum).abs)).zipWithIndex minBy(_._1))._2
+      trees splitAt idx
+      // FIXME: why you always on the left :< why you not work
     }
 
     def hei(ts: Vector[Rect]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
