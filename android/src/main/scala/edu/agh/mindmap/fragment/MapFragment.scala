@@ -138,11 +138,12 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
       val trees = map.root.children map (Wrapper(_))
 
-      val (rtrees, ltrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
+      val (ltrees, rtrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
         val hsum = (0 /: trees)(_ + _.h) / 2.0
         val accH = (trees.tail scanLeft trees.head.h)(_ + _.h)
         val idx = ((accH map (h => (h - hsum).abs)).zipWithIndex minBy(_._1))._2
-        trees splitAt (idx + 1)
+        val (r, l) = trees splitAt (idx + 1)
+        (l.reverse, r)
       }
 
       def hei(ts: Vector[Wrapper]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
