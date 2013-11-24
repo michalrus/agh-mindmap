@@ -28,9 +28,9 @@ object MindMap {
   def findAll: List[MindMap] = {
     val a = create; a.root.content = Some("mapa A")
     val a1 = MindNode createChildOf (a.root, 1.0); a1.content = Some("a1")
-    val a2 = MindNode createChildOf (a.root, 2.0); a1.content = Some("a2")
-    val a3 = MindNode createChildOf (a.root, 3.0); a1.content = Some("a3")
-    val a4 = MindNode createChildOf (a.root, 4.0); a1.content = Some("a4")
+    val a2 = MindNode createChildOf (a.root, 2.0); a2.content = Some("a2")
+    val a3 = MindNode createChildOf (a.root, 3.0); a3.content = Some("a3")
+    val a4 = MindNode createChildOf (a.root, 4.0); a4.content = Some("a4")
 
     val b = create; b.root.content = Some("mapa B")
     val c = create; c.root.content = Some("mapa C")
