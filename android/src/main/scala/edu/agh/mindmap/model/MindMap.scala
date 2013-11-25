@@ -25,7 +25,7 @@ object MindMap {
     map
   }
 
-  def findAll: List[MindMap] = {
+  private def fillWithRandom() {
     val a = create; a.root.content = Some("mapa A")
     val a1 = MindNode createChildOf (a.root, 1.0); a1.content = Some("a1")
     val a2 = MindNode createChildOf (a.root, 2.0); a2.content = Some("a2")
@@ -35,8 +35,12 @@ object MindMap {
     val b = create; b.root.content = Some("mapa B")
     val c = create; c.root.content = Some("mapa C")
     val d = create; d.root.content = Some("mapa D")
+  }
 
-    a :: b :: c :: d :: Nil
+  def findAll: List[MindMap] = {
+    if (db.isEmpty) fillWithRandom()
+
+    db.values.toList
   }
 
   def findByUuid(uuid: UUID) = db get uuid

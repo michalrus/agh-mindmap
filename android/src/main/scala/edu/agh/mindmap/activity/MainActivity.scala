@@ -17,6 +17,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}
 import edu.agh.mindmap.model.MindMap
 import edu.agh.mindmap.util.ImporterException
+import java.util.UUID
 
 object MainActivity {
   val FileChooserRequestCode = 31337
@@ -131,16 +132,19 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     tabManager.addTab[MapListFragment](MainActivity.MapListTabTag, "All maps")
 
     Option(bundle) foreach (b => {
-      tabHost.setCurrentTabByTag(b.getString("tab"))
+      Option(b getStringArray "tags") foreach(_ filter (_ != MainActivity.MapListTabTag) foreach { t =>
+        MindMap findByUuid (UUID fromString t) foreach (viewMindMap(_, switchTab = false))
+      })
       laterOnUiThread {
-        tabManager.rescrollTabView()
+        Option(b getString "tab") foreach tabManager.focusTabOfTag
       }
     })
   }
 
   override def onSaveInstanceState(bundle: Bundle) {
     super.onSaveInstanceState(bundle)
-    bundle.putString("tab", tabHost.getCurrentTabTag)
+    bundle putString ("tab", tabHost.getCurrentTabTag)
+    bundle putStringArray ("tags", tabManager.addedTags)
   }
 
   override def onBackPressed() {
@@ -150,14 +154,14 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
   }
 
-  def viewMindMap(map: MindMap) {
+  def viewMindMap(map: MindMap, switchTab: Boolean = true) {
     val uuid = map.uuid.toString
     if (!tabManager.focusTabOfTag(uuid)) {
       val b = new Bundle
       b.putString("uuid", uuid)
 
       tabManager.addTab[MapFragment](uuid, map.root.content.getOrElse(""), b)
-      laterOnUiThread {
+      if (switchTab) laterOnUiThread {
         tabManager.focusTabOfTag(uuid)
       }
     }
@@ -173,6 +177,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     val tabSpecs = new mutable.ArrayBuffer[TabHost#TabSpec]
 
     var lastTabTag: Option[String] = None
+
+    def addedTags = (tabSpecs map (_.getTag)).toArray
 
     class DummyTabFactory(val context: Context) extends TabHost.TabContentFactory {
       override def createTabContent(tag: String) = {

@@ -24,6 +24,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   private var inflater: Option[LayoutInflater] = None
   private var map: Option[MindMap] = None
 
+  private var redrawEverything = false
+
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     this.inflater = Some(inflater)
 
@@ -36,17 +38,13 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     val uuid = try {
       UUID.fromString(getArguments getString "uuid")
     } catch {
-      case e: Exception => {
-        log(e.toString)
-        new UUID(0, 0)
-      }
+      case _: Exception => new UUID(0, 0)
     }
 
     map = MindMap findByUuid uuid
 
-    laterOnUiThread { // Why later?...
-      paintMap()
-    }
+    redrawEverything = true // <m> I hate you, Android, for all this mutability!
+    paintMap(view.find[RelativeLayout](R.id.paper))
 
     view
   }
@@ -108,7 +106,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       }
 
       view match {
-        case Some(v) =>
+        case Some(v) if !redrawEverything =>
           v.getLayoutParams match {
             case rp: RelativeLayout.LayoutParams =>
               updateRp(rp)
@@ -130,9 +128,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     }
   }
 
-  private def paintMap() {
-    val paper = getView.find[RelativeLayout](R.id.paper)
-
+  private def paintMap(paper: RelativeLayout) {
     map foreach { map =>
       val root = Wrapper(map.root)
 
@@ -202,6 +198,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       rects foreach { t => t.x += pp; t.y += pp }
 
       rects foreach (_ drawOn paper)
+
+      redrawEverything = false
     }
   }
 
