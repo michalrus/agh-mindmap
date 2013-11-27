@@ -1,0 +1,134 @@
+% Copyright 2011 by Marcin Szpyrka <mszpyrka@agh.edu.pl>
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/licenses/LICENSE for more details.
+
+\ProvidesPackageRCS $Header: beamerthemeAGH.sty,v 1.0 2011/01/21 $
+
+
+
+
+
+
+\mode<presentation>
+
+\newif\ifbeamer@secheader
+\beamer@secheaderfalse
+
+\DeclareOptionBeamer{secheader}{\beamer@secheadertrue}
+\ProcessOptionsBeamer
+
+\useinnertheme[shadow]{rounded}
+\usecolortheme[RGB={22,116,100}]{structure} 
+\usefonttheme[onlymath]{serif}
+\definecolor{mygreen}{rgb}{0.086,0.455,0.392}
+\definecolor{mygrey}{rgb}{0.95,0.95,0.95}
+
+
+\setbeamercolor{frametitle}{fg=black}
+\setbeamercolor{author in head/foot}{fg=white}
+\setbeamercolor{page number in head/foot}{fg=white}
+\setbeamercolor{title in head/foot}{fg=white}
+\setbeamercolor{date in head/foot}{fg=white}
+\setbeamercolor{title}{fg=black}
+\setbeamerfont{title}{size=\Large,shape=\bfseries}
+\setbeamerfont{author}{size=\small,shape=\bfseries}
+\setbeamerfont{institute}{size=\scriptsize,shape=\bfseries}
+\setbeamerfont{date}{size=\scriptsize,shape=\bfseries}
+
+\setbeamercolor{block body}{parent=normal text,use=block title,bg=mygrey}
+\setbeamercolor{block body example}{parent=normal text,use=block title example,bg=mygrey}
+\setbeamercolor{block title}{use=structure,fg=white,bg=mygreen}
+\setbeamercolor{block title example}{use=example text,fg=white,bg=mygreen}
+
+\defbeamertemplate*{title page}{AGH}[1][]
+{
+  \vbox{}
+  \vspace*{2.3cm}
+  \vfill
+  \hspace*{1.8cm}
+    \begin{beamercolorbox}[sep=8pt,#1]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%     
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \hspace*{2.35cm}
+    \begin{beamercolorbox}[sep=8pt,#1]{author}
+      \usebeamerfont{author}\insertauthor
+    \end{beamercolorbox}
+    \vskip1em\par
+    \hspace*{2.35cm}
+    \begin{beamercolorbox}[sep=8pt,#1]{institute}
+      \usebeamerfont{institute}\insertinstitute
+    \end{beamercolorbox}
+    \hspace*{2.35cm}
+    \begin{beamercolorbox}[sep=8pt,#1]{date}
+      \usebeamerfont{date}\insertdate
+    \end{beamercolorbox}\vskip0.5em
+    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+  \vfill
+}
+
+
+\defbeamertemplate*{footline}{AGH}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor~~(\insertshortinstitute)
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
+\defbeamertemplate*{frametitle}{AGH}[1][left]
+{
+  \ifbeamercolorempty[bg]{frametitle}{}{\nointerlineskip}%
+  \@tempdima=\textwidth%
+  \advance\@tempdima by\beamer@leftmargin%
+  \advance\@tempdima by\beamer@rightmargin%
+  \begin{beamercolorbox}[sep=0.3cm,#1,wd=\the\@tempdima]{frametitle}
+    \usebeamerfont{frametitle}%
+    \vbox{}\vskip1.5ex\hskip6ex%
+    \if@tempswa\else\csname beamer@fte#1\endcsname\fi%
+    \strut\insertframetitle\strut\par%
+    {%
+      \ifx\insertframesubtitle\@empty%
+      \else%
+      {\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\strut\par}%
+      \fi
+    }%
+    \vskip-1ex%
+    \if@tempswa\else\vskip-.3cm\fi% set inside beamercolorbox... evil here...
+  \end{beamercolorbox}%
+}
+
+\usebackgroundtemplate{\includegraphics[width=\paperwidth]{page}} 
+
+\usesubitemizeitemtemplate{%
+    \tiny\raise1.5pt\hbox{\color{beamerstructure}$\blacktriangleright$}%
+}
+\usesubsubitemizeitemtemplate{%
+    \tiny\raise1.5pt\hbox{\color{beamerstructure}$\bigstar$}%
+}
+
+\setbeamersize{text margin left=1em,text margin right=1em}
+
+\ifbeamer@secheader\else\setbeamertemplate{headline}[default]\fi
+
+\mode
+<all>

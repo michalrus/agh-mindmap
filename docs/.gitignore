@@ -34,6 +34,11 @@ main.pdf
 *.synctex.gz
 *.toc
 
+# Beamer temporary files
+
+*.nav
+*.snm
+
 # Latexian temporary file
 
 *LatexianTemp_*
