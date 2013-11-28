@@ -1,6 +1,26 @@
 \begin{frame}
-\frametitle{Subtree recreation algorithm}
+\frametitle{Subtree recreation algorithm --- kiedy?}
 
-\todo{Czyli rozwiązywanie konfliktów placement po usunięciu przodków zmienionego off-line poddrzewa.}
+%\todo{Czyli rozwiązywanie konfliktów placement po usunięciu przodków zmienionego off-line poddrzewa.}
+
+\begin{columns}[c]
+	\begin{column}{.45\textwidth}
+		\begin{enumerate}
+			\item Wspólny stan.
+			\only<2,3,4>{\item Usunięcie poddrzewa on-line.}
+			\only<3,4>{\item Dodanie node'a off-line.}
+			\only<4>{\item Odtworzenie poddrzewa.}
+		\end{enumerate}
+	\end{column}
+	\begin{column}{.45\textwidth}
+		\begin{figure}
+			\includegraphics<1>[height=6cm]{recreation-1}
+			\includegraphics<2>[height=6cm]{recreation-2}
+			\includegraphics<3>[height=6cm]{recreation-3}
+			\includegraphics<4>[height=6cm]{recreation-4}
+		\end{figure}
+	\end{column}
+\end{columns}
+
 
 \end{frame}
