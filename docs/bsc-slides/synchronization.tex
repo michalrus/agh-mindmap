@@ -1,8 +1,20 @@
-\begin{frame}
+\begin{frame}[t]
 \frametitle{Synchronizacja off-line}
 
-\todo{O automatycznym rozwiązywaniu konfliktów.}
-\todo{Dwa typy konfliktu: content i placement.}
-\todo{O prezentowaniu konfliktów end-userowi.}
+\vskip+5em
+
+\begin{itemize}
+	\item Konflikty automatycznie --- UX!
+	\only<2->{\item Dwa typy konfliktu: \begin{enumerate}
+			\item \emph{content},
+			\only<3->{\item \emph{placement}.}
+		\end{enumerate}}
+	\only<4->{\item \textcolor{red}{Prezentowanie} \emph{content}-konfliktów end-userowi.}
+	\only<5->{\item \emph{Placement} \(\rightarrow\) FIFO.}
+\end{itemize}
+
+\begin{center}
+	\only<6->{\Large Co z operacjami na usuniętych?\ldots}
+\end{center}
 
 \end{frame}
