@@ -1,14 +1,22 @@
 \begin{frame}
 \frametitle{Android + Akka + Spray.io}
 
-\todo{Scala na Androidzie --- można?}
-
-\todo{O samym Androidzie prawie nic, wszak wszyscy znają.}
-
-\todo{Mock-up UI, ten z mapą!}
-
-\todo{A więcej o Akce. Że user \(\Longleftrightarrow\) aktor.}
-
-\todo{Serwisy Spray.io z long-pollingiem: server push.}
+\begin{columns}[c]
+	\begin{column}[t]{.45\textwidth}
+		\vskip-5em
+		\begin{enumerate}
+			\item Scala na Androidzie --- można?
+			\only<2->{\item Serwer(y): Akka + Spray.io.
+				\item Telefon --- aktor.}
+			\only<3->{\item Push? REST Spray.io z long-pollingiem.
+				\item To samo API dla webapp.}
+		\end{enumerate}
+	\end{column}
+	\begin{column}{.45\textwidth}
+		\begin{figure}
+			\includegraphics[height=6cm]{graphics-mockup-map}
+		\end{figure}
+	\end{column}
+\end{columns}
 
 \end{frame}
