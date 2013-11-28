@@ -1,20 +1,22 @@
 \begin{frame}[t]
 \frametitle{Synchronizacja off-line}
 
-\vskip+5em
+\vskip+4em
 
 \begin{itemize}
-	\item Konflikty automatycznie --- UX!
-	\only<2->{\item Dwa typy konfliktu: \begin{enumerate}
+	\item Tylko czas serwera/-ów!
+	\item Powrót do sieci \(\rightarrow\) \texttt{time := now}.
+	\only<2->{\item Konflikty automatycznie --- UX!}
+	\only<3->{\item Dwa typy konfliktu: \begin{enumerate}
 			\item \emph{content},
-			\only<3->{\item \emph{placement}.}
+			\only<4->{\item \emph{placement}.}
 		\end{enumerate}}
-	\only<4->{\item \textcolor{red}{Prezentowanie} \emph{content}-konfliktów end-userowi.}
-	\only<5->{\item \emph{Placement} \(\rightarrow\) FIFO.}
+	\only<5->{\item \textcolor{red}{Prezentowanie} \emph{content}-konfliktów end-userowi.}
+	\only<6->{\item \emph{Placement} \(\rightarrow\) FIFO.}
 \end{itemize}
 
 \begin{center}
-	\only<6->{\Large Co z operacjami na usuniętych?\ldots}
+	\only<7->{\Large Co z operacjami na usuniętych?\ldots}
 \end{center}
 
 \end{frame}

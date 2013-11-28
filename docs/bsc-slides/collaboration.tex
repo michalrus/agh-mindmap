@@ -1,10 +1,19 @@
-\begin{frame}
+\begin{frame}[t]
 \frametitle{Kolaboracja on-line}
 
-\todo{Co tutaj? Wszak wszystko oczywiste.}
+\vskip+6em
 
-\todo{Może generalnie, że synchronizacja jest prosta, bo mamy podzielone dane w drzewo.}
+\begin{itemize}
+	\item Synchronizacja \emph{stosunkowo} prosta --- dane: drzewo.
+	\item Określone z góry chunki --- node'y drzewa.
+\end{itemize}
 
-\todo{Każdy Node ma swój UUID.}
+\only<2->{\begin{center}
+	\Large Node = (time, UUID, content, parent Node)
+\end{center}}
+
+\only<3->{\begin{itemize}
+  \item Tylko czas serwera/-ów!
+\end{itemize}}
 
 \end{frame}
