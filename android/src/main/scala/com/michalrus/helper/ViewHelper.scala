@@ -27,7 +27,7 @@ trait ViewHelper {
 
   implicit def scalaizeButton(b: Button) = new ScalaButton(b)
   class ScalaButton(val b: Button) {
-    def onClick[A](f: => A) {
+    def onClick(f: => Unit) {
       b.setOnClickListener(new OnClickListener {
         def onClick(v: View) = f
       })

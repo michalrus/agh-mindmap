@@ -16,6 +16,7 @@ trait ConcurrencyHelper {
       Thread sleep ms
       currentActivity runOnUiThread r
     }
+    ()
   }
 
 }

@@ -25,7 +25,7 @@ object Importer {
       def extractor(topic: Node, parent: MindNode) {
         (topic \ "children" \ "topics" \ "topic").zipWithIndex.foreach {
           case (childXml, i) =>
-            val child = MindNode.createChildOf(parent, i)
+            val child = MindNode.createChildOf(parent, i.toDouble)
             child.content = Some((childXml \ "title").head.text)
             extractor(childXml, child)
         }

@@ -150,7 +150,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   override def onBackPressed() {
     tabHost.getCurrentTabTag match {
       case MainActivity.MapListTabTag => super.onBackPressed()
-      case _ => tabManager focusTabOfTag MainActivity.MapListTabTag
+      case _ => tabManager focusTabOfTag MainActivity.MapListTabTag; ()
     }
   }
 
@@ -163,6 +163,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       tabManager.addTab[MapFragment](uuid, map.root.content.getOrElse(""), b)
       if (switchTab) laterOnUiThread {
         tabManager.focusTabOfTag(uuid)
+        ()
       }
     }
   }
@@ -250,6 +251,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           ft commit()
 
           fragments -= tag
+          ()
         case _ =>
       }
     }

@@ -9,7 +9,7 @@ name := "agh-mindmap"
 scalaVersion := "2.10.1"
 
 scalacOptions in Compile ++= Seq("-feature", "-deprecation", "-Yno-adapted-args", "-Ywarn-all", "-Xfatal-warnings",
-  "-Xlint", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-Ywarn-dead-code", "-unchecked")
+  "-Xlint", "-Xlint:deprecation", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-Ywarn-dead-code", "-unchecked")
 
 platformTarget in Android := "android-17"
 

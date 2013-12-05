@@ -27,7 +27,7 @@ trait MiscHelper {
 
   import language.implicitConversions
 
-  implicit def blockToRunnable[A](f: => A) = new Runnable {
+  implicit def blockToRunnable(f: => Unit) = new Runnable {
     def run() = f
   }
 

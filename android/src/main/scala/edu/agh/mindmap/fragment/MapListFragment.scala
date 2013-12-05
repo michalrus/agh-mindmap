@@ -42,7 +42,7 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
     }
   }
 
-  def withMainActivity[A](f: MainActivity => A) {
+  def withMainActivity(f: MainActivity => Unit) {
     getActivity match {
       case a: MainActivity => f(a)
       case _ =>
