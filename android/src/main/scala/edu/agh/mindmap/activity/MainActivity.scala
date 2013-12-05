@@ -99,7 +99,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     b.create.show()
   }
 
-  def withMapListFragment[A](f: MapListFragment => A) {
+  def withMapListFragment(f: MapListFragment => Unit) {
     tabManager.fragments get MainActivity.MapListTabTag foreach {
       case lf: MapListFragment => f(lf)
       case _ =>
