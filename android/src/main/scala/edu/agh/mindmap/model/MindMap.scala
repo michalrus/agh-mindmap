@@ -17,7 +17,7 @@ object MindMap {
 
   import collection.mutable
 
-  val db = new mutable.HashMap[UUID, MindMap]  // FIXME: this should be a real database
+  private val db = new mutable.HashMap[UUID, MindMap]  // FIXME: this should be a real database
 
   def create = {
     val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
@@ -26,11 +26,16 @@ object MindMap {
   }
 
   private def fillWithRandom() {
+    var ord = 1.0
+    def cr(m: MindMap, s: String) = {
+      val n = MindNode createChildOf (m.root, ord)
+      n.content = Some(s)
+      ord += 1
+    }
+
     val a = create; a.root.content = Some("mapa A")
-    val a1 = MindNode createChildOf (a.root, 1.0); a1.content = Some("a1")
-    val a2 = MindNode createChildOf (a.root, 2.0); a2.content = Some("a2")
-    val a3 = MindNode createChildOf (a.root, 3.0); a3.content = Some("a3")
-    val a4 = MindNode createChildOf (a.root, 4.0); a4.content = Some("a4")
+    val num = 4
+    1 to num map ("a" + _) foreach (cr(a, _))
 
     val b = create; b.root.content = Some("mapa B")
     val c = create; c.root.content = Some("mapa C")
