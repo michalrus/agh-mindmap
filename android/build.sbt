@@ -8,6 +8,8 @@ name := "agh-mindmap"
 
 scalaVersion := "2.10.3"
 
+// javacOptions in Compile ++= Seq("-Xlint:deprecation")
+
 scalacOptions in Compile ++= Seq("-feature", "-deprecation", "-Yno-adapted-args", "-Ywarn-all", "-Xfatal-warnings",
   "-Xlint", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-Ywarn-dead-code", "-unchecked")
 
