@@ -7,7 +7,7 @@ import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
-import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
+import edu.agh.mindmap.component.{Arrow, ArrowView, HorizontalScrollViewWithPropagation}
 import android.widget.{TextView, RelativeLayout, ScrollView}
 
 object MapFragment {
@@ -68,6 +68,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   class SubtreeWrapper private(node: MindNode) {
     private var _x, _y, _w, _h = 0
     private var _folded = false
+    private var nodeView: Option[View] = None
+    private var arrowView: Option[ArrowView] = None
 
     def isRoot = node.map.root == node
 
@@ -115,39 +117,70 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       if (!isRoot) node.children map (SubtreeWrapper(_)) foreach (_ repositionBy(dx, dy))
     }
 
-    private var nodeView: Option[View] = None
-
     def drawOn(vg: ViewGroup, color: Int = randomColor) {
-      def updateRp(rp: RelativeLayout.LayoutParams) {
+      def updateLP(v: View, fun: RelativeLayout.LayoutParams => Unit) {
+        v.getLayoutParams match {
+          case rp: RelativeLayout.LayoutParams =>
+            fun(rp)
+            v requestLayout()
+          case _ =>
+        }
+      }
+
+      def updateNodeViewParams(rp: RelativeLayout.LayoutParams) {
         rp.width = dp2px(w)
         rp.height = dp2px(h)
         rp.leftMargin = dp2px(x)
         rp.topMargin = dp2px(y)
       }
-      def updateV(v: View) {
+      def updateNodeView(v: View) {
         val tf = v.find[TextView](R.id.content)
         tf.setBackgroundColor(color)
         node.content foreach (tf setText _)
         v setBackgroundColor color
       }
+      def updateArrowViewParams(a: Arrow)(rp: RelativeLayout.LayoutParams) {
+        rp.width = a.boundingW
+        rp.height = a.boundingH
+        rp.leftMargin = a.boundingX
+        rp.topMargin = a.boundingY
+      }
+      def properArrow: Option[Arrow] = node.parent map(SubtreeWrapper(_)) map { parent =>
+        val x0 = parent.x + parent.w / 2
+        val y0 = parent.y + parent.h / 2
+        val x1 = x + w / 2
+        val y1 = y + h / 2
+        Arrow(dp2px(x0), dp2px(y0), dp2px(x1), dp2px(y1))
+      }
 
       nodeView match {
-        case Some(v) if !redrawEverything =>
-          v.getLayoutParams match {
-            case rp: RelativeLayout.LayoutParams =>
-              updateRp(rp)
-              v requestLayout()
-              updateV(v)
-            case _ =>
+        case Some(nv) if !redrawEverything =>
+          updateLP(nv, updateNodeViewParams)
+          updateNodeView(nv)
+          for (av <- arrowView; a <- properArrow) {
+            av.arrow = a
+            updateLP(av, updateArrowViewParams(a))
           }
         case _ => inflater foreach { inflater =>
-          val v = inflater inflate (R.layout.mind_node, null)
-          nodeView = Some(v)
+          val nv = inflater inflate (R.layout.mind_node, null)
+
+          nodeView foreach vg.removeView
+          nodeView = Some(nv)
 
           val rp = new RelativeLayout.LayoutParams(0, 0)
-          updateRp(rp)
-          vg addView (v, rp)
-          updateV(v)
+          updateNodeViewParams(rp)
+          vg addView (nv, rp)
+          updateNodeView(nv)
+
+          arrowView foreach vg.removeView
+          arrowView = None
+          for (a <- properArrow) {
+            val av = new ArrowView(inflater.getContext, a)
+            arrowView = Some(av)
+            val rp = new RelativeLayout.LayoutParams(0, 0)
+            updateArrowViewParams(a)(rp)
+            vg addView (av, 0, rp)
+          }
         }
       }
 
@@ -158,6 +191,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   private def paintMap(paper: RelativeLayout) {
     map foreach { map =>
       val root = SubtreeWrapper(map.root)
+      root.positionAt(0, 0, left = false)
+
       SubtreeWrapper recalculateAllSizes map
 
       val trees = map.root.children map (SubtreeWrapper(_))
