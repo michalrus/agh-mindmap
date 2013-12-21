@@ -4,7 +4,7 @@ import android.util.Log
 
 object MiscHelper {
 
-  def log(s: String) = Log d ("com.michalrus.helper", s)
+  def log(s: String) = Log i ("com.michalrus.helper", s)
 
   val rng = new MiscHelper.Random
 
