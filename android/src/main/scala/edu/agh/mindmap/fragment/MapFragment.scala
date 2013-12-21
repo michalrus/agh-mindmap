@@ -144,7 +144,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
           val v = inflater inflate (R.layout.mind_node, null)
           nodeView = Some(v)
 
-          val rp = new RelativeLayout.LayoutParams(dp2px(w), dp2px(h))
+          val rp = new RelativeLayout.LayoutParams(0, 0)
           updateRp(rp)
           vg addView (v, rp)
           updateV(v)
