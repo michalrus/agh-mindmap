@@ -18,6 +18,7 @@ import android.app.{AlertDialog, Activity}
 import edu.agh.mindmap.model.MindMap
 import edu.agh.mindmap.util.ImporterException
 import java.util.UUID
+import scala.util.Try
 
 object MainActivity {
   val FileChooserRequestCode = 31337
@@ -287,8 +288,10 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           case _ =>
         }
         lastTabTag = Some(tag)
-        ft.commit()
-        activity.getSupportFragmentManager.executePendingTransactions()
+        Try { // might throw if this gets called after activity is destroyed... Android. :(
+          ft.commit()
+          activity.getSupportFragmentManager.executePendingTransactions()
+        }
         laterOnUiThread {
           rescrollTabView()
         }
