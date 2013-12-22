@@ -202,7 +202,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         }
       }
 
-      // FIXME: draw children
+      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, color))
     }
   }
 
