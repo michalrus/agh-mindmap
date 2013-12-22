@@ -10,11 +10,11 @@ class HorizontalScrollViewWithPropagation(context: Context, attrs: AttributeSet)
   extends HorizontalScrollView(context, attrs) {
 
   override def onTouchEvent(event: MotionEvent) =
-    super.onTouchEvent(event) | (inner exists (_ onTouchEvent event))
+    super.onTouchEvent(event) | (inner != null && (inner onTouchEvent event))
 
   override def onInterceptTouchEvent(event: MotionEvent) =
-    super.onInterceptTouchEvent(event) | (inner exists (_ onTouchEvent event))
+    super.onInterceptTouchEvent(event) | (inner != null && (inner onTouchEvent event))
 
-  var inner: Option[ScrollView] = None
+  var inner: ScrollView = null
 
 }

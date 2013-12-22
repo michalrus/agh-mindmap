@@ -35,7 +35,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     val hScroll = view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
     val vScroll = view.find[ScrollView](R.id.vscroll)
-    hScroll.inner = Some(vScroll)
+    hScroll.inner = vScroll
 
     val uuid = try {
       UUID.fromString(getArguments getString "uuid")
