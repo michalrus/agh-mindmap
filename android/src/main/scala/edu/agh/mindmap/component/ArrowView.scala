@@ -28,7 +28,9 @@ class ArrowView(context: Context, var arrow: Arrow)
     super.onDraw(canvas)
 
     val p = new Paint
-    p setColor Color.BLACK
+    p setColor Color.LTGRAY
+    p setAntiAlias true
+    p setStrokeWidth 5f
 
     canvas drawLine(arrow.innerX0.toFloat, arrow.innerY0.toFloat, arrow.innerX1.toFloat, arrow.innerY1.toFloat, p)
   }
