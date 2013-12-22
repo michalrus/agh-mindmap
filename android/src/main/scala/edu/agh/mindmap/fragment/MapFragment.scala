@@ -66,17 +66,18 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   }
 
   class SubtreeWrapper private(node: MindNode) {
-    private var _x, _y, _w, _h = 0
+    private var _subtreeX, _subtreeY, _subtreeW, _subtreeH = 0
     private var _folded = false
+    private var nodeX, nodeY, nodeW, nodeH = 0
     private var nodeView: Option[View] = None
     private var arrowView: Option[ArrowView] = None
 
     def isRoot = node.map.root == node
 
-    def x = _x
-    def y = _y
-    def w = _w
-    def h = _h
+    def subtreeX = _subtreeX
+    def subtreeY = _subtreeY
+    def subtreeW = _subtreeW
+    def subtreeH = _subtreeH
 
     def folded = _folded
     def folded_=(v: Boolean) = {
@@ -89,31 +90,33 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       kids foreach (_.recalculate())
 
       if (isRoot) {
-        _w = MapFragment.NodeW
-        _h = MapFragment.NodeH
+        nodeW = MapFragment.NodeW
+        nodeH = MapFragment.NodeH
+        _subtreeW = nodeW
+        _subtreeH = nodeH
       } else {
         if (kids.nonEmpty) {
-          val kidsH = (0 /: kids)(_ + _.h + 2 * MapFragment.NodeMarginTB)
-          val kidsW = kids maxBy (_.w)
+          val kidsH = (0 /: kids)(_ + _.subtreeH + 2 * MapFragment.NodeMarginTB)
+          val kidsW = kids maxBy (_.subtreeW)
 
 //          ??? // FIXME
         }
 
-        _w = MapFragment.NodeW// FIXME
-        _h = MapFragment.NodeH
+        _subtreeW = MapFragment.NodeW// FIXME
+        _subtreeH = MapFragment.NodeH
       }
     }
 
     def positionAt(x0: Int, y0: Int, left: Boolean) {
-      _y = y0
-      _x = x0 - (if (left) w else 0)
+      _subtreeY = y0
+      _subtreeX = x0 - (if (left) subtreeW else 0)
 
       // FIXME: position children
     }
 
     def repositionBy(dx: Int, dy: Int) {
-      _x += dx
-      _y += dy
+      _subtreeX += dx
+      _subtreeY += dy
       if (!isRoot) node.children map (SubtreeWrapper(_)) foreach (_ repositionBy(dx, dy))
     }
 
@@ -128,10 +131,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       }
 
       def updateNodeViewParams(rp: RelativeLayout.LayoutParams) {
-        rp.width = dp2px(w)
-        rp.height = dp2px(h)
-        rp.leftMargin = dp2px(x)
-        rp.topMargin = dp2px(y)
+        rp.width = dp2px(subtreeW)
+        rp.height = dp2px(subtreeH)
+        rp.leftMargin = dp2px(subtreeX)
+        rp.topMargin = dp2px(subtreeY)
       }
       def updateNodeView(v: View) {
         val tf = v.find[TextView](R.id.content)
@@ -146,10 +149,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         rp.topMargin = a.boundingY
       }
       def properArrow: Option[Arrow] = node.parent map(SubtreeWrapper(_)) map { parent =>
-        val x0 = parent.x + parent.w / 2
-        val y0 = parent.y + parent.h / 2
-        val x1 = x + w / 2
-        val y1 = y + h / 2
+        val x0 = parent.subtreeX + parent.subtreeW / 2
+        val y0 = parent.subtreeY + parent.subtreeH / 2
+        val x1 = subtreeX + subtreeW / 2
+        val y1 = subtreeY + subtreeH / 2
         Arrow(dp2px(x0), dp2px(y0), dp2px(x1), dp2px(y1))
       }
 
@@ -198,17 +201,17 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       val trees = map.root.children map (SubtreeWrapper(_))
 
       val (ltrees, rtrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
-        val hsum = (0 /: trees)(_ + _.h) / 2.0
-        val accH = (trees.tail scanLeft trees.head.h)(_ + _.h)
+        val hsum = (0 /: trees)(_ + _.subtreeH) / 2.0
+        val accH = (trees.tail scanLeft trees.head.subtreeH)(_ + _.subtreeH)
         val idx = ((accH map (h => (h - hsum).abs)).zipWithIndex minBy(_._1))._2
         val (r, l) = trees splitAt (idx + 1)
         (l.reverse, r)
       }
 
-      def hei(ts: Vector[SubtreeWrapper]) = (0 /: ts)(_ + _.h + 2 * MapFragment.SubtreeMargin)
+      def hei(ts: Vector[SubtreeWrapper]) = (0 /: ts)(_ + _.subtreeH + 2 * MapFragment.SubtreeMargin)
       val rheight = hei(rtrees)
       val lheight = hei(ltrees)
-      val height = List(rheight, lheight, root.h).max
+      val height = List(rheight, lheight, root.subtreeH).max
 
       def pad(th: Int) = (height - th) / 2
       val rpad = pad(rheight)
@@ -223,9 +226,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         trees foreach { t =>
           y += MapFragment.SubtreeMargin
           val ty = y
-          y += t.h + MapFragment.SubtreeMargin
+          y += t.subtreeH + MapFragment.SubtreeMargin
 
-          val middleY = ty + t.h / 2
+          val middleY = ty + t.subtreeH / 2
           val tx = x0 + (sgn * math.sin(math.Pi * (middleY - y0) / height) * MapFragment.ArcShortRadius).toInt
 
           t positionAt (tx, ty, left)
@@ -235,10 +238,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       position(rtrees, left = false)
       position(ltrees, left = true)
 
-      val minx = if (ltrees.isEmpty) 0 else (ltrees map (_.x)).min
-      val maxx = if (rtrees.isEmpty) 0 else (rtrees map (t => t.x + t.w)).max
+      val minx = if (ltrees.isEmpty) 0 else (ltrees map (_.subtreeX)).min
+      val maxx = if (rtrees.isEmpty) 0 else (rtrees map (t => t.subtreeX + t.subtreeW)).max
 
-      val paperW = -minx + maxx + root.w
+      val paperW = -minx + maxx + root.subtreeW
       val paperH = height
 
       def setPaperSize(w: Int, h: Int) {
@@ -249,9 +252,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       }
 
       ltrees foreach (_ repositionBy (-minx, 0))
-      rtrees foreach (_ repositionBy (-minx + root.w, 0))
+      rtrees foreach (_ repositionBy (-minx + root.subtreeW, 0))
 
-      root repositionBy (-minx, paperH / 2 - root.h / 2)
+      root repositionBy (-minx, paperH / 2 - root.subtreeH / 2)
 
       val rects = root +: ltrees ++: rtrees
 
