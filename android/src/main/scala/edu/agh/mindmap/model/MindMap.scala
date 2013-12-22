@@ -26,20 +26,20 @@ object MindMap {
   }
 
   private def fillWithRandom() {
-    var ord = 1.0
-    def cr(m: MindMap, s: String) = {
-      val n = MindNode createChildOf (m.root, ord)
-      n.content = Some(s)
+    var ord = 1
+    def addRandomChildren(parent: MindNode, num: Int) = for (i <- 1 to num) {
+      val n = MindNode createChildOf (parent, ord.toDouble)
+      n.content = parent.content map (_ + "." + i)
       ord += 1
     }
 
-    val a = create; a.root.content = Some("mapa A")
-    val num = 4
-    1 to num map ("a" + _) foreach (cr(a, _))
+    val a = create; a.root.content = Some("A")
+    addRandomChildren(a.root, 9)
+    addRandomChildren(a.root.children(4), 5)
 
-    val b = create; b.root.content = Some("mapa B")
-    val c = create; c.root.content = Some("mapa C")
-    val d = create; d.root.content = Some("mapa D")
+    val b = create; b.root.content = Some("B")
+    val c = create; c.root.content = Some("C")
+    val d = create; d.root.content = Some("D")
   }
 
   def findAll: List[MindMap] = {
