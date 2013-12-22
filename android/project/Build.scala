@@ -13,17 +13,26 @@ object Build extends Build {
 
   val PlatformTarget = "android-17"
 
+  val SupportV4 = "com.android.support" % "support-v4" % "18.0.0"
+
+  def inUnwantedSubprojectJars(file: Attributed[File]) =
+    Seq("android-support-v4.jar") contains file.data.getName
+
   // --- dload github:iPaulPro/aFileChooser
 
-  val afcGit = uri("https://github.com/iPaulPro/aFileChooser.git#5da7ca6f69ed3a6e4c07f6d1ce0a76453ea435ef")
+  val afcGit = uri("https://github.com/iPaulPro/aFileChooser.git#42d10d3bf3bddfb7ed4856c3264fc26ead4625a1")
   val afcBase = (ArbitraryProject git afcGit) / "aFileChooser"
   lazy val afcSettings = android.Plugin.androidBuild ++ Seq(
     platformTarget in Android := PlatformTarget,
     libraryProject in Android := true,
+
+    unmanagedJars in Compile ~= (_ filterNot inUnwantedSubprojectJars),
+    libraryDependencies += SupportV4,
+
     ideaSourcesClassifiers := Seq("src"),
     ideaJavadocsClassifiers := Seq(),
-    ideaBasePackage := Some("com.ipaulpro.afilechooser"),
-    ideaPackagePrefix := Some("com.ipaulpro.afilechooser")
+    ideaBasePackage := None,
+    ideaPackagePrefix := None
   )
   lazy val afc = RootProject(afcBase)
 
@@ -48,9 +57,11 @@ object Build extends Build {
 
       run <<= run in Android,
 
-      libraryDependencies += "com.android.support" % "support-v4" % "18.0.0",
+      libraryDependencies += SupportV4,
       libraryDependencies += apklib("com.actionbarsherlock" % "actionbarsherlock" % "4.4.0" intransitive()),
       localProjects in Android += LibraryProject(afcBase),
+
+      proguardInputs in Android ~= { p => p.copy(injars = p.injars filterNot inUnwantedSubprojectJars) },
 
       useProguard in Android := true,
       proguardOptions in Android += "-keep class android.support.v4.app.** { *; }",
