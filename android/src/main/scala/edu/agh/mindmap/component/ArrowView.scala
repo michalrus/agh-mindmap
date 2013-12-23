@@ -10,7 +10,7 @@ object Arrow {
   val DisplayBoundingBox = false
 }
 
-case class Arrow(x0: Int, y0: Int, x1: Int, y1: Int) {
+case class Arrow(x0: Int, y0: Int, throughX: Option[Int], x1: Int, y1: Int) {
   import Arrow.{SafetyMargin => M}
 
   val boundingX = -M + (x0 min x1)
@@ -18,10 +18,8 @@ case class Arrow(x0: Int, y0: Int, x1: Int, y1: Int) {
   val boundingW = 2 * M + (x0 - x1).abs
   val boundingH = 2 * M + (y0 - y1).abs
 
-  val innerX0 = x0 - boundingX
-  val innerY0 = y0 - boundingY
-  val innerX1 = x1 - boundingX
-  val innerY1 = y1 - boundingY
+  def innerX(x: Int) = x - boundingX
+  def innerY(y: Int) = y - boundingY
 
 }
 
@@ -39,7 +37,28 @@ class ArrowView(context: Context, var arrow: Arrow)
     p setAntiAlias true
     p setStrokeWidth 5f
 
-    canvas drawLine(arrow.innerX0.toFloat, arrow.innerY0.toFloat, arrow.innerX1.toFloat, arrow.innerY1.toFloat, p)
+    def polyline(ps: (Int, Int)*) = if (ps.nonEmpty) {
+      ps zip ps.tail foreach { case ((x0, y0), (x1, y1)) =>
+        canvas drawLine(
+          arrow.innerX(x0).toFloat,
+          arrow.innerY(y0).toFloat,
+          arrow.innerX(x1).toFloat,
+          arrow.innerY(y1).toFloat, p)
+      }
+    }
+
+    arrow.throughX match {
+      case Some(throughX) => polyline (
+        (arrow.x0, arrow.y0),
+        (throughX, arrow.y0),
+        (throughX, arrow.y1),
+        (arrow.x1, arrow.y1)
+      )
+      case None => polyline(
+        (arrow.x0, arrow.y0),
+        (arrow.x1, arrow.y1)
+      )
+    }
   }
 
 }

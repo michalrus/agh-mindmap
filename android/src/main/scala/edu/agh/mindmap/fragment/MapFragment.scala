@@ -82,14 +82,18 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     object positions {
       private var sy, sx, ny, nx = 0
+      private var tx: Option[Int] = None
       val subtree = new Position { def y = sy; def x = sx }
       val node    = new Position { def y = ny; def x = nx }
+      def arrowThroughX = tx
 
       def positionAt(x0: Int, y0: Int, left: Boolean) {
         sy = y0
         sx = x0 - (if (!isRoot && left) sizes.subtree.w else 0)
         ny = subtree.y + (sizes.subtree.h - sizes.node.h) / 2
         nx = subtree.x + (if (!isRoot && left) sizes.subtree.w - sizes.node.w else 0)
+
+        tx = None
 
         if (!isRoot) {
           val kids = mindNode.children map (SubtreeWrapper(_))
@@ -103,6 +107,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
             dy += child.sizes.subtree.h + MapFragment.SubtreeMargin
 
             child.positions positionAt(cx, cy, left)
+
+            child.positions.tx = Some((if (left) Array(node.x, child.positions.node.x + child.sizes.node.w)
+            else Array(node.x + sizes.node.w, child.positions.node.x)).sum / 2)
           }
         }
       }
@@ -112,6 +119,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         sy += dy
         nx += dx
         ny += dy
+        tx = tx map (_ + dx)
 
         if (!isRoot) mindNode.children map (SubtreeWrapper(_)) foreach
           (_.positions repositionBy(dx, dy))
@@ -180,7 +188,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         val y0 = parent.positions.node.y + parent.sizes.node.h / 2
         val x1 = positions.node.x + sizes.node.h / 2
         val y1 = positions.node.y + sizes.node.h / 2
-        Arrow(dp2px(x0), dp2px(y0), dp2px(x1), dp2px(y1))
+        Arrow(dp2px(x0), dp2px(y0), positions.arrowThroughX map dp2px, dp2px(x1), dp2px(y1))
       }
 
       nodeView match {
