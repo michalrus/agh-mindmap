@@ -1,6 +1,6 @@
 package edu.agh.mindmap.fragment
 
-import com.michalrus.helper.ScalaFragment
+import com.michalrus.helper.{ViewHelperWithoutContext, ScalaFragment}
 import com.actionbarsherlock.app.SherlockFragment
 import android.view.{View, ViewGroup, LayoutInflater}
 import android.os.Bundle
@@ -10,17 +10,41 @@ import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.{Arrow, ArrowView, HorizontalScrollViewWithPropagation}
 import android.widget.{TextView, RelativeLayout, ScrollView}
 
-object MapFragment {
-  val ArcShortRadius = 200
-  val PaperPadding = 50
-  val SubtreeMargin = 5
-  val ChildHorizontalDistance = 50
+object MapFragment extends ViewHelperWithoutContext {
 
-  val NodeH = 30
-  val NodeW = 80
+  val PaperPadding = 20 // [dp]
+  val SubtreeMargin = 5 // [dp]
+  val ChildHorizontalDistance = 50 // [dp]
+
+  def arcShortRadius(numChildren: Int): Int = // [dp]
+    if (numChildren <= 3) 50
+    else if (numChildren <= 8) 100
+    else 150
+
+  /**
+   * Provide the size of a to-be-inflated `R.layout.mind_node`.
+   * @param node A node from the model.
+   * @return `(width, height)` in DP
+   */
+  def nodeViewSize(node: MindNode): (Int, Int) =
+    (80, 30)
+
+  /**
+   * Update `R.layout.mind_node` view with accordance to the model.
+   * @param node A node from the model.
+   * @param view An inflated `R.layout.mind_node`.
+   */
+  def updateNodeView(node: MindNode, view: View) {
+    val tf = view.find[TextView](R.id.content)
+    tf setBackgroundColor randomColor
+    node.content foreach (tf setText _)
+    view setBackgroundColor randomColor
+  }
+
 }
 
 class MapFragment extends SherlockFragment with ScalaFragment {
+  import MapFragment._
 
   private var inflater: Option[LayoutInflater] = None
   private var map: Option[MindMap] = None
@@ -98,13 +122,13 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         if (!isRoot) {
           val kids = mindNode.children map (SubtreeWrapper(_))
 
-          val cx = if (left) node.x - MapFragment.ChildHorizontalDistance
-          else node.x + sizes.node.w + MapFragment.ChildHorizontalDistance
+          val cx = if (left) node.x - ChildHorizontalDistance
+          else node.x + sizes.node.w + ChildHorizontalDistance
 
-          var dy = MapFragment.SubtreeMargin
+          var dy = SubtreeMargin
           kids foreach { child =>
             val cy = subtree.y + dy
-            dy += child.sizes.subtree.h + MapFragment.SubtreeMargin
+            dy += child.sizes.subtree.h + SubtreeMargin
 
             child.positions positionAt(cx, cy, left)
 
@@ -135,17 +159,18 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         val kids = mindNode.children map (SubtreeWrapper(_))
         kids foreach (_.sizes.recalculate())
 
-        nw = MapFragment.NodeW
-        nh = MapFragment.NodeH
+        val tmp = nodeViewSize(mindNode)
+        nw = tmp._1
+        nh = tmp._2
 
         if (isRoot) {
           sw = node.w
           sh = node.h
         } else if (kids.nonEmpty) {
-          val kidsH = (0 /: kids)(_ + _.sizes.subtree.h + MapFragment.SubtreeMargin) + MapFragment.SubtreeMargin
+          val kidsH = (0 /: kids)(_ + _.sizes.subtree.h + SubtreeMargin) + SubtreeMargin
           val kidsW = (kids map (_.sizes.subtree.w)).max
 
-          sw = kidsW + MapFragment.ChildHorizontalDistance + node.w
+          sw = kidsW + ChildHorizontalDistance + node.w
           sh = List(node.h, kidsH).max
         }
         else {
@@ -155,7 +180,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       }
     }
 
-    def drawOn(vg: ViewGroup, color: Int = randomColor) {
+    def drawOn(vg: ViewGroup) {
       def updateLP(v: View, fun: RelativeLayout.LayoutParams => Unit) {
         v.getLayoutParams match {
           case rp: RelativeLayout.LayoutParams =>
@@ -170,12 +195,6 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         rp.height = dp2px(sizes.node.h)
         rp.leftMargin = dp2px(positions.node.x)
         rp.topMargin = dp2px(positions.node.y)
-      }
-      def updateNodeView(v: View) {
-        val tf = v.find[TextView](R.id.content)
-        tf.setBackgroundColor(color)
-        mindNode.content foreach (tf setText _)
-        v setBackgroundColor color
       }
       def updateArrowViewParams(a: Arrow)(rp: RelativeLayout.LayoutParams) {
         rp.width = a.boundingW
@@ -194,7 +213,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       nodeView match {
         case Some(nv) if !redrawEverything =>
           updateLP(nv, updateNodeViewParams)
-          updateNodeView(nv)
+          updateNodeView(mindNode, nv)
           for (av <- arrowView; a <- properArrow) {
             av.arrow = a
             updateLP(av, updateArrowViewParams(a))
@@ -208,7 +227,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
           val rp = new RelativeLayout.LayoutParams(0, 0)
           updateNodeViewParams(rp)
           vg addView (nv, rp)
-          updateNodeView(nv)
+          updateNodeView(mindNode, nv)
 
           arrowView foreach vg.removeView
           arrowView = None
@@ -222,7 +241,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         }
       }
 
-      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, color))
+      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn vg)
     }
   }
 
@@ -243,7 +262,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         (l.reverse, r)
       }
 
-      def hei(ts: Vector[SubtreeWrapper]) = (0 /: ts)(_ + _.sizes.subtree.h + 2 * MapFragment.SubtreeMargin)
+      def hei(ts: Vector[SubtreeWrapper]) = (0 /: ts)(_ + _.sizes.subtree.h + 2 * SubtreeMargin)
       val rheight = hei(rtrees)
       val lheight = hei(ltrees)
       val height = List(rheight, lheight, root.sizes.subtree.h).max
@@ -259,12 +278,13 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
         var y = y0 + pad
         trees foreach { t =>
-          y += MapFragment.SubtreeMargin
+          y += SubtreeMargin
           val ty = y
-          y += t.sizes.subtree.h + MapFragment.SubtreeMargin
+          y += t.sizes.subtree.h + SubtreeMargin
 
           val middleY = ty + t.sizes.subtree.h / 2
-          val tx = x0 + (sgn * math.sin(math.Pi * (middleY - y0) / height) * MapFragment.ArcShortRadius).toInt
+          val tx = x0 + (sgn * math.sin(math.Pi * (middleY - y0) / height) *
+            arcShortRadius(root.mindNode.children.length)).toInt
 
           t.positions positionAt (tx, ty, left)
         }
@@ -294,7 +314,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       val rects = root +: ltrees ++: rtrees
 
       // paper size and padding
-      val pp = MapFragment.PaperPadding
+      val pp = PaperPadding
       setPaperSize(paperW + 2 * pp, paperH + 2 * pp)
       rects foreach (_.positions repositionBy (pp, pp))
 
