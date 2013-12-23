@@ -5,11 +5,8 @@ import android.widget.Button
 import android.view.View.OnClickListener
 import android.util.TypedValue
 import android.graphics.Color
-import android.app.Activity
 
-trait ViewHelper extends ViewHelperWithoutContext {
-
-  protected def currentActivity: Activity
+trait ViewHelper extends ViewHelperWithoutContext with CurrentActivityProvider {
 
   def dp2px (dp: Float): Float =
     TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, currentActivity.getResources.getDisplayMetrics)

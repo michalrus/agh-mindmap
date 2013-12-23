@@ -2,8 +2,9 @@ package com.michalrus.helper
 
 import com.actionbarsherlock.app.SherlockFragment
 
-trait ScalaFragment extends SherlockFragment with ViewHelper with MiscHelper with ConcurrencyHelper {
+trait ScalaFragment extends ViewHelper with MiscHelper with ConcurrencyHelper {
+  this: SherlockFragment =>
 
-  override protected lazy val currentActivity = getActivity
+  override def currentActivity = getActivity
 
 }

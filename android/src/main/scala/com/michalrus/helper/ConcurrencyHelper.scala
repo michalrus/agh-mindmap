@@ -1,10 +1,6 @@
 package com.michalrus.helper
 
-import android.app.Activity
-
-trait ConcurrencyHelper {
-
-  protected def currentActivity: Activity
+trait ConcurrencyHelper extends CurrentActivityProvider {
 
   def laterOnUiThread(r: Runnable) = delayOnUiThread(0)(r)
 
