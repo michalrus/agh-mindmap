@@ -35,7 +35,7 @@ object MindMap {
 
     val a = create; a.root.content = Some("A")
     addRandomChildren(a.root, 9)
-    addRandomChildren(a.root.children(4), 5)
+    a.root.children foreach { c => addRandomChildren(c, 5); c.children foreach { cc => addRandomChildren(cc, 2) } }
 
     val b = create; b.root.content = Some("B")
     val c = create; c.root.content = Some("C")
