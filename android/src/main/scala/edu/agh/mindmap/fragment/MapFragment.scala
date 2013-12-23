@@ -186,7 +186,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       def properArrow: Option[Arrow] = mindNode.parent map (SubtreeWrapper(_)) map { parent =>
         val x0 = parent.positions.node.x + parent.sizes.node.w / 2
         val y0 = parent.positions.node.y + parent.sizes.node.h / 2
-        val x1 = positions.node.x + sizes.node.h / 2
+        val x1 = positions.node.x + sizes.node.w / 2
         val y1 = positions.node.y + sizes.node.h / 2
         Arrow(dp2px(x0), dp2px(y0), positions.arrowThroughX map dp2px, dp2px(x1), dp2px(y1))
       }
