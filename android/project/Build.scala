@@ -15,8 +15,11 @@ object Build extends Build {
 
   val SupportV4 = "com.android.support" % "support-v4" % "18.0.0"
 
+  val UnwantedSubprojectJars = Seq("android-support-v4.jar")
   def inUnwantedSubprojectJars(file: Attributed[File]) =
-    Seq("android-support-v4.jar") contains file.data.getName
+    UnwantedSubprojectJars contains file.data.getName
+  def inUnwantedSubprojectJars(file: File) =
+    UnwantedSubprojectJars contains file.getName
 
   // --- dload github:iPaulPro/aFileChooser
 
@@ -61,7 +64,8 @@ object Build extends Build {
       libraryDependencies += apklib("com.actionbarsherlock" % "actionbarsherlock" % "4.4.0" intransitive()),
       localProjects in Android += LibraryProject(afcBase),
 
-      proguardInputs in Android ~= { p => p.copy(injars = p.injars filterNot inUnwantedSubprojectJars) },
+      proguardInputs in Android ~= (p => p.copy(injars = p.injars filterNot inUnwantedSubprojectJars)),
+      dexInputs in Android ~= (_ filterNot inUnwantedSubprojectJars),
 
       useProguard in Android := true,
       proguardOptions in Android += "-keep class android.support.v4.app.** { *; }",
