@@ -114,8 +114,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           val file = FileUtils.getFile(data.getData)
           val maps = MindMap.importFrom(file) // TODO: do this asynchronously?
           withMapListFragment(_ addMaps maps)
-          if (maps.nonEmpty)
+          if (maps.nonEmpty) laterOnUiThread {
             viewMindMap(maps.head)
+          }
         } catch {
           case _: ImporterException => alertOk(R.string.import_error_title, R.string.import_error_body)
           case _: Exception => alertOk(R.string.file_error_title, R.string.file_error_body)
@@ -202,14 +203,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       // from a previously saved state.  If so, deactivate it, because our
       // initial state is that a tab isn't shown. (On orientation change.)
       Option(activity.getSupportFragmentManager.findFragmentByTag(tag)) match {
-        case Some(f) => {
+        case Some(f) =>
           if (!f.isDetached) {
             val ft = activity.getSupportFragmentManager.beginTransaction
             ft.detach(f)
             ft.commit()
           }
           fragments += tag -> f
-        }
         case _ =>
       }
 
@@ -279,11 +279,10 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           case _ =>
         }
         (creators.get(tag), fragments.get(tag)) match {
-          case (Some(creator), None) => {
+          case (Some(creator), None) =>
             val f = creator()
             fragments += tag -> f
             ft.add(realContainerId, f, tag)
-          }
           case (_, Some(f)) => if (f.isHidden) ft.show(f) else ft.attach(f)
           case _ =>
         }
