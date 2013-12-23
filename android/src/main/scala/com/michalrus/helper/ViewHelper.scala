@@ -5,6 +5,7 @@ import android.widget.Button
 import android.view.View.OnClickListener
 import android.util.TypedValue
 import android.graphics.Color
+import scala.util.Try
 
 trait ViewHelper extends ViewHelperWithoutContext with CurrentActivityProvider {
 
@@ -20,7 +21,7 @@ trait ViewHelperWithoutContext {
 
   implicit def scalaizeView(v: View) = new ScalaView(v)
   class ScalaView(val v: View) {
-    def find[T](id: Int) = v.findViewById(id).asInstanceOf[T]
+    def find[T](id: Int) = Try(Option(v.findViewById(id).asInstanceOf[T])).toOption.flatten
   }
 
   implicit def scalaizeButton(b: Button) = new ScalaButton(b)

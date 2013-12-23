@@ -28,7 +28,7 @@ object MainActivity {
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
-  private lazy val tabHost = find[TabHost](R.id.tabhost)
+  private lazy val tabHost = find[TabHost](R.id.tabhost).get // safe to throw here, application entry point, no way to deploy missing this
   private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
 
   // /me hates you, Android, for this:
@@ -174,7 +174,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
     tabHost.setOnTabChangedListener(this)
 
-    val scrollView = activity.find[HorizontalScrollView](scrollId)
+    val scrollView = activity.find[HorizontalScrollView](scrollId).get // safe to throw here, too; the app won't start at all
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
     val tabSpecs = new mutable.ArrayBuffer[TabHost#TabSpec]

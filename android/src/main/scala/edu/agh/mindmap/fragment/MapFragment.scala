@@ -34,12 +34,13 @@ object MapFragment extends ViewHelperWithoutContext {
    * @param node A node from the model.
    * @param view An inflated `R.layout.mind_node`.
    */
-  def updateNodeView(node: MindNode, view: View) {
-    val tf = view.find[TextView](R.id.content)
-    tf setBackgroundColor randomColor
-    node.content foreach (tf setText _)
-    view setBackgroundColor randomColor
-  }
+  def updateNodeView(node: MindNode, view: View) =
+    for {
+      tf <- view.find[TextView](R.id.content)
+    } {
+      tf setBackgroundColor randomColor
+      tf setText (node.content getOrElse "")
+    }
 
 }
 
@@ -56,9 +57,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     val view = inflater.inflate(R.layout.map, container, false)
 
-    val hScroll = view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
-    val vScroll = view.find[ScrollView](R.id.vscroll)
-    hScroll.inner = vScroll
+    for {
+      hScroll <- view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
+      vScroll = view.find[ScrollView](R.id.vscroll)
+    } hScroll.inner = vScroll
 
     val uuid = try {
       UUID.fromString(getArguments getString "uuid")
@@ -69,7 +71,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     map = MindMap findByUuid uuid
 
     redrawEverything = true // <m> I hate you, Android, for all this mutability!
-    paintMap(view.find[RelativeLayout](R.id.paper))
+    for (paper <- view.find[RelativeLayout](R.id.paper))
+      paintMap(paper)
 
     view
   }
