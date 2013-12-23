@@ -13,9 +13,8 @@ import android.widget.{TextView, RelativeLayout, ScrollView}
 object MapFragment {
   val ArcShortRadius = 200
   val PaperPadding = 50
-  val SubtreeMargin = 1
-  val NodeMarginTB = 5
-  val NodeMarginLR = 5
+  val SubtreeMargin = 5
+  val ChildHorizontalDistance = 50
 
   val NodeH = 30
   val NodeW = 80
@@ -68,7 +67,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     def recalculateAllSizes(map: MindMap) = SubtreeWrapper(map.root).sizes recalculate()
   }
 
-  class SubtreeWrapper private(mindNode: MindNode) {
+  class SubtreeWrapper private(val mindNode: MindNode) {
     private var nodeView: Option[View] = None
     private var arrowView: Option[ArrowView] = None
 
@@ -88,11 +87,24 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
       def positionAt(x0: Int, y0: Int, left: Boolean) {
         sy = y0
-        sx = x0 - (if (left) sizes.subtree.w else 0)
+        sx = x0 - (if (!isRoot && left) sizes.subtree.w else 0)
         ny = subtree.y + (sizes.subtree.h - sizes.node.h) / 2
-        nx = subtree.x + (if (left) sizes.subtree.w - sizes.node.w else 0)
+        nx = subtree.x + (if (!isRoot && left) sizes.subtree.w - sizes.node.w else 0)
 
-        // FIXME: position children
+        if (!isRoot) {
+          val kids = mindNode.children map (SubtreeWrapper(_))
+
+          val cx = if (left) node.x - MapFragment.ChildHorizontalDistance
+          else node.x + sizes.node.w + MapFragment.ChildHorizontalDistance
+
+          var dy = MapFragment.SubtreeMargin
+          kids foreach { child =>
+            val cy = subtree.y + dy
+            dy += child.sizes.subtree.h + MapFragment.SubtreeMargin
+
+            child.positions positionAt(cx, cy, left)
+          }
+        }
       }
 
       def repositionBy(dx: Int, dy: Int) {
@@ -121,15 +133,15 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         if (isRoot) {
           sw = node.w
           sh = node.h
-        } else {
-          if (kids.nonEmpty) {
-            val kidsH = (0 /: kids)(_ + _.sizes.subtree.h + 2 * MapFragment.NodeMarginTB)
-            val kidsW = kids maxBy (_.sizes.subtree.w)
+        } else if (kids.nonEmpty) {
+          val kidsH = (0 /: kids)(_ + _.sizes.subtree.h + MapFragment.SubtreeMargin) + MapFragment.SubtreeMargin
+          val kidsW = (kids map (_.sizes.subtree.w)).max
 
-            // FIXME
-          }
-
-          sw = node.w // FIXME
+          sw = kidsW + MapFragment.ChildHorizontalDistance + node.w
+          sh = List(node.h, kidsH).max
+        }
+        else {
+          sw = node.w
           sh = node.h
         }
       }
