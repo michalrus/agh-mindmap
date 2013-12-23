@@ -38,8 +38,13 @@ object MindMap {
     a.root.children foreach { c => addRandomChildren(c, 5); c.children foreach { cc => addRandomChildren(cc, 2) } }
 
     val b = create; b.root.content = Some("B")
+    addRandomChildren(b.root, 4)
+
     val c = create; c.root.content = Some("C")
+    addRandomChildren(c.root, 6)
+
     val d = create; d.root.content = Some("D")
+    addRandomChildren(d.root, 8)
   }
 
   def findAll: List[MindMap] = {
