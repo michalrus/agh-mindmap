@@ -1,16 +1,14 @@
 package com.michalrus.helper
 
-import android.view.{ViewGroup, View}
-import android.widget.{RelativeLayout, ImageView, Button}
+import android.view.View
+import android.widget.Button
 import android.view.View.OnClickListener
-import android.util.{TypedValue, Log}
-import android.content.res.Resources
+import android.util.TypedValue
 import android.graphics.Color
 import android.app.Activity
 
-trait ViewHelper {
+trait ViewHelper extends ViewHelperWithoutContext {
 
-  def rng: MiscHelper.Random
   protected def currentActivity: Activity
 
   def dp2px (dp: Float): Float =
@@ -18,6 +16,9 @@ trait ViewHelper {
 
   def dp2px (dp: Int): Int = dp2px(dp.toFloat).toInt
 
+}
+
+trait ViewHelperWithoutContext {
   import language.implicitConversions
 
   implicit def scalaizeView(v: View) = new ScalaView(v)
@@ -35,7 +36,7 @@ trait ViewHelper {
   }
 
   def randomColor = {
-    val hue = rng.nextFloat * 360
+    val hue = MiscHelper.rng.nextFloat * 360
     val s = .6f
     val v = 1f
     Color.HSVToColor(Array(hue, s, v))
