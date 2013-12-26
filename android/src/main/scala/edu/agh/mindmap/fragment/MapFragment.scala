@@ -27,7 +27,7 @@ object MapFragment extends ViewHelperWithoutContext {
    * @return `(width, height)` in DP
    */
   def nodeViewSize(node: MindNode): (Int, Int) =
-    (80, 30)
+    (120, 30)
 
   /**
    * Update `R.layout.mind_node` view with accordance to the model.
