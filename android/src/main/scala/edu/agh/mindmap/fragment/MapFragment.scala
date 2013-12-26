@@ -1,15 +1,16 @@
 package edu.agh.mindmap.fragment
 
-import com.michalrus.helper.{ViewHelperWithoutContext, ScalaFragment}
+import com.michalrus.helper.ScalaFragment
 import com.actionbarsherlock.app.SherlockFragment
 import android.view.{View, ViewGroup, LayoutInflater}
 import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
-import edu.agh.mindmap.component.{Arrow, ArrowView, HorizontalScrollViewWithPropagation}
+import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
 import android.widget.{TextView, RelativeLayout, ScrollView}
 import edu.agh.mindmap.util.MapPainter
+import scala.util.Try
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -29,18 +30,13 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     for {
       hScroll <- view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
       vScroll = view.find[ScrollView](R.id.vscroll)
-    } hScroll.inner = vScroll
-
-    val uuid = try {
-      UUID.fromString(getArguments getString "uuid")
-    } catch {
-      case _: Exception => new UUID(0, 0)
-    }
-
-    for {
+      uuid <- Try(UUID fromString (getArguments getString "uuid"))
       map <- MindMap findByUuid uuid
       paper <- view.find[RelativeLayout](R.id.paper)
-    } painter paintMap (map, paper, inflater)
+    } {
+      hScroll.inner = vScroll
+      painter paintMap (map, paper, inflater)
+    }
 
     view
   }
