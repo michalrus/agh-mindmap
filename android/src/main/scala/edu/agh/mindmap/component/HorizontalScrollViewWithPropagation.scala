@@ -5,15 +5,23 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
+import android.support.v4.view.MotionEventCompat
+import android.graphics.Matrix
 
 class HorizontalScrollViewWithPropagation(context: Context, attrs: AttributeSet)
   extends HorizontalScrollView(context, attrs) {
 
-  override def onTouchEvent(event: MotionEvent) =
-    super.onTouchEvent(event) | (inner.isDefined && (inner.get onTouchEvent event))
-
-  override def onInterceptTouchEvent(event: MotionEvent) =
-    super.onInterceptTouchEvent(event) | (inner.isDefined && (inner.get onInterceptTouchEvent event))
+  override def dispatchTouchEvent(ev: MotionEvent) = {
+    if (inner.isDefined) {
+      val copy = MotionEvent obtain ev
+      val m = new Matrix
+      m setTranslate (getScrollX.toFloat, 0)
+      copy transform m
+      inner.get dispatchTouchEvent copy
+    }
+    onTouchEvent(ev)
+    true
+  }
 
   var inner: Option[ScrollView] = None
 
