@@ -13,6 +13,7 @@ class MapPainter(dp2px: Int => Int,
                  childHorizontalDistance: Int,
                  arcShortRadius: Int => Int,
                  nodeViewSize: MindNode => (Int, Int),
+                 initializeNodeView: (MindNode, View) => Unit,
                  updateNodeView: (MindNode, View) => Unit) {
 
   private object SubtreeWrapper {
@@ -168,6 +169,7 @@ class MapPainter(dp2px: Int => Int,
           val rp = new RelativeLayout.LayoutParams(0, 0)
           updateNodeViewParams(rp)
           vg addView (nv, rp)
+          initializeNodeView(mindNode, nv)
           updateNodeView(mindNode, nv)
 
           arrowView foreach vg.removeView

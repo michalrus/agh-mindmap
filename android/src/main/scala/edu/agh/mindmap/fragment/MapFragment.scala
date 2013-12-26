@@ -8,9 +8,10 @@ import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
-import android.widget.{TextView, RelativeLayout, ScrollView}
+import android.widget.{Button, TextView, RelativeLayout, ScrollView}
 import edu.agh.mindmap.util.MapPainter
 import scala.util.Try
+import android.view.View.OnClickListener
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -21,6 +22,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     childHorizontalDistance = 50, // [dp]
     arcShortRadius,
     nodeViewSize,
+    initializeNodeView,
     updateNodeView
   )
 
@@ -42,16 +44,28 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   }
 
   /**
+   * Initialize inflated `R.layout.mind_node` view (event listeners and stuff).
+   * @param node A node from the model.
+   * @param view An inflated `R.layout.mind_node`.
+   */
+  def initializeNodeView(node: MindNode, view: View) =
+    for {
+      addButton <- view.find[Button](R.id.add_button)
+    } {
+      addButton onClick addChildTo(node)
+    }
+
+  /**
    * Update `R.layout.mind_node` view with accordance to the model.
    * @param node A node from the model.
    * @param view An inflated `R.layout.mind_node`.
    */
   def updateNodeView(node: MindNode, view: View) =
     for {
-      tf <- view.find[TextView](R.id.content)
+      text <- view.find[TextView](R.id.content)
     } {
-      tf setBackgroundColor randomColor
-      tf setText (node.content getOrElse "")
+      text setBackgroundColor randomColor
+      text setText (node.content getOrElse "")
     }
 
   def arcShortRadius(numChildren: Int): Int = // [dp]
@@ -66,5 +80,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    */
   def nodeViewSize(node: MindNode): (Int, Int) =
     (120, 30)
+
+  def addChildTo(node: MindNode) {
+    log(s"addChildTo: ${node.content}")
+    ()
+  }
 
 }
