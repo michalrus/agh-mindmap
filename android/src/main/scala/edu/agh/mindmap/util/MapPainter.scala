@@ -3,7 +3,7 @@ package edu.agh.mindmap.util
 import edu.agh.mindmap.model.{MindMap, MindNode}
 import android.view.{LayoutInflater, View}
 import java.util.UUID
-import edu.agh.mindmap.component.{Arrow, ArrowView}
+import edu.agh.mindmap.component.{NodeView, Arrow, ArrowView}
 import android.widget.RelativeLayout
 
 class MapPainter(dp2px: Int => Int,
@@ -13,8 +13,8 @@ class MapPainter(dp2px: Int => Int,
                  childHorizontalDistance: Int,
                  arcShortRadius: Int => Int,
                  nodeViewSize: MindNode => (Int, Int),
-                 initializeNodeView: (MindNode, View) => Unit,
-                 updateNodeView: (MindNode, View) => Unit) {
+                 initializeNodeView: (MindNode, NodeView) => Unit,
+                 updateNodeView: (MindNode, NodeView) => Unit) {
 
   import collection.mutable
 
@@ -36,7 +36,7 @@ class MapPainter(dp2px: Int => Int,
     trait Size { def w: Int; def h: Int }
     trait Position { def x: Int; def y: Int }
 
-    private var nodeView: Option[View] = None
+    private var nodeView: Option[NodeView] = None
     private var arrowView: Option[ArrowView] = None
 
     def view = nodeView
@@ -172,7 +172,7 @@ class MapPainter(dp2px: Int => Int,
             updateLP(av, updateArrowViewParams(a))
           }
         case _ =>
-          val nv = inflater inflate (nodeLayoutId, null)
+          val nv = (inflater inflate (nodeLayoutId, null)).asInstanceOf[NodeView]
 
           nodeView foreach vg.removeView
           nodeView = Some(nv)

@@ -7,7 +7,7 @@ import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
-import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
+import edu.agh.mindmap.component.{NodeView, HorizontalScrollViewWithPropagation}
 import android.widget._
 import edu.agh.mindmap.util.MapPainter
 import scala.util.Try
@@ -52,17 +52,14 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   /**
    * Initialize inflated `R.layout.mind_node` view (event listeners and stuff).
    * @param node A node from the model.
-   * @param view An inflated `R.layout.mind_node`.
+   * @param v An inflated `R.layout.mind_node`.
    */
-  def initializeNodeView(node: MindNode, view: View): Unit = for {
-    addButton <- view.find[Button](R.id.add_button)
-    text <- view.find[EditText](R.id.content)
-  } {
-    addButton onClick addChildTo(node)
-    text onLongClick removeNode(node)
-    text setBackgroundColor randomColor
+  def initializeNodeView(node: MindNode, v: NodeView) {
+    v.addButton onClick addChildTo(node)
+    v.content onLongClick removeNode(node)
+    v.content setBackgroundColor randomColor
 
-    text setOnEditorActionListener new OnEditorActionListener {
+    v.content setOnEditorActionListener new OnEditorActionListener {
       def onEditorAction(v: TextView, actionId: Int, event: KeyEvent): Boolean =
         actionId == EditorInfo.IME_ACTION_DONE && { defocus(); true }
     }
@@ -71,13 +68,11 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   /**
    * Update `R.layout.mind_node` view with accordance to the model.
    * @param node A node from the model.
-   * @param view An inflated `R.layout.mind_node`.
+   * @param v An inflated `R.layout.mind_node`.
    */
-  def updateNodeView(node: MindNode, view: View) = for {
-    text <- view.find[EditText](R.id.content)
-  } {
+  def updateNodeView(node: MindNode, v: NodeView) = {
     val cnt = node.content getOrElse ""
-    if (text.getText.toString != cnt) text setText cnt
+    if (v.content.getText.toString != cnt) v.content setText cnt
   }
 
   def arcShortRadius(numChildren: Int): Int = // [dp]
