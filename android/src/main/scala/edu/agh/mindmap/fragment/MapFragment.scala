@@ -2,7 +2,7 @@ package edu.agh.mindmap.fragment
 
 import com.michalrus.helper.ScalaFragment
 import com.actionbarsherlock.app.SherlockFragment
-import android.view.{View, ViewGroup, LayoutInflater}
+import android.view._
 import android.os.Bundle
 import edu.agh.mindmap.R
 import java.util.UUID
@@ -11,6 +11,9 @@ import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
 import android.widget._
 import edu.agh.mindmap.util.MapPainter
 import scala.util.Try
+import android.content.Context
+import android.view.inputmethod.{EditorInfo, InputMethodManager}
+import android.widget.TextView.OnEditorActionListener
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -25,6 +28,8 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     updateNodeView
   )
 
+  private lazy val dummyFocus = getView.find[View](R.id.dummy_focus)
+
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.map, container, false)
 
@@ -36,6 +41,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       paper <- view.find[RelativeLayout](R.id.paper)
     } {
       hScroll.inner = vScroll
+      paper onClick defocus
       painter paint (map, paper, inflater)
     }
 
@@ -53,6 +59,11 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   } {
     addButton onClick addChildTo(node)
     text onLongClick removeNode(node)
+
+    text setOnEditorActionListener new OnEditorActionListener {
+      def onEditorAction(v: TextView, actionId: Int, event: KeyEvent): Boolean =
+        actionId == EditorInfo.IME_ACTION_DONE && { defocus(); true }
+    }
   }
 
   /**
@@ -81,10 +92,35 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   def nodeViewSize(node: MindNode): (Int, Int) =
     (120, 30)
 
+  def focusOn(t: EditText) {
+    t requestFocus()
+    laterOnUiThread {
+      val imm = getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager]
+      if (imm != null) imm showSoftInput (t, 0)
+      ()
+    }
+  }
+
+  def defocus() = for (dummy <- dummyFocus) {
+    dummy requestFocus()
+    delayOnUiThread(100) {
+      log(s"xxx")
+      val imm = getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager]
+      log(s"yyy: $imm")
+      if (imm != null) imm hideSoftInputFromWindow (dummy.getWindowToken, 0)
+      ()
+    }
+  }
+
   def addChildTo(node: MindNode) {
     val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
-    MindNode createChildOf (node, ord + 10)
+    val newNode = MindNode createChildOf (node, ord + 10)
     painter repaint()
+
+    for {
+      v <- painter viewFor newNode
+      text <- v.find[EditText](R.id.content)
+    } focusOn(text)
   }
 
   def removeNode(node: MindNode) = {

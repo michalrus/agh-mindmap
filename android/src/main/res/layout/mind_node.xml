@@ -13,6 +13,7 @@
     android:gravity="center"
     android:textAlignment="center"
     android:inputType="text"
+    android:imeOptions="actionDone"
     android:padding="0dp"
     />
 

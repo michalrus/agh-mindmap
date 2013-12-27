@@ -39,6 +39,8 @@ class MapPainter(dp2px: Int => Int,
     private var nodeView: Option[View] = None
     private var arrowView: Option[ArrowView] = None
 
+    def view = nodeView
+
     def isRoot = mindNode.map.root == mindNode
 
     private var _folded = false
@@ -212,6 +214,8 @@ class MapPainter(dp2px: Int => Int,
   def repaint() {
     paintImpl(recreateAllViews = false)
   }
+
+  def viewFor(node: MindNode) = SubtreeWrapper(node).view
 
   private def paintImpl(recreateAllViews: Boolean) = for {
     map <- cachedMap

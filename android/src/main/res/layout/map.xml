@@ -5,6 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+  <View
+      android:id="@+id/dummy_focus"
+      android:focusableInTouchMode="true"
+      android:layout_width="0dp"
+      android:layout_height="0dp"/>
+
   <edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
       android:id="@+id/hscroll"
       android:layout_width="match_parent"
