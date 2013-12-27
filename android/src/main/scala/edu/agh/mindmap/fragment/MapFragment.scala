@@ -60,6 +60,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   } {
     addButton onClick addChildTo(node)
     text onLongClick removeNode(node)
+    text setBackgroundColor randomColor
 
     text setOnEditorActionListener new OnEditorActionListener {
       def onEditorAction(v: TextView, actionId: Int, event: KeyEvent): Boolean =
@@ -72,13 +73,12 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    * @param node A node from the model.
    * @param view An inflated `R.layout.mind_node`.
    */
-  def updateNodeView(node: MindNode, view: View) =
-    for {
-      text <- view.find[EditText](R.id.content)
-    } {
-      text setBackgroundColor randomColor
-      text setText (node.content getOrElse "")
-    }
+  def updateNodeView(node: MindNode, view: View) = for {
+    text <- view.find[EditText](R.id.content)
+  } {
+    val cnt = node.content getOrElse ""
+    if (text.getText.toString != cnt) text setText cnt
+  }
 
   def arcShortRadius(numChildren: Int): Int = // [dp]
     if (numChildren <= 3) 50
