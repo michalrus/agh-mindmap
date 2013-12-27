@@ -37,7 +37,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       paper <- view.find[RelativeLayout](R.id.paper)
     } {
       hScroll.inner = vScroll
-      painter paintMap (map, paper, inflater)
+      painter paint (map, paper, inflater)
     }
 
     view
@@ -83,7 +83,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
   def addChildTo(node: MindNode) {
     log(s"addChildTo: ${node.content}")
-    ()
+    val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
+    MindNode createChildOf (node, ord + 10)
+    painter repaint()
   }
 
 }

@@ -1,7 +1,7 @@
 package edu.agh.mindmap.util
 
 import edu.agh.mindmap.model.{MindMap, MindNode}
-import android.view.{LayoutInflater, ViewGroup, View}
+import android.view.{LayoutInflater, View}
 import java.util.UUID
 import edu.agh.mindmap.component.{Arrow, ArrowView}
 import android.widget.RelativeLayout
@@ -122,7 +122,7 @@ class MapPainter(dp2px: Int => Int,
       }
     }
 
-    def drawOn(vg: ViewGroup, redrawEverything: Boolean, inflater: LayoutInflater) {
+    def drawOn(vg: RelativeLayout, recreateAllViews: Boolean, inflater: LayoutInflater) {
       def updateLP(v: View, fun: RelativeLayout.LayoutParams => Unit) {
         v.getLayoutParams match {
           case rp: RelativeLayout.LayoutParams =>
@@ -153,7 +153,7 @@ class MapPainter(dp2px: Int => Int,
       }
 
       nodeView match {
-        case Some(nv) if !redrawEverything =>
+        case Some(nv) if !recreateAllViews =>
           updateLP(nv, updateNodeViewParams)
           updateNodeView(mindNode, nv)
           for (av <- arrowView; a <- properArrow) {
@@ -183,7 +183,7 @@ class MapPainter(dp2px: Int => Int,
           }
       }
 
-      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, redrawEverything, inflater))
+      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, recreateAllViews, inflater))
     }
   }
 
@@ -191,20 +191,23 @@ class MapPainter(dp2px: Int => Int,
   private var cachedInflater: Option[LayoutInflater] = None
   private var cachedPaper: Option[RelativeLayout] = None
 
-  def paintMap(map: MindMap, paper: RelativeLayout, inflater: LayoutInflater) {
+  def paint(map: MindMap, paper: RelativeLayout, inflater: LayoutInflater) {
     cachedMap = Some(map)
     cachedInflater = Some(inflater)
     cachedPaper = Some(paper)
 
-    repaintMap(redrawEverything = true)
+    paintImpl(recreateAllViews = true)
   }
 
-  private def repaintMap(redrawEverything: Boolean) = for {
+  def repaint() {
+    paintImpl(recreateAllViews = false)
+  }
+
+  private def paintImpl(recreateAllViews: Boolean) = for {
     map <- cachedMap
     inflater <- cachedInflater
     paper <- cachedPaper
   } {
-
     val root = SubtreeWrapper(map.root)
     root.positions.positionAt(0, 0, left = false)
 
@@ -276,7 +279,7 @@ class MapPainter(dp2px: Int => Int,
     setPaperSize(paperW + 2 * pp, paperH + 2 * pp)
     rects foreach (_.positions repositionBy (pp, pp))
 
-    rects foreach (_ drawOn (paper, redrawEverything, inflater))
+    rects foreach (_ drawOn (paper, recreateAllViews, inflater))
   }
 
 }
