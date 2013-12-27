@@ -5,7 +5,7 @@ import scala.util.Try
 
 object MiscHelper {
 
-  def log(s: String) = Log i ("com.michalrus.helper", s)
+  def log(s: String) { Log i ("com.michalrus.helper", s); () }
 
   val rng = new MiscHelper.Random
 
