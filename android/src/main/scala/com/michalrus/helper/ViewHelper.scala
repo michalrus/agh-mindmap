@@ -2,7 +2,7 @@ package com.michalrus.helper
 
 import android.view.View
 import android.widget.Button
-import android.view.View.OnClickListener
+import android.view.View.{OnLongClickListener, OnClickListener}
 import android.util.TypedValue
 import android.graphics.Color
 import scala.util.Try
@@ -17,19 +17,15 @@ trait ViewHelper extends ViewHelperWithoutContext with CurrentActivityProvider {
 }
 
 trait ViewHelperWithoutContext {
-  import language.implicitConversions
-
-  implicit def scalaizeView(v: View) = new ScalaView(v)
-  class ScalaView(val v: View) {
+  implicit class ScalaView(val v: View) {
     def find[T](id: Int) = Try(Option(v.findViewById(id).asInstanceOf[T])).toOption.flatten
-  }
 
-  implicit def scalaizeButton(b: Button) = new ScalaButton(b)
-  class ScalaButton(val b: Button) {
-    def onClick(f: => Unit) {
-      b.setOnClickListener(new OnClickListener {
-        def onClick(v: View) = f
-      })
+    def onClick(f: => Unit) = v setOnClickListener new OnClickListener {
+      def onClick(v: View) = f
+    }
+
+    def onLongClick(f: => Boolean) = v setOnLongClickListener new OnLongClickListener {
+      def onLongClick(v: View) = f
     }
   }
 
