@@ -18,7 +18,7 @@ trait ViewHelper extends ViewHelperWithoutContext with CurrentActivityProvider {
 
 trait ViewHelperWithoutContext {
   implicit class ScalaView(val v: View) {
-    def find[T](id: Int) = Try(Option(v.findViewById(id).asInstanceOf[T])).toOption.flatten
+    def find[T <: View](id: Int) = Try(Option(v.findViewById(id).asInstanceOf[T])).toOption.flatten
 
     def onClick(f: => Unit) = v setOnClickListener new OnClickListener {
       def onClick(v: View) = f
