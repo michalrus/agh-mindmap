@@ -16,7 +16,8 @@
 
     <activity
         android:label="agh-mindmap"
-        android:name=".activity.MainActivity">
+        android:name=".activity.MainActivity"
+        android:windowSoftInputMode="adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>

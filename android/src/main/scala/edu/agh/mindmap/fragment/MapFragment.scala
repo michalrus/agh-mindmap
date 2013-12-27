@@ -8,10 +8,9 @@ import edu.agh.mindmap.R
 import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.HorizontalScrollViewWithPropagation
-import android.widget.{Button, TextView, RelativeLayout, ScrollView}
+import android.widget._
 import edu.agh.mindmap.util.MapPainter
 import scala.util.Try
-import android.view.View.OnClickListener
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -50,7 +49,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    */
   def initializeNodeView(node: MindNode, view: View): Unit = for {
     addButton <- view.find[Button](R.id.add_button)
-    text <- view.find[TextView](R.id.content)
+    text <- view.find[EditText](R.id.content)
   } {
     addButton onClick addChildTo(node)
     text onLongClick removeNode(node)
@@ -63,7 +62,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    */
   def updateNodeView(node: MindNode, view: View) =
     for {
-      text <- view.find[TextView](R.id.content)
+      text <- view.find[EditText](R.id.content)
     } {
       text setBackgroundColor randomColor
       text setText (node.content getOrElse "")

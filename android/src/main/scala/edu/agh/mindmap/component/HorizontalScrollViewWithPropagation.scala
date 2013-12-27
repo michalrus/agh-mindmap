@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
-import android.support.v4.view.MotionEventCompat
 import android.graphics.Matrix
 
 class HorizontalScrollViewWithPropagation(context: Context, attrs: AttributeSet)
