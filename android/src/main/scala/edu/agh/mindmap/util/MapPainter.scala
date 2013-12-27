@@ -16,9 +16,9 @@ class MapPainter(dp2px: Int => Int,
                  initializeNodeView: (MindNode, View) => Unit,
                  updateNodeView: (MindNode, View) => Unit) {
 
-  private object SubtreeWrapper {
-    import collection.mutable
+  import collection.mutable
 
+  private object SubtreeWrapper {
     private val memo = new mutable.HashMap[UUID, SubtreeWrapper]
 
     def apply(node: MindNode): SubtreeWrapper = memo get node.uuid getOrElse {
@@ -26,6 +26,8 @@ class MapPainter(dp2px: Int => Int,
       memo += node.uuid -> wr
       wr
     }
+
+    def allSubtrees = memo.values
 
     def recalculateAllSizes(map: MindMap) = SubtreeWrapper(map.root).sizes recalculate()
   }
@@ -122,7 +124,14 @@ class MapPainter(dp2px: Int => Int,
       }
     }
 
-    def drawOn(vg: RelativeLayout, recreateAllViews: Boolean, inflater: LayoutInflater) {
+    def disappearFrom(vg: RelativeLayout) {
+      val vs = List(nodeView, arrowView).flatten
+      vs foreach vg.removeView
+      SubtreeWrapper.memo -= mindNode.uuid
+      ()
+    }
+
+    def drawOn(vg: RelativeLayout, recreateAllViews: Boolean, inflater: LayoutInflater, unusedSubtrees: mutable.Set[SubtreeWrapper]) {
       def updateLP(v: View, fun: RelativeLayout.LayoutParams => Unit) {
         v.getLayoutParams match {
           case rp: RelativeLayout.LayoutParams =>
@@ -183,7 +192,8 @@ class MapPainter(dp2px: Int => Int,
           }
       }
 
-      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, recreateAllViews, inflater))
+      unusedSubtrees -= this
+      mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, recreateAllViews, inflater, unusedSubtrees))
     }
   }
 
@@ -279,7 +289,9 @@ class MapPainter(dp2px: Int => Int,
     setPaperSize(paperW + 2 * pp, paperH + 2 * pp)
     rects foreach (_.positions repositionBy (pp, pp))
 
-    rects foreach (_ drawOn (paper, recreateAllViews, inflater))
+    val unusedSubtrees = new mutable.HashSet[SubtreeWrapper] ++ SubtreeWrapper.allSubtrees
+    rects foreach (_ drawOn (paper, recreateAllViews, inflater, unusedSubtrees))
+    unusedSubtrees foreach (_ disappearFrom paper)
   }
 
 }

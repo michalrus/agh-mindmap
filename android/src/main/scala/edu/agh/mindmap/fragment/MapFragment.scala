@@ -48,12 +48,13 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    * @param node A node from the model.
    * @param view An inflated `R.layout.mind_node`.
    */
-  def initializeNodeView(node: MindNode, view: View) =
-    for {
-      addButton <- view.find[Button](R.id.add_button)
-    } {
-      addButton onClick addChildTo(node)
-    }
+  def initializeNodeView(node: MindNode, view: View): Unit = for {
+    addButton <- view.find[Button](R.id.add_button)
+    text <- view.find[TextView](R.id.content)
+  } {
+    addButton onClick addChildTo(node)
+    text onLongClick removeNode(node)
+  }
 
   /**
    * Update `R.layout.mind_node` view with accordance to the model.
@@ -82,10 +83,15 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     (120, 30)
 
   def addChildTo(node: MindNode) {
-    log(s"addChildTo: ${node.content}")
     val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
     MindNode createChildOf (node, ord + 10)
     painter repaint()
+  }
+
+  def removeNode(node: MindNode) = {
+    node remove()
+    painter repaint()
+    true
   }
 
 }

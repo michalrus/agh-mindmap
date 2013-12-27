@@ -15,6 +15,8 @@ class MindNode private(val uuid: UUID,
 
   private val _children = new mutable.ArrayBuffer[MindNode]
 
+  def remove() = for (p <- parent) p._children -= this
+
 }
 
 object MindNode {
