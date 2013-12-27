@@ -9,6 +9,6 @@ trait ScalaActivity extends ViewHelper with MiscHelper with ConcurrencyHelper {
 
   override def currentActivity = this
 
-  def find[T <: View](id: Int) = Try(Option(findViewById(id).asInstanceOf[T])).toOption.flatten
+  def find[T <: View](id: Int) = safen(findViewById(id).asInstanceOf[T])
 
 }

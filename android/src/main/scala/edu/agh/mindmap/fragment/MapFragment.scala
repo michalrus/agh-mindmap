@@ -29,6 +29,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   )
 
   private lazy val dummyFocus = getView.find[View](R.id.dummy_focus)
+  private lazy val inputManager = safen(getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager])
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.map, container, false)
@@ -94,22 +95,12 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
   def focusOn(t: EditText) {
     t requestFocus()
-    laterOnUiThread {
-      val imm = getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager]
-      if (imm != null) imm showSoftInput (t, 0)
-      ()
-    }
+    for (imm <- inputManager) laterOnUiThread { imm showSoftInput (t, 0); () }
   }
 
   def defocus() = for (dummy <- dummyFocus) {
     dummy requestFocus()
-    delayOnUiThread(100) {
-      log(s"xxx")
-      val imm = getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager]
-      log(s"yyy: $imm")
-      if (imm != null) imm hideSoftInputFromWindow (dummy.getWindowToken, 0)
-      ()
-    }
+    for (imm <- inputManager) laterOnUiThread { imm hideSoftInputFromWindow (dummy.getWindowToken, 0); () }
   }
 
   def addChildTo(node: MindNode) {
