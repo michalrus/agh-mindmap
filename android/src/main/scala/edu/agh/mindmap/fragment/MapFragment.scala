@@ -14,6 +14,7 @@ import scala.util.Try
 import android.content.Context
 import android.view.inputmethod.{EditorInfo, InputMethodManager}
 import android.widget.TextView.OnEditorActionListener
+import android.view.View.OnFocusChangeListener
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -60,8 +61,14 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     v.content setBackgroundColor randomColor
 
     v.content setOnEditorActionListener new OnEditorActionListener {
-      def onEditorAction(v: TextView, actionId: Int, event: KeyEvent): Boolean =
-        actionId == EditorInfo.IME_ACTION_DONE && { defocus(); true }
+      def onEditorAction(vv: TextView, actionId: Int, event: KeyEvent) =
+        if (actionId == EditorInfo.IME_ACTION_DONE) { defocus(); true }
+        else false
+    }
+
+    v.content setOnFocusChangeListener new OnFocusChangeListener {
+      def onFocusChange(vv: View, hasFocus: Boolean) =
+        if (!hasFocus) node.content = Some(v.content.getText.toString)
     }
   }
 
