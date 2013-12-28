@@ -5,17 +5,25 @@ import java.util.UUID
 
 class MindNode private(val uuid: UUID,
                        val map: MindMap,
-                       var parent: Option[MindNode],
-                       var ordering: Double,
-                       var content: Option[String],
-                       var hasConflict: Boolean,
-                       var cloudTime: Option[Long]) {
+                       val parent: Option[MindNode],
+                       val ordering: Double,
+                       initialContent: Option[String],
+                       val hasConflict: Boolean,
+                       val cloudTime: Option[Long]) {
 
-  def children = _children.toVector
+  private var _content = initialContent
+  def content = _content
+  def content_=(v: Option[String]) = { _content = v; commit() }
 
   private val _children = new mutable.ArrayBuffer[MindNode]
+  def children = _children.toVector
 
   def remove() = for (p <- parent) p._children -= this
+
+  private def commit() {
+    // FIXME: save to local db
+    // FIXME: sync
+  }
 
 }
 
@@ -23,7 +31,7 @@ object MindNode {
 
   def findRootOf(map: MindMap): MindNode = ???
 
-  def createRootOf(map: MindMap) =
+  private[model] def createRootOf(map: MindMap) =
     new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
 
   def createChildOf(parent: MindNode, ordering: Double) = {

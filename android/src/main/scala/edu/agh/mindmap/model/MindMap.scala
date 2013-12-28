@@ -11,6 +11,13 @@ class MindMap private(val uuid: UUID,
   val root = if (isNew) MindNode.createRootOf(this)
   else MindNode.findRootOf(this)
 
+  private def commit() {
+    // FIXME: save to local DB
+    // FIXME: sync
+    MindMap.db += uuid -> this
+    ()
+  }
+
 }
 
 object MindMap {
@@ -21,7 +28,7 @@ object MindMap {
 
   def create = {
     val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
-    db += map.uuid -> map
+    map commit()
     map
   }
 
@@ -55,14 +62,6 @@ object MindMap {
 
   def findByUuid(uuid: UUID) = db get uuid
 
-  def importFrom(file: File): Seq[MindMap] = {
-    val maps = Importer importFrom file
-
-    maps foreach {
-      m => db += m.uuid -> m
-    }
-
-    maps
-  }
+  def importFrom(file: File): Seq[MindMap] = Importer importFrom file
 
 }
