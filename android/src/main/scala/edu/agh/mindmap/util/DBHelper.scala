@@ -19,10 +19,11 @@ package edu.agh.mindmap.util
 
 import android.database.sqlite.{SQLiteDatabase, SQLiteOpenHelper}
 import android.content.Context
+import scala.util.Try
 
 object DBHelper {
   val Name = "db"
-  val Version = 1
+  val Version = 4
 
   val TMap = "mindmap"
   val CUuid = "uuid"
@@ -35,23 +36,28 @@ object DBHelper {
   val CHasConflict = "conflict"
   val CCloudTime = "cloudtime"
 
-  val DropQ = s"DROP TABLE $TMap; DROP TABLE $TNode;"
-  val CreateQ = s"CREATE TABLE $TMap ($CUuid STRING PRIMARY KEY);" +
-    s"CREATE TABLE $TNode ($CUuid STRING PRIMARY KEY, $CMap STRING, $CParent STRING, $COrdering REAL, $CContent STRING, $CHasConflict INTEGER, $CCloudTime INTEGER);" +
-    s"CREATE INDEX ${TNode}_$CMap ON $TNode ($CMap);" +
-    s"CREATE INDEX ${TNode}_$CParent ON $TNode ($CParent);"
+  val DropQs = s"DROP TABLE $TMap;" ::
+    s"DROP TABLE $TNode;" ::
+    Nil
+  val CreateQs = s"CREATE TABLE $TMap ($CUuid STRING PRIMARY KEY);" ::
+    s"CREATE TABLE $TNode ($CUuid STRING PRIMARY KEY, $CMap STRING, $CParent STRING, $COrdering REAL, $CContent STRING, $CHasConflict INTEGER, $CCloudTime INTEGER);" ::
+    s"CREATE INDEX ${TNode}_$CMap ON $TNode ($CMap);" ::
+    s"CREATE INDEX ${TNode}_$CParent ON $TNode ($CParent);" ::
+    Nil
 }
 
 class DBHelper(context: Context)
   extends SQLiteOpenHelper(context, DBHelper.Name, null, DBHelper.Version) {
   import DBHelper._
 
+  getWritableDatabase // wtf, Android? it won't call DBHelper#onCreate if you delete this =,=
+
   def onCreate(db: SQLiteDatabase) {
-    db execSQL CreateQ
+    CreateQs foreach (db execSQL _)
   }
 
   def onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-    db execSQL DropQ
+    Try(DropQs foreach (db execSQL _))
     onCreate(db)
   }
 

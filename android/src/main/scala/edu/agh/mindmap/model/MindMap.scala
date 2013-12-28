@@ -20,22 +20,34 @@ package edu.agh.mindmap.model
 import java.util.UUID
 import java.io.File
 import edu.agh.mindmap.util.{DBHelper, Importer}
+import com.michalrus.helper.MiscHelper
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 
 class MindMap private(val uuid: UUID,
                       val lastMod: Long,
                       isNew: Boolean) {
 
-  val root = if (isNew) MindNode.createRootOf(this)
-  else MindNode.findRootOf(this)
+  val root: MindNode = (if (isNew) None else MindNode findRootOf this) getOrElse
+    (MindNode createRootOf this)
 
   private def commit() {
-    // FIXME: save to local DB
-    // FIXME: sync
+    import DBHelper._
+
+    val v = new ContentValues
+    v put (CUuid, uuid.toString)
+
+    MindMap.dbw insertWithOnConflict (TMap, null, v, SQLiteDatabase.CONFLICT_REPLACE)
+
+    // FIXME: sync? But what?
+    ()
   }
 
 }
 
 object MindMap extends DBUser {
+  import DBHelper._
+  import MiscHelper.safen
 
   def create = {
     val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
@@ -43,14 +55,28 @@ object MindMap extends DBUser {
     map
   }
 
-  def findAll: Seq[MindMap] = {
-    // FIXME
-    Seq.empty
+  def findAll: Vector[MindMap] = {
+    val cur = dbr query (TMap, Array(CUuid), null, null, null, null, null)
+
+    cur moveToFirst()
+    var r = Vector.empty[MindMap]
+    while (!cur.isAfterLast) {
+      for {
+        uuid <- safen(UUID fromString (cur getString 0))
+      } r :+= new MindMap(uuid, 0, false)
+      cur moveToNext()
+    }
+
+    r
   }
 
   def findByUuid(uuid: UUID): Option[MindMap] = {
-    // FIXME
-    None
+    val cur = dbr query (TMap, Array(CUuid), s"$CUuid = ?", Array(uuid.toString), null, null, null)
+    cur moveToFirst()
+
+    for {
+      uuid <- safen(UUID fromString (cur getString 0))
+    } yield new MindMap(uuid, 0, false)
   }
 
   def importFrom(file: File): Seq[MindMap] = Importer importFrom file

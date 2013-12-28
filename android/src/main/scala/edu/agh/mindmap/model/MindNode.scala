@@ -20,6 +20,9 @@ package edu.agh.mindmap.model
 import scala.collection.mutable
 import java.util.UUID
 import edu.agh.mindmap.util.DBHelper
+import com.michalrus.helper.MiscHelper.safen
+import android.database.sqlite.SQLiteDatabase
+import android.content.ContentValues
 
 class MindNode private(val uuid: UUID,
                        val map: MindMap,
@@ -34,22 +37,66 @@ class MindNode private(val uuid: UUID,
   def content_=(v: Option[String]) = { _content = v; commit() }
 
   private val _children = new mutable.ArrayBuffer[MindNode]
-  def children = _children.toVector
+  private var childrenRead = false
+  def children = {
+    if (!childrenRead) {
+      import DBHelper._
+
+      val cur = MindNode.dbr query (TNode, Array(CUuid, COrdering, CContent, CHasConflict, CCloudTime),
+        s"$CParent = ?", Array(uuid.toString), null, null, null)
+      cur moveToFirst()
+      while (!cur.isAfterLast) {
+        for {
+          uuid <- safen(UUID fromString (cur getString 0))
+          ordering <- safen(cur getDouble 1)
+          content = safen(cur getString 2)
+          hasConflict <- safen(cur getLong 3)
+          cloudTime = safen(cur getLong 4)
+        } _children += new MindNode(uuid, map, Some(this), ordering, content, hasConflict != 0L, cloudTime)
+        cur moveToNext()
+      }
+
+      childrenRead = true
+    }
+    _children.toVector
+  }
 
   def remove() = for (p <- parent) p._children -= this
 
   private def commit() {
-    // FIXME: save to local db
+    import DBHelper._
+
+    val v = new ContentValues
+    v put (CUuid, uuid.toString)
+    v put (CMap, map.uuid.toString)
+    parent foreach (p => v put (CParent, p.uuid.toString))
+    v put (COrdering, ordering)
+    content foreach (c => v put (CContent, c))
+    v put (CHasConflict, Long box (if (hasConflict) 1L else 0L))
+    cloudTime foreach (ct => v put (CCloudTime, Long box ct))
+
+    MindNode.dbw insertWithOnConflict (TNode, null, v, SQLiteDatabase.CONFLICT_REPLACE)
+
     // FIXME: sync
+    ()
   }
 
 }
 
 object MindNode extends DBUser {
+  import DBHelper._
 
-  def findRootOf(map: MindMap): MindNode = {
-    // FIXME
-    ???
+  def findRootOf(map: MindMap): Option[MindNode] = {
+    val cur = dbr query (TNode, Array(CUuid, COrdering, CContent, CHasConflict, CCloudTime),
+      s"$CMap = ? AND $CParent IS NULL", Array(map.uuid.toString), null, null, null)
+    cur moveToFirst()
+    for {
+      uuid <- safen(UUID fromString (cur getString 0))
+      ordering <- safen(cur getDouble 1)
+      content = safen(cur getString 2)
+      hasConflict <- safen(cur getLong 3)
+      cloudTime = safen(cur getLong 4)
+    } yield new MindNode(uuid, map, None, ordering, content, hasConflict != 0L, cloudTime)
   }
 
   private[model] def createRootOf(map: MindMap) = {
