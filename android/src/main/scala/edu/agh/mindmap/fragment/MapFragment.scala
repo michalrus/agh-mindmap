@@ -60,7 +60,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       paper <- view.find[RelativeLayout](R.id.paper)
     } {
       hScroll.inner = vScroll
-      paper onClick defocus
+      paper onClick defocus()
       painter paint (map, paper, inflater)
     }
 
@@ -117,25 +117,31 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     for (imm <- inputManager) laterOnUiThread { imm showSoftInput (t, 0); () }
   }
 
-  def defocus() = for (dummy <- dummyFocus) {
+  def defocus(hideIME: Boolean = true) = for (dummy <- dummyFocus) {
     dummy requestFocus()
-    for (imm <- inputManager) laterOnUiThread { imm hideSoftInputFromWindow (dummy.getWindowToken, 0); () }
+    if (hideIME) for (imm <- inputManager) laterOnUiThread { imm hideSoftInputFromWindow (dummy.getWindowToken, 0); () }
   }
 
-  def addChildTo(node: MindNode) {
-    val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
-    val newNode = MindNode createChildOf (node, ord + 10)
-    painter repaint()
+  def addChildTo(node: MindNode) = {
+    defocus(hideIME = false)
+    laterOnUiThread {
+      val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
+      val newNode = MindNode createChildOf (node, ord + 10)
+      painter repaint()
 
-    for {
-      v <- painter viewFor newNode
-      text <- v.find[EditText](R.id.content)
-    } focusOn(text)
+      for {
+        v <- painter viewFor newNode
+        text <- v.find[EditText](R.id.content)
+      } focusOn(text)
+    }
   }
 
   def removeNode(node: MindNode) = {
-    node remove()
-    painter repaint()
+    defocus(hideIME = false)
+    laterOnUiThread {
+      node remove()
+      painter repaint()
+    }
     true
   }
 
