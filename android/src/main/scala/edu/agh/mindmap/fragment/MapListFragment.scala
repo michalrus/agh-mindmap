@@ -27,19 +27,36 @@ import edu.agh.mindmap.model.MindMap
 import android.widget.AdapterView.OnItemClickListener
 import edu.agh.mindmap.activity.MainActivity
 import android.content.Context
+import java.util.UUID
 
 object MapListFragment {
   val ItemXml = R.layout.recent_list_item
 }
 
 class MapListFragment extends SherlockFragment with ScalaFragment {
+  import collection.mutable
+
+  private val uuids = new mutable.TreeSet[UUID]
 
   def addMaps(maps: Seq[MindMap]) {
-    maps foreach (m => adapter add m)
+    maps foreach { m =>
+      if (uuids contains m.uuid) {
+        var i = 0; var count = adapter.getCount
+        while (i < count) {
+          val item = adapter getItem i
+          if (item.uuid == m.uuid) {
+            adapter remove item
+            count -= 1
+          } else i += 1
+        }
+      }
+      uuids += m.uuid
+      adapter add m
+    }
     adapter notifyDataSetChanged()
   }
 
-  private lazy val adapter = new ArrayAdapter(getActivity, MapListFragment.ItemXml, collection.JavaConversions.bufferAsJavaList(MindMap.findAll.toBuffer)) {
+  private lazy val adapter = new ArrayAdapter(getActivity, MapListFragment.ItemXml, new java.util.ArrayList[MindMap]) {
     private lazy val inflater = getActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
 
     override def getView(position: Int, convertView: View, parent: ViewGroup) = {

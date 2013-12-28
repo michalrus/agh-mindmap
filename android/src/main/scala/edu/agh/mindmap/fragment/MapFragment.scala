@@ -32,6 +32,7 @@ import android.content.Context
 import android.view.inputmethod.{EditorInfo, InputMethodManager}
 import android.widget.TextView.OnEditorActionListener
 import android.view.View.OnFocusChangeListener
+import edu.agh.mindmap.activity.MainActivity
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -45,6 +46,11 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     initializeNodeView,
     updateNodeView
   )
+
+  private lazy val onTitleChange: Option[(MindMap, String) => Unit] = getActivity match {
+    case a: MainActivity => Some(a.onMapTitleChanged)
+    case _ => None
+  }
 
   private lazy val dummyFocus = getView.find[View](R.id.dummy_focus)
   private lazy val inputManager = safen(getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager])
@@ -85,7 +91,13 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     v.content setOnFocusChangeListener new OnFocusChangeListener {
       def onFocusChange(vv: View, hasFocus: Boolean) =
-        if (!hasFocus) node.content = Some(v.content.getText.toString)
+        if (!hasFocus) {
+          node.content = Some(v.content.getText.toString)
+          if (node.map.root == node) for {
+            cnt <- node.content
+            fun <- onTitleChange
+          } fun(node.map, cnt)
+        }
     }
   }
 

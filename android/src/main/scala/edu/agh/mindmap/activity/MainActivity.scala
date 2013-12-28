@@ -22,10 +22,10 @@ import scala.collection.mutable
 import com.actionbarsherlock.app.SherlockFragmentActivity
 import android.os.Bundle
 import edu.agh.mindmap.R
-import android.widget.{HorizontalScrollView, TabHost}
+import android.widget.{TextView, HorizontalScrollView, TabHost}
 import android.support.v4.app.{Fragment, FragmentActivity}
 import android.content.{ActivityNotFoundException, Intent, Context}
-import android.view.View
+import android.view.{ViewGroup, View}
 import edu.agh.mindmap.fragment.{MapFragment, MapListFragment}
 import scala.reflect.ClassTag
 import com.michalrus.helper.ScalaActivity
@@ -85,6 +85,11 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     }
 
     true
+  }
+
+  def onMapTitleChanged(map: MindMap, t: String) {
+    tabManager retitleTab (map.uuid.toString, t)
+    withMapListFragment(_ addMaps Seq(map))
   }
 
   def closeCurrentMap() {
@@ -154,6 +159,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     tabHost.setup()
 
     tabManager.addTab[MapListFragment](MainActivity.MapListTabTag, getString(R.string.all_maps))
+    withMapListFragment(_ addMaps MindMap.findAll)
 
     Option(bundle) foreach (b => {
       Option(b getStringArray "tags") foreach(_ filter (_ != MainActivity.MapListTabTag) foreach { t =>
@@ -214,9 +220,12 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       }
     }
 
-    def addTab[F](tag: String, label: String, args: Bundle = null)(implicit classTag: ClassTag[F]) {
-      val indicator = if (label.length <= MainActivity.TabTitleMaxLength) label
+    private def shortenLabel(label: String) =
+      if (label.length <= MainActivity.TabTitleMaxLength) label
       else (label take MainActivity.TabTitleMaxLength) + '\u2026'
+
+    def addTab[F](tag: String, label: String, args: Bundle = null)(implicit classTag: ClassTag[F]) {
+      val indicator = shortenLabel(label)
 
       val tabSpec = tabHost newTabSpec tag setIndicator indicator setContent new DummyTabFactory(activity)
       creators += tag -> (() => Fragment.instantiate(activity, classTag.runtimeClass.getName, args))
@@ -237,6 +246,21 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
       tabSpecs += tabSpec
       tabHost addTab tabSpec
+    }
+
+    def retitleTab(tag: String, newLabel: String) {
+      val label = shortenLabel(newLabel)
+
+      val ts = tabSpecs.zipWithIndex filter { case (t, i) => t.getTag == tag }
+
+      ts foreach { case (t, _) => t setIndicator label }
+
+      for {
+        (_, i) <- ts
+        vg <- safen((tabHost.getTabWidget getChildTabViewAt i).asInstanceOf[ViewGroup])
+        j <- 0 until vg.getChildCount
+        tx <- safen((vg getChildAt j).asInstanceOf[TextView])
+      } tx setText label
     }
 
     def removeTab(tag: String, tagAfterwards: String) {
