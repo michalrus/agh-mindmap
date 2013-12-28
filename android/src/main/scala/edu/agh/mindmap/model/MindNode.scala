@@ -32,7 +32,10 @@ class MindNode private(val uuid: UUID,
                        val hasConflict: Boolean,
                        val cloudTime: Option[Long]) extends Ordered[MindNode] {
 
-  def compare(that: MindNode): Int = this.ordering compare that.ordering
+  def compare(that: MindNode): Int = {
+    val ord = this.ordering compare that.ordering
+    if (ord != 0) ord else this.uuid compareTo that.uuid
+  }
 
   private var _content = initialContent
   def content = _content
@@ -40,7 +43,7 @@ class MindNode private(val uuid: UUID,
 
   private val _children = new mutable.TreeSet[MindNode]
   private var childrenRead = false
-  def children = {
+  def childrenIncludingDeleted = {
     if (!childrenRead) {
       import DBHelper._
 
@@ -62,8 +65,21 @@ class MindNode private(val uuid: UUID,
     }
     _children.toVector
   }
+  def children = childrenIncludingDeleted filter (_.content.isDefined)
 
-  def remove() = for (p <- parent) p._children -= this
+  def remove() = if (map.root != this) {
+    def deleteChildrenOf(node: MindNode) {
+      import DBHelper._
+      node.children foreach { ch =>
+        deleteChildrenOf(ch)
+        MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
+      }
+    }
+    deleteChildrenOf(this)
+
+    _children clear()
+    content = None
+  }
 
   private def commit() {
     import DBHelper._
@@ -71,9 +87,9 @@ class MindNode private(val uuid: UUID,
     val v = new ContentValues
     v put (CUuid, uuid.toString)
     v put (CMap, map.uuid.toString)
-    parent foreach (p => v put (CParent, p.uuid.toString))
+    v put (CParent, parent map (_.uuid.toString) getOrElse null)
     v put (COrdering, ordering)
-    content foreach (c => v put (CContent, c))
+    v put (CContent, content getOrElse null)
     v put (CHasConflict, Long box (if (hasConflict) 1L else 0L))
     cloudTime foreach (ct => v put (CCloudTime, Long box ct))
 
@@ -108,7 +124,7 @@ object MindNode extends DBUser {
   }
 
   def createChildOf(parent: MindNode, ordering: Double) = {
-    val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, None, false, None)
+    val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, Some(""), false, None)
     child commit()
     parent._children += child
     child
