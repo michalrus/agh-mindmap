@@ -18,62 +18,11 @@
 \chapter{Implementation}
 \label{chap:implementation}
 
-\section{What was implemented and how?}
-\label{sec:got-implemented}
+\section{Introduction}
+\label{sec:impl-intro}
+We started implementation with a set of basic classes representing data structure. The first step was creating a list of maps, with a tab bar in the top of it. 
 
-\subsection{\todo{\michal{K., shouldn't this be in \cref{chap:results}?}}UI screenshots}
-\label{subsec:ui-screenshots}
+\input{android-app}
+\input{akkaio-app}
+\input{problems-and-solutions}
 
-\todo[inline]{\michal{K., \textbackslash{}cref screenshots and their corresponding mockups in text here.}}
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\michal{List view screen}}
-	\caption{View of mind map list, initial screen.}
-	\label{fig:screen-maplist}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\michal{Mind map view screen}}
-	\caption{View of mind map.}
-	\label{fig:screen-map}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\michal{2 devices, collaboration}}
-	\caption{View of collaboration.}
-	\label{fig:screen-collaboration}
-\end{figure}
-
-\section{How the requirements were met?}
-\label{sec:met-requirements}
-
-\todo[inline]{\michal{K., what goes here? Also: it doubles with 3rd to-do in \cref{chap:summary}.}}
-
-\section{Encountered problems and their solutions}
-\label{sec:impl-problems}
-
-\subsection{Encapsulation of bidirectional message passing over request-response style HTTP protocol}
-\label{subsec:problem-longpolling}
-
-\todo[inline]{\michal{M., write about long-polling.}}
-
-Most browsers have a limit for concurrently open connections to the same server set to a value close to 2. This means it would be best to encapsulate message passing in \emph{one} constantly open connection, to leave the other free to be used in any way needed. E.g. to download some media resources.
-
-This is not such an issue when Android is concerned, because as many connections can be opened as needed. However, as it is internally easy to add other front-ends (web application), it's wise to project the REST actors (\cref{subsec:component-akka}) to operate on one connection only.
-
-\subsection{No removing of tabs in Android's TabHost}
-\label{subsec:problem-tabhost}
-
-\todo[inline]{\michal{M., describe custom removing of tabs.}}
-
-Resolved: \href{https://github.com/michalrus/agh-mindmap/commit/ebe22968dc091f575ab16be0d0051dbfb7f3e434}{ebe22968dc091f575ab16be0d0051dbfb7f3e434}.
-
-All tabs had to be removed and then readded. Also we had to manually use another container for our Fragments.
-
-\subsection{No bidirectional scroll view in Android standard components}
-\label{subsec:problem-scrollview}
-
-\todo[inline]{\michal{M., write about custom bidirectional ScrollView.}}
