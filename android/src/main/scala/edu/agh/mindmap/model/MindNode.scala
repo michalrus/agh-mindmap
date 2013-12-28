@@ -19,6 +19,7 @@ package edu.agh.mindmap.model
 
 import scala.collection.mutable
 import java.util.UUID
+import edu.agh.mindmap.util.DBHelper
 
 class MindNode private(val uuid: UUID,
                        val map: MindMap,
@@ -44,15 +45,22 @@ class MindNode private(val uuid: UUID,
 
 }
 
-object MindNode {
+object MindNode extends DBUser {
 
-  def findRootOf(map: MindMap): MindNode = ???
+  def findRootOf(map: MindMap): MindNode = {
+    // FIXME
+    ???
+  }
 
-  private[model] def createRootOf(map: MindMap) =
-    new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
+  private[model] def createRootOf(map: MindMap) = {
+    val root = new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
+    root commit()
+    root
+  }
 
   def createChildOf(parent: MindNode, ordering: Double) = {
     val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, None, false, None)
+    child commit()
     parent._children += child
     child
   }

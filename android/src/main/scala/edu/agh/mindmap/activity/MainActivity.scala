@@ -32,8 +32,8 @@ import com.michalrus.helper.ScalaActivity
 import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}
-import edu.agh.mindmap.model.MindMap
-import edu.agh.mindmap.util.ImporterException
+import edu.agh.mindmap.model.{MindNode, MindMap}
+import edu.agh.mindmap.util.{DBHelper, ImporterException}
 import java.util.UUID
 import scala.util.Try
 
@@ -145,6 +145,11 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
+
+    val db = new DBHelper(this)
+    MindMap setDb db
+    MindNode setDb db
+
     setContentView(R.layout.main)
     tabHost.setup()
 
