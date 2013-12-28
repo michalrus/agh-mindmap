@@ -58,7 +58,7 @@ class MapPainter(dp2px: Int => Int,
 
     def view = nodeView
 
-    def isRoot = mindNode.map.root == mindNode
+    @inline def isRoot = mindNode.isRoot
 
     private var _folded = false
     def folded = _folded

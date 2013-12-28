@@ -28,11 +28,12 @@ import edu.agh.mindmap.component.{NodeView, HorizontalScrollViewWithPropagation}
 import android.widget._
 import edu.agh.mindmap.util.MapPainter
 import scala.util.Try
-import android.content.Context
+import android.content.{DialogInterface, Context}
 import android.view.inputmethod.{EditorInfo, InputMethodManager}
 import android.widget.TextView.OnEditorActionListener
 import android.view.View.OnFocusChangeListener
 import edu.agh.mindmap.activity.MainActivity
+import android.app.AlertDialog
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private val painter = new MapPainter(
@@ -91,9 +92,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
     v.content setOnFocusChangeListener new OnFocusChangeListener {
       def onFocusChange(vv: View, hasFocus: Boolean) =
-        if (!hasFocus) {
+        if (!hasFocus && !node.isRemoved) {
           node.content = Some(v.content.getText.toString)
-          if (node.map.root == node) for {
+          if (node.isRoot) for {
             cnt <- node.content
             fun <- onTitleChange
           } fun(node.map, cnt)
@@ -150,11 +151,24 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
   def removeNode(node: MindNode) = {
     defocus(hideIME = false)
-    laterOnUiThread {
-      node remove()
-      painter repaint()
+    if (node.map.root == node) false
+    else {
+      val builder = new AlertDialog.Builder(getActivity)
+      builder setMessage
+        getString(R.string.sure_to_delete_node, node.content getOrElse "") setPositiveButton(android.R.string.yes,
+        new DialogInterface.OnClickListener {
+          def onClick(dialog: DialogInterface, which: Int) =
+            laterOnUiThread {
+              node remove()
+              painter repaint()
+            }
+        }) setNegativeButton(android.R.string.no,
+        new DialogInterface.OnClickListener {
+          def onClick(dialog: DialogInterface, which: Int) {}
+        }) show()
+
+      true
     }
-    true
   }
 
 }

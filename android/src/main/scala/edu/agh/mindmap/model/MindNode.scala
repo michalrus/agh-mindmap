@@ -32,6 +32,9 @@ class MindNode private(val uuid: UUID,
                        val hasConflict: Boolean,
                        val cloudTime: Option[Long]) extends Ordered[MindNode] {
 
+  def isRoot = map.root == this
+  def isRemoved = !content.isDefined
+
   def compare(that: MindNode): Int = {
     val ord = this.ordering compare that.ordering
     if (ord != 0) ord else this.uuid compareTo that.uuid
@@ -65,9 +68,9 @@ class MindNode private(val uuid: UUID,
     }
     _children.toVector
   }
-  def children = childrenIncludingDeleted filter (_.content.isDefined)
+  def children = childrenIncludingDeleted filterNot (_.isRemoved)
 
-  def remove() = if (map.root != this) {
+  def remove() = if (!isRoot) {
     def deleteChildrenOf(node: MindNode) {
       import DBHelper._
       node.children foreach { ch =>

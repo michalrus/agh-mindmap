@@ -26,6 +26,8 @@
   <string name="all_maps">All maps</string>
   <string name="default_new_map_title">New map</string>
 
+  <string name="sure_to_delete_node">Are you sure you want to delete node \"%s\" and all its children?</string>
+
   <string name="import_error_title">Import failed.</string>
   <string name="import_error_body">Make sure it\'s a valid XMind file.</string>
   <string name="file_error_title">Could not open file.</string>
