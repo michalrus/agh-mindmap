@@ -95,7 +95,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   def createNewMap() {
     val newMap = MindMap.create
-    newMap.root.content = Some("nowa Mapa")
+    newMap.root.content = Some(getString(R.string.default_new_map_title))
     withMapListFragment(_ addMaps newMap :: Nil )
     viewMindMap(newMap)
   }
@@ -153,7 +153,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     setContentView(R.layout.main)
     tabHost.setup()
 
-    tabManager.addTab[MapListFragment](MainActivity.MapListTabTag, "All maps")
+    tabManager.addTab[MapListFragment](MainActivity.MapListTabTag, getString(R.string.all_maps))
 
     Option(bundle) foreach (b => {
       Option(b getStringArray "tags") foreach(_ filter (_ != MainActivity.MapListTabTag) foreach { t =>

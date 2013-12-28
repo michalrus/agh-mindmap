@@ -23,6 +23,9 @@
   <string name="action_close">Close</string>
   <string name="choose_xmind">Choose an XMind file</string>
 
+  <string name="all_maps">All maps</string>
+  <string name="default_new_map_title">New map</string>
+
   <string name="import_error_title">Import failed.</string>
   <string name="import_error_body">Make sure it\'s a valid XMind file.</string>
   <string name="file_error_title">Could not open file.</string>
