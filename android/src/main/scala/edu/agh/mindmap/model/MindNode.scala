@@ -30,13 +30,15 @@ class MindNode private(val uuid: UUID,
                        val ordering: Double,
                        initialContent: Option[String],
                        val hasConflict: Boolean,
-                       val cloudTime: Option[Long]) {
+                       val cloudTime: Option[Long]) extends Ordered[MindNode] {
+
+  def compare(that: MindNode): Int = this.ordering compare that.ordering
 
   private var _content = initialContent
   def content = _content
   def content_=(v: Option[String]) = { _content = v; commit() }
 
-  private val _children = new mutable.ArrayBuffer[MindNode]
+  private val _children = new mutable.TreeSet[MindNode]
   private var childrenRead = false
   def children = {
     if (!childrenRead) {
