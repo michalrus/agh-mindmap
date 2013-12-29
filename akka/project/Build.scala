@@ -23,12 +23,18 @@ object Build extends Build {
   // --- root
 
   lazy val root = Project(id = "root", base = file(".")).settings(
-    name := "agh-mindmap",
+    name := "agh-mindmapd",
+    version := "1.0",
     scalaVersion := "2.10.3",
 
     javacOptions in Compile ++= Seq("-Xlint:deprecation"),
     scalacOptions in Compile ++= Seq("-feature", "-deprecation", "-Yno-adapted-args", "-Ywarn-all", "-Xfatal-warnings",
-      "-Xlint", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-Ywarn-dead-code", "-unchecked")
+      "-Xlint", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-Ywarn-dead-code", "-unchecked"),
+
+    resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+
+    libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.2.3"
+
   )
 
 }
