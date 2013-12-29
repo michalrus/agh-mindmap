@@ -20,7 +20,16 @@
 
 \section{Introduction}
 \label{sec:impl-intro}
-We started implementation with a set of basic classes representing data structure. The first step was creating a list of maps, with a tab bar in the top of it. 
+
+\subsection{Choosing IDE}
+\label{subsec:choosing-ide}
+We started with setting up a development environment. Since our language of choice is Scala, it was important to find an IDE which provides support for both Android and Scala development and can integrate these two elements. Quickly it turned out that there is no out-of-the-box solution. Three most popular development environments are Ecplise, NetBeans and IntelliJ, and all of them support Scala development. 
+
+After some research and because of previous experience with Android development, we decided to work in IntelliJ IDEA 12 (and we switched to 13 when it was released). We chose this particular solution because it provides seperate module facets for Android and Scala projects\cite{Steingress:2011:AndroidScala}. Also, it seems that it is the most advanced tool when it comes to code assistance. One of its most helpful features is smart code completion for both Scala and Android-specific files\cite{Steingress:2011:AndroidScala}. advanced . Also, IntelliJ IDEA offers a great deal of code analysis tools, which help to locate possible bugs, dead code and performance issues. The last version has built-in support for SBT. 
+
+\subsection{Android integration with SBT}
+\label{subsec:choosing-ide}
+ At first we used an android sbt plugin written by Walter Chang, Mark Harrah and Jan Berkel, available on github.com as "android-plugin" repository. 
 
 \input{android-app}
 \input{akkaio-app}
