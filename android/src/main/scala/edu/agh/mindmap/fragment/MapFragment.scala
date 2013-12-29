@@ -36,17 +36,7 @@ import edu.agh.mindmap.activity.MainActivity
 import android.app.AlertDialog
 
 class MapFragment extends SherlockFragment with ScalaFragment {
-  private val painter = new MapPainter(
-    dp2px,
-    nodeLayoutId = R.layout.mind_node,
-    paperPadding = 20, // [dp]
-    subtreeMargin = 5, // [dp]
-    childHorizontalDistance = 50, // [dp]
-    arcShortRadius,
-    nodeViewSize,
-    initializeNodeView,
-    updateNodeView
-  )
+  private var painter: Option[MapPainter] = None
 
   private lazy val onTitleChange: Option[(MindMap, String) => Unit] = getActivity match {
     case a: MainActivity => Some(a.onMapTitleChanged)
@@ -59,16 +49,29 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.map, container, false)
 
+    painter = Some(new MapPainter(
+      dp2px,
+      nodeLayoutId = R.layout.mind_node,
+      paperPadding = 20, // [dp]
+      subtreeMargin = 5, // [dp]
+      childHorizontalDistance = 50, // [dp]
+      arcShortRadius,
+      nodeViewSize,
+      initializeNodeView,
+      updateNodeView
+    ))
+
     for {
       hScroll <- view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
       vScroll = view.find[ScrollView](R.id.vscroll)
       uuid <- Try(UUID fromString (getArguments getString "uuid"))
       map <- MindMap findByUuid uuid
       paper <- view.find[RelativeLayout](R.id.paper)
+      painter <- painter
     } {
       hScroll.inner = vScroll
       paper onClick defocus()
-      painter paint (map, paper, inflater)
+      laterOnUiThread { painter paint (map, paper, inflater) }
     }
 
     view
@@ -140,9 +143,10 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     laterOnUiThread {
       val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
       val newNode = MindNode createChildOf (node, ord + 10)
-      painter repaint()
+      painter foreach (_ repaint())
 
       for {
+        painter <- painter
         v <- painter viewFor newNode
         text <- v.find[EditText](R.id.content)
       } focusOn(text)
@@ -160,7 +164,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
           def onClick(dialog: DialogInterface, which: Int) =
             laterOnUiThread {
               node remove()
-              painter repaint()
+              painter foreach (_ repaint())
             }
         }) setNegativeButton(android.R.string.no,
         new DialogInterface.OnClickListener {
