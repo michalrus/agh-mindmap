@@ -1,5 +1,7 @@
+package edu.agh.mindmapd
+
 object Main extends App {
 
-  println("Hello, actors!")
+  akka.Main main Array("edu.agh.mindmapd.actors.Supervisor")
 
 }
