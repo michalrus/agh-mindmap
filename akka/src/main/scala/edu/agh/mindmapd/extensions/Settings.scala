@@ -26,6 +26,7 @@ class Settings(system: ExtendedActorSystem) extends Extension {
 
   @inline private def cf = system.settings.config
 
+  val isProduction = cf getBoolean "mindmapd.is-production"
   val hostname = cf getString "mindmapd.hostname"
   val port     = cf getInt "mindmapd.port"
   val timeout  = FiniteDuration(cf getMilliseconds "mindmapd.timeout", MILLISECONDS)
