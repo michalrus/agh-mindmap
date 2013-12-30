@@ -25,7 +25,7 @@ class Supervisor extends Actor {
 
   @inline def s = Settings(context.system)
 
-  val http = context actorOf HttpService.props(s.hostname, s.port, s.timeout)
+  val http = context actorOf (HttpService.props(s.hostname, s.port, s.timeout), "http-service")
 
   def receive = Actor.emptyBehavior
 

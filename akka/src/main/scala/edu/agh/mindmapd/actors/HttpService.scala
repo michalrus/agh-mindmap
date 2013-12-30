@@ -17,7 +17,7 @@
 
 package edu.agh.mindmapd.actors
 
-import akka.actor.{Actor, Props}
+import akka.actor.{ActorLogging, Actor, Props}
 import scala.concurrent.duration.FiniteDuration
 
 object HttpService {
@@ -25,11 +25,12 @@ object HttpService {
     Props(classOf[HttpService], hostname, port, timeout)
 }
 
-class HttpService(hostname: String, port: Int, timeout: FiniteDuration) extends Actor {
+class HttpService(hostname: String, port: Int, timeout: FiniteDuration) extends Actor with ActorLogging {
 
-  println(s"h: $hostname")
-  println(s"p: $port")
-  println(s"t: $timeout")
+  log info s"h: $hostname"
+  log info s"p: $port"
+  log info s"t: $timeout"
+
   context.system.shutdown()
 
   def receive = Actor.emptyBehavior
