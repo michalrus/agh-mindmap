@@ -21,6 +21,7 @@
 *.run.xml
 *.out
 *.tdo
+*-blx.bib
 
 # XeLaTeX temporary files
 
