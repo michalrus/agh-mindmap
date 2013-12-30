@@ -2,25 +2,14 @@ package edu.agh.mindmapd.actors
 
 import akka.actor.Actor
 import concurrent.duration._
-
-object Supervisor {
-  case object Bye
-}
+import edu.agh.mindmapd.extensions.Settings
 
 class Supervisor extends Actor {
-  import Supervisor._
-  import context.dispatcher
 
-  override def preStart() {
-    println("Hello!")
-    context.system.scheduler scheduleOnce (3.seconds, self, Bye)
-    ()
-  }
+  @inline def s = Settings(context.system)
 
-  def receive = {
-    case Bye =>
-      println("Bye!")
-      context stop self
-  }
+  val http = context actorOf HttpService.props(s.hostname, s.port, s.timeout)
+
+  def receive = Actor.emptyBehavior
 
 }
