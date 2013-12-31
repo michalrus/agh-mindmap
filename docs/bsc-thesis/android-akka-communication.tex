@@ -33,7 +33,7 @@ As it turns out, we're able to make it work using just two main messages (and re
 
 	\item Akka receives the message and:
 	\begin{itemize}
-		\item creates mind map(s) of UUID contained in node's map UUID field (if they don't already not exists),
+		\item creates mind map(s) of UUID contained in node's map UUID field (if they don't already exists),
 		\item checks if the DB will be in consistent state after introducing Android's changes. DB is said to be inconsistent when there are references in node's parent field to other nodes that are not present in DB (dangling references),
 		\item any deletions are rejected if there is a previously synchronized change in to-be-deleted subtree (in such case this to-be-deleted subtree is sent again to the deleter in message in \cref{akka-update-message}),
 		\item changes are merged if consistency will be retained afterwards, node's timestamps are set to current server time,
@@ -49,7 +49,7 @@ As it turns out, we're able to make it work using just two main messages (and re
 And the two exceptional cases are as follows:
 
 \begin{enumerate}
-	\item \label{akka-conflict} It might happen that another Android, A, updated a node, when currently synchonizing Android, B, was offline (and A, too, changed the node while offline). This causes a `merge conflict'. All merge conflicts are resolved automatically and strategies vary depeneding on which field causes the conflict:
+	\item \label{akka-conflict} It might happen that another Android, A, updated a node, when currently synchonizing Android, B, was offline (and B, too, changed the node while offline). This causes a `merge conflict'. All merge conflicts are resolved automatically and strategies vary depeneding on which field causes the conflict:
 	\begin{itemize}
 		\item If theres a conflict in node's \emph{content}, then both conflicting contents are concatenated with a new line, \inlinecode{\textbackslash{}m} and the node's \inlinecode{has\_conflict} field is set to \inlinecode{true}. (This results in marking the field somehow in the UI, possibly with red.)
 		\item If, however, the conflicting field is node's \inlinecode{parent}, then we \emph{repin} the node accordnig to our last disposition. Changing node's parent does not destroy data and it's easy to reverse for contributors.
