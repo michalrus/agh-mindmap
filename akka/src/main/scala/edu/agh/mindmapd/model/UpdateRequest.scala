@@ -15,33 +15,12 @@
  * limitations under the License.
  */
 
-package edu.agh.mindmapd.actors
+package edu.agh.mindmapd.model
 
-import akka.actor.{Props, Actor}
-import java.util.UUID
-import edu.agh.mindmapd.model.{UpdateRequest, MindNode}
+import spray.json.DefaultJsonProtocol
 
-object MindMap {
-
-  case class Update(msgId: UUID, req: UpdateRequest)
-  case class Result(msgId: UUID)
-
-  def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
-
+object UpdateRequest extends DefaultJsonProtocol {
+  implicit val format = jsonFormat2(apply)
 }
 
-class MindMap(mapUuid: UUID) extends Actor {
-  import MindMap._
-
-  import collection.immutable.TreeMap
-
-  var times = TreeMap.empty[Long, UUID]
-  var nodes = Map.empty[UUID, MindNode]
-
-  def receive = {
-    case Update(msgId, req) =>
-      require(req.updates forall (_.map == mapUuid)) // security <3
-      ??? // FIXME
-  }
-
-}
+case class UpdateRequest(since: Long, updates: List[MindNode])

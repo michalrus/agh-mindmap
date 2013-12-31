@@ -17,31 +17,36 @@
 
 package edu.agh.mindmapd.actors
 
-import akka.actor.{Props, Actor}
+import akka.actor.{Props, ActorRef, Actor}
 import java.util.UUID
-import edu.agh.mindmapd.model.{UpdateRequest, MindNode}
+import edu.agh.mindmapd.model.{MindNode, UpdateRequest}
 
-object MindMap {
+object RequestProcessor {
 
-  case class Update(msgId: UUID, req: UpdateRequest)
-  case class Result(msgId: UUID)
+  def props = Props(classOf[RequestProcessor])
 
-  def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
+  case class Request(msgId: UUID, update: UpdateRequest)
+  case class Response(msgId: UUID, updates: List[MindNode])
 
 }
 
-class MindMap(mapUuid: UUID) extends Actor {
-  import MindMap._
+class RequestProcessor extends Actor {
+  import RequestProcessor._
 
-  import collection.immutable.TreeMap
+  def receive = initial
 
-  var times = TreeMap.empty[Long, UUID]
-  var nodes = Map.empty[UUID, MindNode]
+  def initial: Receive = {
+    case Request(id, update) =>
+      context become waitingForMaps(id, sender)
+  }
 
-  def receive = {
-    case Update(msgId, req) =>
-      require(req.updates forall (_.map == mapUuid)) // security <3
-      ??? // FIXME
+  // TODO: TIMEOUT & LONG POLLING!
+
+  def waitingForMaps(requestId: UUID, requester: ActorRef): Receive = {
+    case _ =>
+      ???
+      requester ! Response(requestId, ???)
+      context stop self
   }
 
 }

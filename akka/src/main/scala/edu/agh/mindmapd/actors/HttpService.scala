@@ -26,9 +26,10 @@ import akka.io.IO
 import spray.can.Http
 import edu.agh.mindmapd.extensions.Settings
 import java.util.UUID
-import edu.agh.mindmapd.model.MindNode
+import edu.agh.mindmapd.model.{UpdateRequest, MindNode}
 
 object HttpService {
+
   def props(hostname: String, port: Int, timeout: FiniteDuration): Props =
     Props(classOf[HttpService], hostname, port, timeout)
 }
@@ -38,15 +39,39 @@ class HttpService(hostname: String, port: Int, timeout: FiniteDuration)
   import HttpService._
   import context.dispatcher
 
+  var completers = Map.empty[UUID, List[MindNode] => Unit]
+
   IO(Http)(context.system) ! Http.Bind(self, hostname, port)
 
-  def receive = runRoute(pathPrefix("api")(test ~ die))
+  def receive = localBehavior orElse httpBehavior
 
-  val test = path("test")(get { complete {
+  val localBehavior: Receive = {
+    case RequestProcessor.Response(id, updates) =>
+      completers get id match {
+        case Some(completer) => completers -= id; completer(updates)
+        case _ => log error s"Wtf, no completer found for msgId $id?!"
+      }
+  }
+
+  val httpBehavior = runRoute(pathPrefix("api")(r.test ~ r.die))
+
+  object r {
+    val mindmap = path("mindmap")(post {
+      entity(as[UpdateRequest]) { update =>
+        produce(instanceOf[List[MindNode]]) { completer => _ =>
+          val msgId = UUID.randomUUID
+          completers += msgId -> completer
+          val rp = context actorOf RequestProcessor.props
+          rp ! RequestProcessor.Request(msgId, update)
+        }
+      }
+    })
+
+    val test = path("test")(get { complete {
     MindNode(UUID.randomUUID, UUID.randomUUID, None, math.Pi, None, hasConflict = true, System.currentTimeMillis)
   }})
 
-  val die = path("die")(get { complete {
+    val die = path("die")(get { complete {
     if (Settings(context.system).isProduction) {
       "Won't die at production, u mad? =,=\n"
     } else {
@@ -55,7 +80,6 @@ class HttpService(hostname: String, port: Int, timeout: FiniteDuration)
       "Dying...\n"
     }
   }})
-
-  def mindMapFor(uuid: UUID): ActorRef = ???
+  }
 
 }
