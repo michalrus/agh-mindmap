@@ -26,7 +26,7 @@ object MindNode extends DefaultJsonProtocol with CustomJsonFormats {
 }
 
 case class MindNode(uuid: UUID,
-                    map: UUID,
+                    mindMap: UUID,
                     parent: Option[UUID],
                     ordering: Double,
                     content: Option[String],

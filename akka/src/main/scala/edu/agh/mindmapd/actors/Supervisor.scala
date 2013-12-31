@@ -18,14 +18,15 @@
 package edu.agh.mindmapd.actors
 
 import akka.actor.Actor
-import concurrent.duration._
 import edu.agh.mindmapd.extensions.Settings
 
 class Supervisor extends Actor {
 
   @inline def s = Settings(context.system)
 
-  val http = context actorOf (HttpService.props(s.hostname, s.port, s.timeout), "http-service")
+  val lookup = context actorOf (MapsLookup.props, "maps")
+
+  context actorOf (http.Service.props(s.hostname, s.port, s.timeout, lookup), "http-service")
 
   def receive = Actor.emptyBehavior
 

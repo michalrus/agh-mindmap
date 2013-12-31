@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package edu.agh.mindmapd.model
+package edu.agh.mindmapd.json
 
 import spray.json.DefaultJsonProtocol
+import edu.agh.mindmapd.model.MindNode
 
-object UpdateRequest extends DefaultJsonProtocol {
-  implicit val format = jsonFormat2(apply)
+object PollResponse extends DefaultJsonProtocol {
+  implicit val format = jsonFormat1(apply)
 }
 
-case class UpdateRequest(since: Long, updates: List[MindNode])
+case class PollResponse(nodes: List[MindNode])

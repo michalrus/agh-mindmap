@@ -27,7 +27,7 @@ trait CustomJsonFormats {
 
     def read(json: JsValue): UUID = json match {
       case JsString(x) => try { UUID fromString x }
-        catch { case e: Throwable => deserializationError(s"UUID could not be parsed from $x", e) }
+        catch { case e: Throwable => deserializationError(s"UUID could not be parsed from `$x'", e) }
       case x => deserializationError(s"Expected UUID as JsString, but got $x")
     }
   }

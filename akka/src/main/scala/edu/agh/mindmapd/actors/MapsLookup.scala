@@ -17,32 +17,31 @@
 
 package edu.agh.mindmapd.actors
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
-import edu.agh.mindmapd.model.{MindNode}
-import edu.agh.mindmapd.json.UpdateRequest
 
-object MindMap {
+object MapsLookup {
 
-  case class Update(msgId: UUID, req: UpdateRequest)
-  case class Result(msgId: UUID)
+  case class Find(uuids: List[UUID])
 
-  def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
+  def props = Props(classOf[MapsLookup])
 
 }
 
-class MindMap(mapUuid: UUID) extends Actor {
-  import MindMap._
-
-  import collection.immutable.TreeMap
-
-  var times = TreeMap.empty[Long, UUID]
-  var nodes = Map.empty[UUID, MindNode]
+class MapsLookup extends Actor {
+  import MapsLookup._
 
   def receive = {
-    case Update(msgId, update) =>
-      require(update.nodes forall (_.mindMap == mapUuid)) // security <3
-      ??? // FIXME
+    case Find(uuids) =>
+      sender ! uuids.map(u => (u, refFor(u))).toMap
+  }
+
+  def refFor(uuid: UUID): ActorRef = {
+    val s = uuid.toString
+    context child s match {
+      case Some(ref) => ref
+      case _ => context actorOf (MindMap.props(uuid), s)
+    }
   }
 
 }
