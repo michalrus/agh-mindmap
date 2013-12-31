@@ -17,7 +17,7 @@
 
 package edu.agh.mindmapd.actors
 
-import akka.actor.{ActorLogging, Props}
+import akka.actor.{ActorRef, ActorLogging, Props}
 import concurrent.duration._
 import scala.concurrent.duration.FiniteDuration
 import spray.routing.HttpServiceActor
@@ -25,6 +25,8 @@ import spray.httpx.SprayJsonSupport
 import akka.io.IO
 import spray.can.Http
 import edu.agh.mindmapd.extensions.Settings
+import java.util.UUID
+import edu.agh.mindmapd.model.MindNode
 
 object HttpService {
   def props(hostname: String, port: Int, timeout: FiniteDuration): Props =
@@ -38,19 +40,22 @@ class HttpService(hostname: String, port: Int, timeout: FiniteDuration)
 
   IO(Http)(context.system) ! Http.Bind(self, hostname, port)
 
-  def receive = runRoute(pathPrefix("api") {
-    path("test") {
-      get { complete(<i>xoxoxo</i>) }
-    } ~
-    path("die")(get { complete {
-      if (Settings(context.system).isProduction) {
-        "Won't die at production, u mad? =,=\n"
-      } else {
-        val sys = context.system
-        sys.scheduler.scheduleOnce(Duration.Zero) { sys.shutdown() }
-        "Dying...\n"
-      }
-    }})
-  })
+  def receive = runRoute(pathPrefix("api")(test ~ die))
+
+  val test = path("test")(get { complete {
+    MindNode(UUID.randomUUID, UUID.randomUUID, None, math.Pi, None, hasConflict = true, System.currentTimeMillis)
+  }})
+
+  val die = path("die")(get { complete {
+    if (Settings(context.system).isProduction) {
+      "Won't die at production, u mad? =,=\n"
+    } else {
+      val sys = context.system
+      sys.scheduler.scheduleOnce(Duration.Zero) { sys.shutdown() }
+      "Dying...\n"
+    }
+  }})
+
+  def mindMapFor(uuid: UUID): ActorRef = ???
 
 }
