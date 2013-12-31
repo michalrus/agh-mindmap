@@ -3,6 +3,27 @@
 
 \subsection{Navigation}
 \label{subsec:drawing}
+The first step in creating an Android application was writing the basic views. According to the project, our application should consist of two "views" -- the first with list of mind maps and the second, with a view of a single map. Both views share an action bar with action buttons(for example: open a file, close a map, add a new map) and application's name and icon, as well as a navigation bar with tabs. 
+
+\subsubsection{Action Bar}
+\label{subsubsec:action-bar}
+A basic component of most Android applications is an Action Bar. It is one of the most important design elements due to the fact, that most Android applications share it. Due to this consistency, a potential user is instantly familiar with application's basic interface. 
+
+There is a number of things that can be put inside Action Bar, for example search bar, action buttons etc. In our application we added the following components:
+\begin{itemize}
+	\item Button for importing an existing mind map  from an XMind file (in a main view with list of available maps)
+	\item Button for adding a new mind map (in a main view with list of available maps)
+	\item Button for closing an opened mind map (in a single map view)
+	\item Navigation bar which consists of tabs with opened maps (default tab is a view with list of available maps)
+\end{itemize}
+
+We want our application to be runnable even on older Android version, so instead of regular ActionBar libraries we decided to use support libraries, which take care of backward compatibility from 2.x Android versions.
+ActionBarSherlock is an standalone library designed to simplify the use of the action bar in all versions of Android through a single API. The library will automatically use the native ActionBar implementation on Android 4.0 or later\cite{Wharton:2013:sherlock}.
+
+
+\subsubsection{Multi directional ScrollView}
+\label{subsubsec:action-bar}
+
 
 \todo[inline]{\kasia{Describe menu, tabs, ScrollViews, write about managing mind maps.}}
 \begin{figure}[h]
