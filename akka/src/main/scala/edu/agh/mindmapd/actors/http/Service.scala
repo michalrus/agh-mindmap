@@ -47,8 +47,7 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: 
     path("update") {
       post { entity(as[UpdateRequest]) { req =>
         produce(instanceOf[UpdateResponse]) { completer => _ =>
-          // *** this Actor has to be local! sending Function1[UpdateRequest, Unit] below ***
-          val updater = context actorOf Updater.props
+          val updater = context actorOf Updater.props // *** this Actor has to be local!
           val uuids = req.nodes.map(_.mindMap).distinct
           for {
             maps <- mindMaps(uuids)
@@ -58,7 +57,8 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: 
     } ~
     path("poll" / "since" / LongNumber) { since =>
       get { produce(instanceOf[PollResponse]) { completer => _ =>
-        ???
+        val poller = context actorOf Poller.props // *** this Actor has to be local!
+        poller ! Poller.Process(since, completer)
       }}
     } ~
     path("die") { get { complete {
