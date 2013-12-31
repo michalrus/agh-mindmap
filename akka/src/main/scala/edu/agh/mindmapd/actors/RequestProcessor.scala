@@ -20,17 +20,18 @@ package edu.agh.mindmapd.actors
 import akka.actor.{Props, ActorRef, Actor}
 import java.util.UUID
 import edu.agh.mindmapd.model.{MindNode, UpdateRequest}
+import scala.concurrent.duration.FiniteDuration
 
 object RequestProcessor {
 
-  def props = Props(classOf[RequestProcessor])
+  def props(timeout: FiniteDuration) = Props(classOf[RequestProcessor], timeout)
 
   case class Request(msgId: UUID, update: UpdateRequest)
   case class Response(msgId: UUID, updates: List[MindNode])
 
 }
 
-class RequestProcessor extends Actor {
+class RequestProcessor(timeout: FiniteDuration) extends Actor {
   import RequestProcessor._
 
   def receive = initial

@@ -61,7 +61,7 @@ class HttpService(hostname: String, port: Int, timeout: FiniteDuration)
         produce(instanceOf[List[MindNode]]) { completer => _ =>
           val msgId = UUID.randomUUID
           completers += msgId -> completer
-          val rp = context actorOf RequestProcessor.props
+          val rp = context actorOf RequestProcessor.props(timeout)
           rp ! RequestProcessor.Request(msgId, update)
         }
       }
