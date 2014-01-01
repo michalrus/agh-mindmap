@@ -19,13 +19,12 @@ package edu.agh.mindmapd.actors
 
 import akka.actor.{Props, Actor}
 import java.util.UUID
-import edu.agh.mindmapd.model.{MindNode}
-import edu.agh.mindmapd.json.UpdateRequest
+import edu.agh.mindmapd.model.MindNode
 
 object MindMap {
 
-  case class Update(msgId: UUID, req: UpdateRequest)
-  case class Result(msgId: UUID)
+  case class Update(nodes: List[MindNode])
+  case class Result(success: Boolean)
 
   def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
 
@@ -40,9 +39,9 @@ class MindMap(mapUuid: UUID) extends Actor {
   var nodes = Map.empty[UUID, MindNode]
 
   def receive = {
-    case Update(msgId, update) =>
-      require(update.nodes forall (_.mindMap == mapUuid)) // security <3
-      ??? // FIXME
+    case Update(updates) =>
+      // FIXME
+      sender ! Result(success = false)
   }
 
 }

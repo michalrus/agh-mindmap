@@ -20,20 +20,19 @@ package edu.agh.mindmapd.actors
 import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
 
-object MapsLookup {
+object MapsSupervisor {
 
-  case class Find(uuids: List[UUID])
+  case class Find(uuid: UUID)
 
-  def props = Props(classOf[MapsLookup])
+  def props = Props(classOf[MapsSupervisor])
 
 }
 
-class MapsLookup extends Actor {
-  import MapsLookup._
+class MapsSupervisor extends Actor {
+  import MapsSupervisor._
 
   def receive = {
-    case Find(uuids) =>
-      sender ! uuids.map(u => (u, refFor(u))).toMap
+    case Find(uuid) => sender ! refFor(uuid)
   }
 
   def refFor(uuid: UUID): ActorRef = {

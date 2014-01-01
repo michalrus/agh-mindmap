@@ -24,7 +24,7 @@ class Supervisor extends Actor {
 
   @inline def s = Settings(context.system)
 
-  val lookup = context actorOf (MapsLookup.props, "maps")
+  val lookup = context actorOf (MapsSupervisor.props, "maps")
 
   context actorOf (http.Service.props(s.hostname, s.port, s.timeout, lookup), "http-service")
 

@@ -18,7 +18,6 @@
 package edu.agh.mindmapd.actors.http
 
 import akka.actor.{Props, ActorRef, Actor}
-import java.util.UUID
 import edu.agh.mindmapd.actors.MindMap
 import edu.agh.mindmapd.json.{UpdateResponse, UpdateRequest}
 
@@ -26,7 +25,7 @@ object Updater {
 
   def props = Props(classOf[Updater])
 
-  case class Process(update: UpdateRequest, mindMaps: Map[UUID, ActorRef], completer: UpdateResponse => Unit)
+  case class Process(update: UpdateRequest, mindMap: ActorRef, completer: UpdateResponse => Unit)
 
 }
 
@@ -36,26 +35,14 @@ class Updater extends Actor {
   def receive = initial
 
   def initial: Receive = {
-    case Process(update, mindMaps, completer) =>
-      val pending = for {
-        (muuid, upds) <- update.nodes groupBy (_.mindMap)
-        m <- mindMaps get muuid
-      } yield { m ! UpdateRequest(upds); m }
-
-      completer(UpdateResponse(success = true)) // FIXME
-      //context become waitingForMaps(pending.toSet, completer)
+    case Process(update, mindMap, completer) =>
+      mindMap ! MindMap.Update(update.nodes)
+      context become waitingForMap(completer)
   }
 
-  def waitingForMaps(pending: Set[ActorRef], completer: UpdateResponse => Unit): Receive =
-    // FIXME
-    if (pending.isEmpty) {
-      //completer(???)
-      context stop self
-      Actor.emptyBehavior
-    } else {
-      case MindMap.Result(msgId) =>
-        //???
-        context become waitingForMaps(pending - sender, completer)
-    }
+  def waitingForMap(completer: UpdateResponse => Unit): Receive = {
+    case MindMap.Result(success) =>
+      completer(UpdateResponse(success))
+  }
 
 }

@@ -19,9 +19,11 @@ package edu.agh.mindmapd.json
 
 import spray.json.DefaultJsonProtocol
 import edu.agh.mindmapd.model.MindNode
+import java.util.UUID
+import edu.agh.mindmapd.extensions.CustomJsonFormats
 
-object UpdateRequest extends DefaultJsonProtocol {
-  implicit val format = jsonFormat1(apply)
+object UpdateRequest extends DefaultJsonProtocol with CustomJsonFormats {
+  implicit val format = jsonFormat2(apply)
 }
 
-case class UpdateRequest(nodes: List[MindNode])
+case class UpdateRequest(mindMap: UUID, nodes: List[MindNode])

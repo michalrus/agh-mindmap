@@ -26,9 +26,10 @@ import akka.io.IO
 import spray.can.Http
 import edu.agh.mindmapd.extensions.Settings
 import java.util.UUID
-import edu.agh.mindmapd.actors.MapsLookup
+import edu.agh.mindmapd.actors.MapsSupervisor
 import edu.agh.mindmapd.json.{UpdateResponse, UpdateRequest, PollResponse}
 import akka.util.Timeout
+import scala.concurrent.Future
 
 object Service {
 
@@ -48,10 +49,9 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: 
       post { entity(as[UpdateRequest]) { req =>
         produce(instanceOf[UpdateResponse]) { completer => _ =>
           val updater = context actorOf Updater.props // *** this Actor has to be local!
-          val uuids = req.nodes.map(_.mindMap).distinct
           for {
-            maps <- mindMaps(uuids)
-          } updater ! Updater.Process(req, maps, completer)
+            map <- mindMapFor(req.mindMap)
+          } updater ! Updater.Process(req, map, completer)
         }
       }}
     } ~
@@ -71,9 +71,9 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: 
     }}}
   }
 
-  def mindMaps(uuids: List[UUID]) = {
+  def mindMapFor(uuid: UUID): Future[ActorRef] = {
     implicit val timeout = Timeout(5.seconds)
-    (mapsLookup ? MapsLookup.Find(uuids)).mapTo[Map[UUID, ActorRef]]
+    (mapsLookup ? MapsSupervisor.Find(uuid)).mapTo[ActorRef]
   }
 
 }
