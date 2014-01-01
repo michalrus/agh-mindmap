@@ -45,14 +45,18 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   def receive = {
     case Subscribe(whom, since) =>
-      // FIXME: send all history since `since`
+      for {
+        (_, uuid) <- times from since
+        node <- nodes get uuid
+      } whom ! Changed(node)
       subscribers += whom
 
     case Unsubscribe(whom) =>
       subscribers -= whom
 
     case Update(updates) =>
-      // FIXME
+      // FIXME: save the update
+      // FIXME: send the updates to all `subscribers`
       sender ! UpdateResult(success = false)
   }
 
