@@ -30,6 +30,7 @@ import edu.agh.mindmapd.actors.MapsSupervisor
 import edu.agh.mindmapd.json.{UpdateResponse, UpdateRequest, PollResponse}
 import akka.util.Timeout
 import scala.concurrent.Future
+import spray.http.StatusCodes
 
 object Service {
 
@@ -63,9 +64,10 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervis
     } ~
     path("die") { get { complete {
       if (Settings(context.system).isProduction) {
-        "Won't die at production, u mad? =,=\n"
+        (StatusCodes.Forbidden, "Won't die at production, u mad? =,=\n")
       } else {
-        context.system.shutdown()
+        val sys = context.system
+        sys.scheduler.scheduleOnce(100.millis) { sys.shutdown() }
         "Dying...\n"
       }
     }}}
