@@ -58,7 +58,7 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervis
     path("poll" / "since" / LongNumber) { since =>
       get { produce(instanceOf[PollResponse]) { completer => _ =>
         val poller = context actorOf Poller.props(mapsSupervisor) // *** this Actor has to be local!
-        poller ! Poller.Process(since, completer)
+        poller ! Poller.Process(since, completer, timeout)
       }}
     } ~
     path("die") { get { complete {

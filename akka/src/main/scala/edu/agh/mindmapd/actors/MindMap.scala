@@ -28,6 +28,8 @@ object MindMap {
   case class Subscribe(whom: ActorRef, since: Long)
   case class Unsubscribe(whom: ActorRef)
 
+  case class Changed(node: MindNode)
+
   def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
 
 }

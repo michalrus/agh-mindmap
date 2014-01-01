@@ -19,29 +19,52 @@ package edu.agh.mindmapd.actors.http
 
 import akka.actor.{ActorRef, Props, Actor}
 import edu.agh.mindmapd.json.PollResponse
-import edu.agh.mindmapd.actors.MapsSupervisor
+import edu.agh.mindmapd.actors.{MindMap, MapsSupervisor}
+import concurrent.duration._
+import edu.agh.mindmapd.model.MindNode
 
 object Poller {
 
   def props(mapsSupervisor: ActorRef) = Props(classOf[Poller], mapsSupervisor)
 
-  case class Process(since: Long, completer: PollResponse => Unit)
+  case class Process(since: Long, completer: PollResponse => Unit, timeout: FiniteDuration)
+
+  private val MapsResponseTimeFrame = 1.seconds // since first map response
+  private case object FirstTimeout
+  private case object SecondTimeout
 
 }
 
 class Poller(mapsSupervisor: ActorRef) extends Actor {
   import Poller._
+  import context.dispatcher
 
   def receive = initial
 
   def initial: Receive = {
-    case Process(since, completer) =>
+    case Process(since, completer, timeout) =>
       mapsSupervisor ! MapsSupervisor.Subscribe(self, since)
+      context.system.scheduler scheduleOnce (timeout, self, FirstTimeout)
       context become waitingForFirst(completer)
   }
 
   def waitingForFirst(completer: PollResponse => Unit): Receive = {
-    Actor.emptyBehavior
+    case FirstTimeout =>
+      completer(PollResponse(Nil))
+      context stop self
+
+    case MindMap.Changed(node) =>
+      context.system.scheduler scheduleOnce (MapsResponseTimeFrame, self, SecondTimeout)
+      context become waitingForRest(node :: Nil, completer)
+  }
+
+  def waitingForRest(data: List[MindNode], completer: PollResponse => Unit): Receive = {
+    case FirstTimeout | SecondTimeout =>
+      completer(PollResponse(data))
+      context stop self
+
+    case MindMap.Changed(node) =>
+      context become waitingForRest(node :: data, completer)
   }
 
 }
