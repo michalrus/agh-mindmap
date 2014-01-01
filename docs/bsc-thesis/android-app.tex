@@ -18,14 +18,15 @@ There is a number of things that can be put inside Action Bar, for example searc
 \end{itemize}
 
 We want our application to be runnable even on older Android version, so instead of regular ActionBar libraries we decided to use support libraries, which take care of backward compatibility from 2.x Android versions.
-ActionBarSherlock is an standalone library designed to simplify the use of the action bar in all versions of Android through a single API. The library will automatically use the native ActionBar implementation on Android 4.0 or later\cite{Wharton:2013:sherlock}.
 
+\inlinecode{ActionBarSherlock} is an standalone library designed to simplify the use of the action bar in all versions of Android through a single API. The library will automatically use the native \inlinecode{ActionBar} implementation on Android 4.0 or later\cite{Wharton:2013:sherlock}. Using it is fairly simple - the main difference is in \inlinecode{ActionBar} classes' and methods' names - most of them are prefixed with Sherlock (for example: \inlinecode{SherlockActivity, SherlockFragmentActivity, SherlockFragmen} etc.), the same with imports. 
 
 \subsubsection{Multi directional ScrollView}
 \label{subsubsec:action-bar}
+Our application' most important feature -- creating mind maps -- requires a convenient way of navigating through a map. It should support multi directional scrolling. In Android API there is no class which can handle multi directional scrolling. Some classes, like \inlinecode{TextView} or \inlinecode{ListView} have vertical scrolling implemented, but generally, scrolling is handled by two classes extending \inlinecode{android.widget.FrameLayout} -- \inlinecode{HorizontalScrollView} and \inlinecode{ScrollView}. 
 
+In our application we implemented multi directional scrolling in a class \inlinecode{Horizontal ScrollViewWithPropagation} which extends \inlinecode{HorizontalScrollView}. Inside, there is a \inlinecode{ScrollView} variable. If this inner \inlinecode{ScrollView} is set, we obtain o copy of \inlinecode{MotionEvent}, then we transform this copy in X axis and dispatch to the inner \inlinecode{ScrollView}. In the end, the original \inlinecode{MotionEvent} is handled in \inlinecode{Horizontal ScrollViewWithPropagation}.
 
-\todo[inline]{\kasia{Describe menu, tabs, ScrollViews, write about managing mind maps.}}
 \begin{figure}[h]
 	\centering
 	\missingfigure{\michal{List view screen}}
