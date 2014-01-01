@@ -17,7 +17,7 @@
 
 package edu.agh.mindmapd.actors
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
 import edu.agh.mindmapd.model.MindNode
 
@@ -25,6 +25,8 @@ object MindMap {
 
   case class Update(nodes: List[MindNode])
   case class UpdateResult(success: Boolean)
+  case class Subscribe(whom: ActorRef, since: Long)
+  case class Unsubscribe(whom: ActorRef)
 
   def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
 
@@ -37,8 +39,16 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   var times = TreeMap.empty[Long, UUID]
   var nodes = Map.empty[UUID, MindNode]
+  var subscribers = Set.empty[ActorRef]
 
   def receive = {
+    case Subscribe(whom, since) =>
+      // FIXME: send all history since `since`
+      subscribers += whom
+
+    case Unsubscribe(whom) =>
+      subscribers -= whom
+
     case Update(updates) =>
       // FIXME
       sender ! UpdateResult(success = false)

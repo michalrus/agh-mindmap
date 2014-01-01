@@ -23,6 +23,8 @@ import java.util.UUID
 object MapsSupervisor {
 
   case class Find(uuid: UUID)
+  case class Subscribe(whom: ActorRef, since: Long)
+  case class Unsubscribe(whom: ActorRef)
 
   def props = Props(classOf[MapsSupervisor])
 
@@ -31,15 +33,30 @@ object MapsSupervisor {
 class MapsSupervisor extends Actor {
   import MapsSupervisor._
 
+  var subscribers = Map.empty[ActorRef, Long]
+
   def receive = {
     case Find(uuid) => sender ! refFor(uuid)
+
+    case Subscribe(whom, since) =>
+      subscribers += whom -> since
+      context.children foreach (_ ! MindMap.Subscribe(whom, since))
+
+    case Unsubscribe(whom) =>
+      subscribers -= whom
+      context.children foreach (_ ! MindMap.Unsubscribe(whom))
   }
 
   def refFor(uuid: UUID): ActorRef = {
     val s = uuid.toString
     context child s match {
       case Some(ref) => ref
-      case _ => context actorOf (MindMap.props(uuid), s)
+      case _ =>
+        val ref = context actorOf (MindMap.props(uuid), s)
+        subscribers foreach { case (whom, since) =>
+          ref ! MindMap.Subscribe(whom, since)
+        }
+        ref
     }
   }
 

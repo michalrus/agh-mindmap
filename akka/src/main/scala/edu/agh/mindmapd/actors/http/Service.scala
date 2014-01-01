@@ -33,12 +33,12 @@ import scala.concurrent.Future
 
 object Service {
 
-  def props(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: ActorRef) =
-    Props(classOf[Service], hostname, port, timeout, mapsLookup)
+  def props(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervisor: ActorRef) =
+    Props(classOf[Service], hostname, port, timeout, mapsSupervisor)
 
 }
 
-class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: ActorRef)
+class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervisor: ActorRef)
   extends HttpServiceActor with ActorLogging with SprayJsonSupport {
   import context.dispatcher
 
@@ -57,7 +57,7 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: 
     } ~
     path("poll" / "since" / LongNumber) { since =>
       get { produce(instanceOf[PollResponse]) { completer => _ =>
-        val poller = context actorOf Poller.props // *** this Actor has to be local!
+        val poller = context actorOf Poller.props(mapsSupervisor) // *** this Actor has to be local!
         poller ! Poller.Process(since, completer)
       }}
     } ~
@@ -73,7 +73,7 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsLookup: 
 
   def mindMapFor(uuid: UUID): Future[ActorRef] = {
     implicit val timeout = Timeout(5.seconds)
-    (mapsLookup ? MapsSupervisor.Find(uuid)).mapTo[ActorRef]
+    (mapsSupervisor ? MapsSupervisor.Find(uuid)).mapTo[ActorRef]
   }
 
 }

@@ -17,24 +17,31 @@
 
 package edu.agh.mindmapd.actors.http
 
-import akka.actor.{Props, Actor}
+import akka.actor.{ActorRef, Props, Actor}
 import edu.agh.mindmapd.json.PollResponse
+import edu.agh.mindmapd.actors.MapsSupervisor
 
 object Poller {
 
-  def props = Props(classOf[Poller])
+  def props(mapsSupervisor: ActorRef) = Props(classOf[Poller], mapsSupervisor)
 
   case class Process(since: Long, completer: PollResponse => Unit)
 
 }
 
-class Poller extends Actor {
+class Poller(mapsSupervisor: ActorRef) extends Actor {
   import Poller._
 
-  def receive = {
+  def receive = initial
+
+  def initial: Receive = {
     case Process(since, completer) =>
-      // FIXME: subscribe and what not
-      completer(PollResponse(Nil))
+      mapsSupervisor ! MapsSupervisor.Subscribe(self, since)
+      context become waitingForFirst(completer)
+  }
+
+  def waitingForFirst(completer: PollResponse => Unit): Receive = {
+    Actor.emptyBehavior
   }
 
 }
