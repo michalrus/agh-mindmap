@@ -49,9 +49,7 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
   }
 
   def waitingForFirst(completer: PollResponse => Unit): Receive = {
-    case FirstTimeout =>
-      completer(PollResponse(Nil))
-      context stop self
+    case FirstTimeout => complete(Nil, completer)
 
     case MindMap.Changed(node) =>
       context.system.scheduler scheduleOnce (MapsResponseTimeFrame, self, SecondTimeout)
@@ -59,12 +57,16 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
   }
 
   def waitingForRest(data: List[MindNode], completer: PollResponse => Unit): Receive = {
-    case FirstTimeout | SecondTimeout =>
-      completer(PollResponse(data))
-      context stop self
+    case FirstTimeout | SecondTimeout => complete(data, completer)
 
     case MindMap.Changed(node) =>
       context become waitingForRest(node :: data, completer)
+  }
+
+  def complete(data: List[MindNode], completer: PollResponse => Unit) {
+    completer(PollResponse(data))
+    mapsSupervisor ! MapsSupervisor.Unsubscribe(self)
+    context stop self
   }
 
 }
