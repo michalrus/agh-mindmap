@@ -24,7 +24,7 @@ import edu.agh.mindmapd.model.MindNode
 object MindMap {
 
   case class Update(nodes: List[MindNode])
-  case class Result(success: Boolean)
+  case class UpdateResult(success: Boolean)
 
   def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
 
@@ -41,7 +41,7 @@ class MindMap(mapUuid: UUID) extends Actor {
   def receive = {
     case Update(updates) =>
       // FIXME
-      sender ! Result(success = false)
+      sender ! UpdateResult(success = false)
   }
 
 }

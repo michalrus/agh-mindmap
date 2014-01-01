@@ -41,7 +41,7 @@ class Updater extends Actor {
   }
 
   def waitingForMap(completer: UpdateResponse => Unit): Receive = {
-    case MindMap.Result(success) =>
+    case MindMap.UpdateResult(success) =>
       completer(UpdateResponse(success))
   }
 
