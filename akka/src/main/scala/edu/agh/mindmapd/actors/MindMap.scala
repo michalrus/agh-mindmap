@@ -55,34 +55,42 @@ class MindMap(mapUuid: UUID) extends Actor {
       subscribers -= whom
 
     case Update(atTime, updates) =>
-      var orphanNodes = Set.empty[UUID]
-      val request = (updates map (n => n.uuid -> n)).toMap
-
-      request foreach { case (_, node) =>
-        if (nodes contains node.uuid)
-          () // cool, modifying already existing node
-        else node.parent match {
-          case Some(parent) =>
-            if ((nodes contains parent) || (request contains parent))
-              () // cool, adding a new child to a known parent
-            else
-              orphanNodes += node.uuid // not cool, no parent known for this node :(
-          case None =>
-            if (nodes.isEmpty)
-              () // cool, new map creation
-            else
-              orphanNodes += node.uuid // not cool, should not happen (adding a second root?!?!)
-        }
+      orphanNodes(updates) match {
+        case orphans if orphans.nonEmpty =>
+          sender ! UpdateResult(orphans.toList)
+        case _ =>
+          mergeIn(updates, atTime)
+          sender ! UpdateResult(orphanNodes = Nil)
       }
+  }
 
-      if (orphanNodes.nonEmpty)
-        sender ! UpdateResult(orphanNodes.toList)
-      else {
-        // FIXME: save the update
-        // FIXME: send the updates to all `subscribers`
+  def mergeIn(updates: List[MindNode], atTime: Long) {
+    // FIXME: save the update
+    // FIXME: send the updates to all `subscribers`
+  }
 
-        sender ! UpdateResult(orphanNodes = Nil)
+  def orphanNodes(potentialUpdates: List[MindNode]): Set[UUID] = {
+    var orphans = Set.empty[UUID]
+    val request = (potentialUpdates map (n => n.uuid -> n)).toMap
+
+    request foreach { case (_, node) =>
+      if (nodes contains node.uuid)
+        () // cool, modifying already existing node
+      else node.parent match {
+        case Some(parent) =>
+          if ((nodes contains parent) || (request contains parent))
+            () // cool, adding a new child to a known parent
+          else
+            orphans += node.uuid // not cool, no parent known for this node :(
+        case None =>
+          if (nodes.isEmpty)
+            () // cool, new map creation
+          else
+            orphans += node.uuid // not cool, should not happen (adding a second root?!?!)
       }
+    }
+
+    orphans
   }
 
 }
