@@ -24,7 +24,7 @@ import edu.agh.mindmapd.model.MindNode
 object MindMap {
 
   case class Update(lastServerTime: Long, nodes: List[MindNode])
-  case class UpdateResult(unknownParents: List[UUID])
+  case class UpdateResult(orphanNodes: List[UUID])
   case class Subscribe(whom: ActorRef, since: Long)
   case class Unsubscribe(whom: ActorRef)
 
@@ -55,9 +55,34 @@ class MindMap(mapUuid: UUID) extends Actor {
       subscribers -= whom
 
     case Update(atTime, updates) =>
-      // FIXME: save the update
-      // FIXME: send the updates to all `subscribers`
-      sender ! UpdateResult(Nil)
+      var orphanNodes = Set.empty[UUID]
+      val request = (updates map (n => n.uuid -> n)).toMap
+
+      request foreach { case (_, node) =>
+        if (nodes contains node.uuid)
+          () // cool, modifying already existing node
+        else node.parent match {
+          case Some(parent) =>
+            if ((nodes contains parent) || (request contains parent))
+              () // cool, adding a new child to a known parent
+            else
+              orphanNodes += node.uuid // not cool, no parent known for this node :(
+          case None =>
+            if (nodes.isEmpty)
+              () // cool, new map creation
+            else
+              orphanNodes += node.uuid // not cool, should not happen (adding a second root?!?!)
+        }
+      }
+
+      if (orphanNodes.nonEmpty)
+        sender ! UpdateResult(orphanNodes.toList)
+      else {
+        // FIXME: save the update
+        // FIXME: send the updates to all `subscribers`
+
+        sender ! UpdateResult(orphanNodes = Nil)
+      }
   }
 
 }
