@@ -36,13 +36,13 @@ class Updater extends Actor {
 
   def initial: Receive = {
     case Process(update, mindMap, completer) =>
-      mindMap ! MindMap.Update(update.nodes)
+      mindMap ! MindMap.Update(update.lastServerTime, update.nodes)
       context become waitingForMap(completer)
   }
 
   def waitingForMap(completer: UpdateResponse => Unit): Receive = {
-    case MindMap.UpdateResult(success) =>
-      completer(UpdateResponse(success))
+    case MindMap.UpdateResult(unknownParents) =>
+      completer(UpdateResponse(unknownParents))
   }
 
 }

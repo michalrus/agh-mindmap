@@ -23,7 +23,7 @@ import java.util.UUID
 import edu.agh.mindmapd.extensions.CustomJsonFormats
 
 object UpdateRequest extends DefaultJsonProtocol with CustomJsonFormats {
-  implicit val format = jsonFormat2(apply)
+  implicit val format = jsonFormat3(apply)
 }
 
-case class UpdateRequest(mindMap: UUID, nodes: List[MindNode])
+case class UpdateRequest(mindMap: UUID, lastServerTime: Long, nodes: List[MindNode])

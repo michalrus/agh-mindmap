@@ -18,9 +18,11 @@
 package edu.agh.mindmapd.json
 
 import spray.json.DefaultJsonProtocol
+import java.util.UUID
+import edu.agh.mindmapd.extensions.CustomJsonFormats
 
-object UpdateResponse extends DefaultJsonProtocol {
+object UpdateResponse extends DefaultJsonProtocol with CustomJsonFormats {
   implicit val format = jsonFormat1(apply)
 }
 
-case class UpdateResponse(success: Boolean)
+case class UpdateResponse(unknownParents: List[UUID])
