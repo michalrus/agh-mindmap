@@ -48,10 +48,10 @@ class MindMap(mapUuid: UUID) extends Actor {
       private var times = TreeMap.empty[Long, Set[UUID]]
       private var timesInv = TreeMap.empty[UUID, Long]
 
-      def findSince(time: Long): Set[MindNode] = (for {
+      def findSince(time: Long): Iterable[MindNode] = (for {
         (_, uuids) <- times from time
         uuid <- uuids
-      } yield nodes get uuid).flatten.toSet
+      } yield nodes get uuid).flatten
 
       def remove(node: MindNode) {
         for {
@@ -78,7 +78,7 @@ class MindMap(mapUuid: UUID) extends Actor {
 
     def isEmpty: Boolean = nodes.isEmpty
 
-    def findSince(time: Long): Set[MindNode] = TimesIdx findSince time
+    def findSince(time: Long): Iterable[MindNode] = TimesIdx findSince time
 
     def insertOrReplace(node: MindNode) {
       TimesIdx remove node
@@ -120,32 +120,41 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   def mergeIn(updates: List[MindNode], atTime: Long) =
     updates foreach { suggestion =>
-      val update = merged(suggestion).
+      val update = merged(suggestion, atTime).
         copy(cloudTime = System.currentTimeMillis)
 
       DB insertOrReplace update
       subscribers foreach (_ ! Changed(update))
     }
 
-  def merged(fromClient: MindNode): MindNode = {
+  def merged(fromClient: MindNode, atTime: Long): MindNode =
     DB find fromClient.uuid match {
-      case Some(existing) =>
-        val (newContent, newHasConflict): (Option[String], Boolean) =
-          fromClient.content match {
-            case Some(newC) =>
-              existing.content match {
-                case Some(oldC) => (Some(oldC + "\n" + newC), true)
-                case None => (Some(newC), false)
-              }
-            case None =>
-              DB deleteChildrenOf existing.uuid
-              (None, false)
-          }
-        fromClient.copy(content = newContent, hasConflict = newHasConflict)
+      case None => fromClient // new node creation
 
-      case None => fromClient
+      case Some(existing) => // `existing` node update
+        (existing.content, fromClient.content) match {
+
+          case (Some(o), Some(n)) => // content change
+            if (existing.cloudTime > atTime) // *** CONFLICT!!! ***
+              fromClient.copy(content = Some(o + "\n" + n), hasConflict = true)
+            else // normal content change
+              fromClient.copy(hasConflict = false)
+
+          case (Some(o), None) => // subtree deletion
+            ??? // WTF goes here?!
+            ??? // DB deleteChildrenOf existing.uuid
+
+          case (None, Some(n)) => // recreation?
+            // can happen if I haz conflict
+            ???
+            ???
+
+          case (None, None) => // can happen rarely, not so important
+            fromClient.copy(hasConflict = false)
+
+        }
+
     }
-  }
 
   def orphanNodes(potentialUpdates: List[MindNode]): Set[UUID] = {
     var orphans = Set.empty[UUID]
