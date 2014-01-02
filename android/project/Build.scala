@@ -81,10 +81,14 @@ object Build extends Build {
       libraryDependencies += apklib("com.actionbarsherlock" % "actionbarsherlock" % "4.4.0" intransitive()),
       localProjects in Android += LibraryProject(afcBase),
 
+      resolvers += "spray" at "http://repo.spray.io/",
+      libraryDependencies += "io.spray" %% "spray-json" % "1.2.5",
+
       proguardInputs in Android ~= (p => p.copy(injars = p.injars filterNot inUnwantedSubprojectJars)),
       dexInputs in Android ~= (_ filterNot inUnwantedSubprojectJars),
 
       useProguard in Android := true,
+
       proguardOptions in Android += "-keep class android.support.v4.app.** { *; }",
       proguardOptions in Android += "-keep interface android.support.v4.app.** { *; }",
       proguardOptions in Android += "-keep class com.actionbarsherlock.** { *; }",
