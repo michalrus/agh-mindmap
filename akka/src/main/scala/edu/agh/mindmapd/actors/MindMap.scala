@@ -39,16 +39,70 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   import collection.immutable.TreeMap
 
-  var times = TreeMap.empty[Long, UUID]
-  var nodes = Map.empty[UUID, MindNode]
   var subscribers = Set.empty[ActorRef]
+
+  object DB {
+    // FIXME: this should be a real database ;-)
+
+    object TimesIdx {
+      private var times = TreeMap.empty[Long, Set[UUID]]
+      private var timesInv = TreeMap.empty[UUID, Long]
+
+      def findSince(time: Long): Set[MindNode] = (for {
+        (_, uuids) <- times from time
+        uuid <- uuids
+      } yield nodes get uuid).flatten.toSet
+
+      def remove(node: MindNode) {
+        for {
+          time <- timesInv get node.uuid
+          oldSet <- times get time
+        } times += time -> (oldSet - node.uuid)
+        timesInv -= node.uuid
+      }
+
+      def add(node: MindNode) {
+        times += node.cloudTime -> (times get node.cloudTime match {
+          case Some(set) => set + node.uuid
+          case None => Set(node.uuid)
+        })
+        timesInv += node.uuid -> node.cloudTime
+      }
+    }
+
+    private var nodes = Map.empty[UUID, MindNode]
+
+    def find(uuid: UUID): Option[MindNode] = nodes get uuid
+
+    def contains(uuid: UUID): Boolean = nodes contains uuid
+
+    def isEmpty: Boolean = nodes.isEmpty
+
+    def findSince(time: Long): Set[MindNode] = TimesIdx findSince time
+
+    def insertOrReplace(node: MindNode) {
+      TimesIdx remove node
+      TimesIdx add node
+      nodes += node.uuid -> node
+    }
+
+    def deleteChildrenOf(node: UUID) {
+      // FIXME: inefficient `children` lookup
+      val children = nodes.values filter (_.parent exists node.==)
+
+      children foreach { child =>
+        // *** DFS, DO NOT CHANGE ORDER! ***
+        deleteChildrenOf(child.uuid)
+
+        TimesIdx remove child
+        nodes -= node
+      }
+    }
+  }
 
   def receive = {
     case Subscribe(whom, since) =>
-      for {
-        (_, uuid) <- times from since
-        node <- nodes get uuid
-      } whom ! Changed(node)
+      DB findSince since foreach (whom ! Changed(_))
       subscribers += whom
 
     case Unsubscribe(whom) =>
@@ -64,9 +118,33 @@ class MindMap(mapUuid: UUID) extends Actor {
       }
   }
 
-  def mergeIn(updates: List[MindNode], atTime: Long) {
-    // FIXME: save the update
-    // FIXME: send the updates to all `subscribers`
+  def mergeIn(updates: List[MindNode], atTime: Long) =
+    updates foreach { suggestion =>
+      val update = merged(suggestion).
+        copy(cloudTime = System.currentTimeMillis)
+
+      DB insertOrReplace update
+      subscribers foreach (_ ! Changed(update))
+    }
+
+  def merged(fromClient: MindNode): MindNode = {
+    DB find fromClient.uuid match {
+      case Some(existing) =>
+        val (newContent, newHasConflict): (Option[String], Boolean) =
+          fromClient.content match {
+            case Some(newC) =>
+              existing.content match {
+                case Some(oldC) => (Some(oldC + "\n" + newC), true)
+                case None => (Some(newC), false)
+              }
+            case None =>
+              DB deleteChildrenOf existing.uuid
+              (None, false)
+          }
+        fromClient.copy(content = newContent, hasConflict = newHasConflict)
+
+      case None => fromClient
+    }
   }
 
   def orphanNodes(potentialUpdates: List[MindNode]): Set[UUID] = {
@@ -74,16 +152,16 @@ class MindMap(mapUuid: UUID) extends Actor {
     val request = (potentialUpdates map (n => n.uuid -> n)).toMap
 
     request foreach { case (_, node) =>
-      if (nodes contains node.uuid)
+      if (DB contains node.uuid)
         () // cool, modifying already existing node
       else node.parent match {
         case Some(parent) =>
-          if ((nodes contains parent) || (request contains parent))
+          if ((DB contains parent) || (request contains parent))
             () // cool, adding a new child to a known parent
           else
             orphans += node.uuid // not cool, no parent known for this node :(
         case None =>
-          if (nodes.isEmpty)
+          if (DB.isEmpty)
             () // cool, new map creation
           else
             orphans += node.uuid // not cool, should not happen (adding a second root?!?!)
