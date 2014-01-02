@@ -74,15 +74,26 @@ class MindMap(mapUuid: UUID) extends Actor {
 
     def find(uuid: UUID): Option[MindNode] = nodes get uuid
 
-    def touchChildrenOf(node: UUID) {
-      ???
-      ???
+    private def allChildren(parent: MindNode): Set[MindNode] = {
+      val children = (nodes.values filter (_.parent == Some(parent.uuid))).toSet
+
+      children flatMap (child => allChildren(child) + child)
     }
 
-    def wasAnyChildChanged(parent: UUID, since: Long): Boolean = {
-      ???
-      ???
+    def touchAll(parent: MindNode) {
+      val now = System.currentTimeMillis
+
+      (allChildren(parent) + parent) foreach { oldNode =>
+        val newNode = oldNode.copy(cloudTime = now)
+        nodes -= oldNode.uuid
+        nodes += newNode.uuid -> newNode
+        TimesIdx remove oldNode
+        TimesIdx add newNode
+      }
     }
+
+    def wasAnyChanged(parent: MindNode, since: Long): Boolean =
+      (allChildren(parent) + parent) forall (_.cloudTime > since)
 
     def contains(uuid: UUID): Boolean = nodes contains uuid
 
@@ -151,8 +162,8 @@ class MindMap(mapUuid: UUID) extends Actor {
               fromClient.copy(hasConflict = false)
 
           case (Some(o), None) => // subtree deletion
-            if (DB wasAnyChildChanged (existing.uuid, atTime)) {
-              DB touchChildrenOf existing.uuid
+            if (DB wasAnyChanged (existing, atTime)) {
+              DB touchAll existing
               existing.copy(hasConflict = false)
             } else {
               DB deleteChildrenOf existing.uuid
@@ -160,9 +171,7 @@ class MindMap(mapUuid: UUID) extends Actor {
             }
 
           case (None, Some(n)) => // recreation?
-            // can happen if I haz conflict
-            ???
-            ???
+            fromClient.copy(hasConflict = false)
 
           case (None, None) => // can happen rarely, not so important
             fromClient.copy(hasConflict = false)
