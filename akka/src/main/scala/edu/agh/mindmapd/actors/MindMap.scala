@@ -74,6 +74,16 @@ class MindMap(mapUuid: UUID) extends Actor {
 
     def find(uuid: UUID): Option[MindNode] = nodes get uuid
 
+    def touchChildrenOf(node: UUID) {
+      ???
+      ???
+    }
+
+    def wasAnyChildChanged(parent: UUID, since: Long): Boolean = {
+      ???
+      ???
+    }
+
     def contains(uuid: UUID): Boolean = nodes contains uuid
 
     def isEmpty: Boolean = nodes.isEmpty
@@ -141,8 +151,13 @@ class MindMap(mapUuid: UUID) extends Actor {
               fromClient.copy(hasConflict = false)
 
           case (Some(o), None) => // subtree deletion
-            ??? // WTF goes here?!
-            ??? // DB deleteChildrenOf existing.uuid
+            if (DB wasAnyChildChanged (existing.uuid, atTime)) {
+              DB touchChildrenOf existing.uuid
+              existing.copy(hasConflict = false)
+            } else {
+              DB deleteChildrenOf existing.uuid
+              fromClient.copy(hasConflict = false)
+            }
 
           case (None, Some(n)) => // recreation?
             // can happen if I haz conflict
