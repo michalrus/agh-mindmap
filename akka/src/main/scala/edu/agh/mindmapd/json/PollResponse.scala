@@ -18,10 +18,12 @@
 package edu.agh.mindmapd.json
 
 import spray.json.DefaultJsonProtocol
-import edu.agh.mindmapd.model.MindNode
+import edu.agh.mindmapd.model.{NodePlusMap, MindNode}
+import java.util.UUID
+import edu.agh.mindmapd.extensions.CustomJsonFormats
 
 object PollResponse extends DefaultJsonProtocol {
   implicit val format = jsonFormat1(apply)
 }
 
-case class PollResponse(nodes: List[MindNode])
+case class PollResponse(nodes: List[NodePlusMap])

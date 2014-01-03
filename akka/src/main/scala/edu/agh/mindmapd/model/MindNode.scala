@@ -31,3 +31,9 @@ case class MindNode(uuid: UUID,
                     content: Option[String],
                     hasConflict: Boolean,
                     cloudTime: Long)
+
+object NodePlusMap extends DefaultJsonProtocol with CustomJsonFormats {
+  implicit val format = jsonFormat2(apply)
+}
+
+case class NodePlusMap(mindMap: UUID, node: MindNode)

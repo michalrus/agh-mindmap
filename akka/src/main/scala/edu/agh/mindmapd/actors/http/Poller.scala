@@ -21,7 +21,7 @@ import akka.actor.{ActorRef, Props, Actor}
 import edu.agh.mindmapd.json.PollResponse
 import edu.agh.mindmapd.actors.{MindMap, MapsSupervisor}
 import concurrent.duration._
-import edu.agh.mindmapd.model.MindNode
+import edu.agh.mindmapd.model.NodePlusMap
 
 object Poller {
 
@@ -56,14 +56,14 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
       context become waitingForRest(node :: Nil, completer)
   }
 
-  def waitingForRest(data: List[MindNode], completer: PollResponse => Unit): Receive = {
+  def waitingForRest(data: List[NodePlusMap], completer: PollResponse => Unit): Receive = {
     case FirstTimeout | SecondTimeout => complete(data, completer)
 
     case MindMap.Changed(node) =>
       context become waitingForRest(node :: data, completer)
   }
 
-  def complete(data: List[MindNode], completer: PollResponse => Unit) {
+  def complete(data: List[NodePlusMap], completer: PollResponse => Unit) {
     completer(PollResponse(data))
     mapsSupervisor ! MapsSupervisor.Unsubscribe(self)
     context stop self
