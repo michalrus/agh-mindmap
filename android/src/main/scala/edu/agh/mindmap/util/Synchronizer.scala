@@ -24,11 +24,13 @@ import com.michalrus.helper.MiscHelper.log
 import scala.util.{Failure, Try, Success}
 import spray.json._
 import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.client.methods.{HttpUriRequest, HttpGet}
+import org.apache.http.client.methods.{HttpPost, HttpUriRequest, HttpGet}
 import edu.agh.mindmap.model
 import org.apache.http.util.EntityUtils
 import concurrent.duration._
 import org.apache.http.params.HttpConnectionParams
+import org.apache.http.entity.StringEntity
+import org.apache.http.protocol.HTTP
 
 object Synchronizer {
   private var baseUrl = "http://undefined"
@@ -103,15 +105,45 @@ object Synchronizer {
   }
 
   private def realUpdate: Future[Boolean] = future {
-    log(s"UPDATE: starting...")
+    val url = updateUrl
+    log(s"UPDATE: $url ...")
 
-    // FIXME: get & send pending updates from `model.MindMap`
-    Thread sleep 500
-    val connectionSucceeded = true
+    val lastSeenAkkaAt = model.MindNode.lastTimeWithAkka
 
-    log(s"UPDATE:    ... done")
+    val msgs = model.MindNode.findModified groupBy (_.map.uuid) map { case (mapUuid, nodes) =>
+      val jsNodes = nodes map { n =>
+        JsMindNode(n.uuid, n.parent map (_.uuid), n.ordering, n.content, n.hasConflict, 0)
+      }
 
-    connectionSucceeded
+      UpdateRequest(mapUuid, lastSeenAkkaAt, jsNodes.toList)
+    }
+
+    msgs foreach { msg =>
+      val req = new HttpPost(url)
+      val entity = new StringEntity(msg.toJson.compactPrint, HTTP.UTF_8)
+      log(s"UPDATE: msg :=\n${msg.toJson.prettyPrint}")
+      entity setContentType "application/json"
+      req setEntity entity
+
+      request[UpdateResponse](req) match {
+        case Success(UpdateResponse(unknownParents)) =>
+          if (unknownParents.isEmpty) {
+            log(s"UPDATE: success!")
+          }
+          else {
+            log(s"UPDATE: failed: unknownParents.nonEmpty -> $unknownParents")
+            throw new Exception // FIXME
+          }
+
+        case Failure(cause) =>
+          log(s"UPDATE: ${cause.getMessage}")
+          throw cause
+      }
+    }
+
+    if (msgs.isEmpty)
+      log(s"UPDATE: `msgs` was empty")
+    true
   }
 
   private def realPoll: Future[Unit] = future {
