@@ -151,9 +151,9 @@ object Synchronizer {
     log(s"POLL: $url ...")
 
     request[PollResponse](new HttpGet(url)) match {
-      case Success(msg@PollResponse(updates)) =>
-        // FIXME: merge updates from Akka
-        log(s"POLL: $msg")
+      case Success(PollResponse(updates)) =>
+        log(s"POLL: $updates")
+        updates foreach model.MindNode.mergeIn
 
       case Failure(cause) =>
         log(s"POLL: ${cause.getMessage}")

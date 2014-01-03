@@ -19,7 +19,7 @@ package edu.agh.mindmap.model
 
 import scala.collection.mutable
 import java.util.UUID
-import edu.agh.mindmap.util.{Synchronizer, DBHelper}
+import edu.agh.mindmap.util.{JsMindNode, Synchronizer, DBHelper}
 import com.michalrus.helper.MiscHelper.safen
 import android.database.sqlite.SQLiteDatabase
 import android.content.ContentValues
@@ -186,6 +186,19 @@ object MindNode extends DBUser {
     child commit()
 //    parent._children += child
     child
+  }
+
+  def mergeIn(js: JsMindNode) {
+    findByUuid(js.uuid) match {
+      case Some(existing) =>
+        //existing._content = existing
+        // wtf with parents?!
+      case None =>
+        ???
+        ???
+    }
+    ??? // FIXME: merge updates from Akka
+    ???
   }
 
 }
