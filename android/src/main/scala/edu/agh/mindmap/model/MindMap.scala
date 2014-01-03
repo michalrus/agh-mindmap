@@ -47,8 +47,10 @@ object MindMap extends DBUser {
   import DBHelper._
   import MiscHelper.safen
 
-  def create = memo.synchronized {
-    val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime)
+  def create = createWith(uuid = UUID.randomUUID)
+
+  private[model] def createWith(uuid: UUID) = memo.synchronized {
+    val map = new MindMap(uuid, (new java.util.Date).getTime)
     map commit()
     memo += map.uuid -> map
     map

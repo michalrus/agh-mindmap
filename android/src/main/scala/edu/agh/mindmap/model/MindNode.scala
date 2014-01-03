@@ -19,7 +19,7 @@ package edu.agh.mindmap.model
 
 import scala.collection.mutable
 import java.util.UUID
-import edu.agh.mindmap.util.{JsMindNode, Synchronizer, DBHelper}
+import edu.agh.mindmap.util.{JsNodePlusMap, Synchronizer, DBHelper}
 import com.michalrus.helper.MiscHelper.safen
 import android.database.sqlite.SQLiteDatabase
 import android.content.ContentValues
@@ -175,8 +175,19 @@ object MindNode extends DBUser {
   }
 
   def lastTimeWithAkka: Long = {
-    val cur = dbr query (TNode, Array(CCloudTime), s"$CCloudTime IS NOT NULL", Array(), null, null, s"$CCloudTime DESC")
+    val cur = dbr query (TPrefs, Array(CVal), s"$CKey = ?", Array(FLatestAkka), null, null, null)
+    cur moveToFirst()
     safen(cur getLong 0) getOrElse 0L
+  }
+
+  private def setLastTimeWithAkka(to: Long) {
+    if (to > lastTimeWithAkka) {
+      val v = new ContentValues
+      v put (CKey, FLatestAkka)
+      v put (CVal, Long box to)
+      dbw insertWithOnConflict (TPrefs, null, v, SQLiteDatabase.CONFLICT_REPLACE)
+      ()
+    }
   }
 
   def createChildOf(parent: MindNode, ordering: Double) = {
@@ -195,21 +206,35 @@ object MindNode extends DBUser {
     }
   }
 
-  def mergeIn(js: JsMindNode) {
-    findByUuid(js.uuid) match {
-      case Some(existing) =>
-        existing._cloudTime = Some(js.cloudTime)
-        existing._parent = js.parent
-        existing._hasConflict = js.hasConflict
-        existing._ordering = js.ordering
+  def mergeIn(js: JsNodePlusMap) {
+    setLastTimeWithAkka(js.node.cloudTime)
 
-        existing._content = js.content
-        if (js.content.isEmpty) deleteChildrenOf(existing)
+    findByUuid(js.node.uuid) match {
+      case Some(existing) =>
+        existing._cloudTime = Some(js.node.cloudTime)
+        existing._parent = js.node.parent
+        existing._hasConflict = js.node.hasConflict
+        existing._ordering = js.node.ordering
+
+        existing._content = js.node.content
+        if (js.node.content.isEmpty) deleteChildrenOf(existing)
 
         existing commit()
+
       case None =>
-        ??? // FIXME: what with new MAPS?!
-        ???
+        val map = MindMap findByUuid js.mindMap getOrElse {
+          MindMap createWith js.mindMap
+        }
+
+        val node = new MindNode(js.node.uuid, map, js.node.parent, js.node.ordering,
+          js.node.content, js.node.hasConflict, Some(js.node.cloudTime))
+
+        node commit()
+
+        // FIXME: refresh `MapListFragment` if root changed? if new map?
+        // FIXME: be careful when accessing MindNode#isRoot, it calls lazy MindMap#root (and possibly creates a new MindNode if a real root node was not yet added here)
+
+        // FIXME: refresh `MapFragment`!!1
     }
   }
 

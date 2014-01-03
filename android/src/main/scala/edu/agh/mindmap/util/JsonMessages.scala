@@ -45,11 +45,17 @@ case class JsMindNode(uuid: UUID,
                       hasConflict: Boolean,
                       cloudTime: Long)
 
+object JsNodePlusMap extends DefaultJsonProtocol with CustomJsonFormats {
+  implicit val format = jsonFormat(apply, "mindMap", "node")
+}
+
+case class JsNodePlusMap(mindMap: UUID, node: JsMindNode)
+
 object PollResponse extends DefaultJsonProtocol {
   implicit val format = jsonFormat(apply _, "nodes")
 }
 
-case class PollResponse(nodes: List[JsMindNode])
+case class PollResponse(nodes: List[JsNodePlusMap])
 
 object UpdateRequest extends DefaultJsonProtocol with CustomJsonFormats {
   implicit val format = jsonFormat(apply, "mindMap", "lastServerTime", "nodes")

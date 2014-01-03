@@ -23,7 +23,12 @@ import scala.util.Try
 
 object DBHelper {
   val Name = "db"
-  val Version = 4
+  val Version = 5
+
+  val TPrefs = "prefs"
+  val CKey = "key"
+  val CVal = "val"
+  val FLatestAkka = "latest_akka"
 
   val TMap = "mindmap"
   val CUuid = "uuid"
@@ -36,10 +41,15 @@ object DBHelper {
   val CHasConflict = "conflict"
   val CCloudTime = "cloudtime"
 
-  val DropQs = s"DROP TABLE $TMap;" ::
+  val DropQs =
+    s"DROP TABLE $TPrefs;" ::
+    s"DROP TABLE $TMap;" ::
     s"DROP TABLE $TNode;" ::
     Nil
-  val CreateQs = s"CREATE TABLE $TMap ($CUuid STRING PRIMARY KEY);" ::
+  val CreateQs =
+    s"CREATE TABLE $TPrefs ($CKey STRING PRIMARY KEY, $CVal STRING);" ::
+    s"CREATE INDEX ${TPrefs}_$CKey ON $TPrefs ($CKey);" ::
+    s"CREATE TABLE $TMap ($CUuid STRING PRIMARY KEY);" ::
     s"CREATE TABLE $TNode ($CUuid STRING PRIMARY KEY, $CMap STRING, $CParent STRING, $COrdering REAL, $CContent STRING, $CHasConflict INTEGER, $CCloudTime INTEGER);" ::
     s"CREATE INDEX ${TNode}_$CMap ON $TNode ($CMap);" ::
     s"CREATE INDEX ${TNode}_$CParent ON $TNode ($CParent);" ::
@@ -57,7 +67,7 @@ class DBHelper(context: Context)
   }
 
   def onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-    Try(DropQs foreach (db execSQL _))
+    DropQs foreach (q => Try(db execSQL q))
     onCreate(db)
   }
 
