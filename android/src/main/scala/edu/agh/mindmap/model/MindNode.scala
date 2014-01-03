@@ -161,6 +161,21 @@ object MindNode extends DBUser {
     }
   }
 
+  def findModified: Set[MindNode] = {
+    var ns = Set.empty[MindNode]
+    val cur = dbr query (TNode, Array(CUuid),
+      s"$CCloudTime IS NULL", Array(), null, null, null)
+    cur moveToFirst()
+    while (!cur.isAfterLast) {
+      for {
+        uuid <- safen(UUID fromString (cur getString 0))
+        node <- findByUuid(uuid)
+      } ns += node
+      cur moveToNext()
+    }
+    ns
+  }
+
   def createChildOf(parent: MindNode, ordering: Double) = {
     val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, Some(""), false, None)
     child commit()
