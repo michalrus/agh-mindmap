@@ -21,17 +21,22 @@ import concurrent._
 import ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
 import com.michalrus.helper.MiscHelper.log
-import scala.util.Success
-import java.util.UUID
+import scala.util.{Failure, Try, Success}
 import spray.json._
 import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.client.methods.HttpGet
-import edu.agh.mindmap.model.MindNode
+import org.apache.http.client.methods.{HttpUriRequest, HttpGet}
+import edu.agh.mindmap.model
+import org.apache.http.util.EntityUtils
+import concurrent.duration._
+import org.apache.http.params.HttpConnectionParams
 
 object Synchronizer {
   private var baseUrl = "http://undefined"
   private def pollUrl(since: Long) = s"$baseUrl/poll/since/$since"
   private def updateUrl = s"$baseUrl/update"
+
+  private val HttpTimeout = 30.seconds
+  private val MinIntervalBetweenFailures = 5.seconds
 
   private val pollShouldRun = new AtomicBoolean(false)
   def pause() = pollShouldRun set false
@@ -73,6 +78,30 @@ object Synchronizer {
     }
   }
 
+  private def request[T: JsonReader](req: HttpUriRequest): Try[T] = {
+    val startedAt = System.currentTimeMillis
+
+    val response = Try {
+      val http = new DefaultHttpClient
+      val params = http.getParams
+      HttpConnectionParams setConnectionTimeout (params, HttpTimeout.toMillis.toInt)
+      HttpConnectionParams setSoTimeout (params, HttpTimeout.toMillis.toInt)
+      http setParams params
+      val resp = http execute req
+      val raw = EntityUtils toString resp.getEntity
+      raw.asJson.convertTo[T]
+    }
+
+    if (response.isFailure) {
+      val dur = System.currentTimeMillis - startedAt
+      val diff = MinIntervalBetweenFailures.toMillis - dur
+      if (diff > 0)
+        Thread sleep diff
+    }
+
+    response
+  }
+
   private def realUpdate: Future[Boolean] = future {
     log(s"UPDATE: starting...")
 
@@ -86,60 +115,17 @@ object Synchronizer {
   }
 
   private def realPoll: Future[Unit] = future {
-    log(s"POLL: starting...")
+    val url = pollUrl(since = model.MindNode.lastTimeWithAkka)
+    log(s"POLL: $url ...")
 
-    // FIXME: pull & merge updates from Akka
-    val http = new DefaultHttpClient
-    val req = new HttpGet(pollUrl(since = MindNode.lastTimeWithAkka))
+    request[PollResponse](new HttpGet(url)) match {
+      case Success(msg@PollResponse(updates)) =>
+        // FIXME: merge updates from Akka
+        log(s"POLL: $msg")
 
-    log(s"POLL:    ... done")
-  }
-
-}
-
-object Js {
-
-  trait CustomJsonFormats {
-
-    implicit object UuidFormat extends JsonFormat[UUID] {
-      def write(obj: UUID): JsValue = JsString(obj.toString)
-
-      def read(json: JsValue): UUID = json match {
-        case JsString(x) => try { UUID fromString x }
-        catch { case e: Throwable => deserializationError(s"UUID could not be parsed from `$x'", e) }
-        case x => deserializationError(s"Expected UUID as JsString, but got $x")
-      }
+      case Failure(cause) =>
+        log(s"POLL: ${cause.getMessage}")
     }
-
   }
-
-  object MindNode extends DefaultJsonProtocol with CustomJsonFormats {
-    implicit val format = jsonFormat6(apply)
-  }
-
-  case class MindNode(uuid: UUID,
-                      parent: Option[UUID],
-                      ordering: Double,
-                      content: Option[String],
-                      hasConflict: Boolean,
-                      cloudTime: Long)
-
-  object PollResponse extends DefaultJsonProtocol {
-    implicit val format = jsonFormat1(apply)
-  }
-
-  case class PollResponse(nodes: List[MindNode])
-
-  object UpdateRequest extends DefaultJsonProtocol with CustomJsonFormats {
-    implicit val format = jsonFormat3(apply)
-  }
-
-  case class UpdateRequest(mindMap: UUID, lastServerTime: Long, nodes: List[MindNode])
-
-  object UpdateResponse extends DefaultJsonProtocol with CustomJsonFormats {
-    implicit val format = jsonFormat1(apply)
-  }
-
-  case class UpdateResponse(unknownParents: List[UUID])
 
 }
