@@ -49,9 +49,10 @@ object MindMap extends DBUser {
   import DBHelper._
   import MiscHelper.safen
 
-  def create = {
+  def create = memo.synchronized {
     val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
     map commit()
+    memo += map.uuid -> map
     map
   }
 
@@ -67,16 +68,23 @@ object MindMap extends DBUser {
       cur moveToNext()
     }
 
+    r foreach (m => memo += m.uuid -> m)
+
     r
   }
 
-  def findByUuid(uuid: UUID): Option[MindMap] = {
+  private var memo = Map.empty[UUID, MindMap]
+  def findByUuid(uuid: UUID): Option[MindMap] = memo get uuid orElse {
     val cur = dbr query (TMap, Array(CUuid), s"$CUuid = ?", Array(uuid.toString), null, null, null)
     cur moveToFirst()
 
-    for {
+    val candidate = for {
       uuid <- safen(UUID fromString (cur getString 0))
     } yield new MindMap(uuid, 0, false)
+
+    candidate foreach (m => memo += m.uuid -> m)
+
+    candidate
   }
 
   def importFrom(file: File): Seq[MindMap] = Importer importFrom file
