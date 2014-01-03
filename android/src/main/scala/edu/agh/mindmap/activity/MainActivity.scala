@@ -33,7 +33,7 @@ import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}
 import edu.agh.mindmap.model.{MindNode, MindMap}
-import edu.agh.mindmap.util.{DBHelper, ImporterException}
+import edu.agh.mindmap.util.{Synchronizer, DBHelper, ImporterException}
 import java.util.UUID
 import scala.util.Try
 
@@ -44,6 +44,16 @@ object MainActivity {
 }
 
 class MainActivity extends SherlockFragmentActivity with ScalaActivity {
+
+  override def onPause() {
+    super.onPause()
+    Synchronizer.pause()
+  }
+
+  override def onResume() {
+    super.onResume()
+    Synchronizer.resume()
+  }
 
   private lazy val tabHost = find[TabHost](R.id.tabhost).get // safe to throw here, application entry point, no way to deploy missing this
   private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
