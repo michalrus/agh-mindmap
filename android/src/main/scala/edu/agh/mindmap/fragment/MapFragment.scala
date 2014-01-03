@@ -96,11 +96,14 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     v.content setOnFocusChangeListener new OnFocusChangeListener {
       def onFocusChange(vv: View, hasFocus: Boolean) =
         if (!hasFocus && !node.isRemoved) {
-          node.content = Some(v.content.getText.toString)
-          if (node.isRoot) for {
-            cnt <- node.content
-            fun <- onTitleChange
-          } fun(node.map, cnt)
+          val newContent = Some(v.content.getText.toString)
+          if (newContent != node.content) {
+            node.content = newContent
+            if (node.isRoot) for {
+              cnt <- node.content
+              fun <- onTitleChange
+            } fun(node.map, cnt)
+          }
         }
     }
   }
