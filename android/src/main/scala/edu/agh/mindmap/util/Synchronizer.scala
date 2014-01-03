@@ -26,6 +26,7 @@ import java.util.UUID
 import spray.json._
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.client.methods.HttpGet
+import edu.agh.mindmap.model.MindNode
 
 object Synchronizer {
   private var baseUrl = "http://undefined"
@@ -89,6 +90,7 @@ object Synchronizer {
 
     // FIXME: pull & merge updates from Akka
     val http = new DefaultHttpClient
+    val req = new HttpGet(pollUrl(since = MindNode.lastTimeWithAkka))
 
     log(s"POLL:    ... done")
   }

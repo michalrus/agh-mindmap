@@ -176,6 +176,11 @@ object MindNode extends DBUser {
     ns
   }
 
+  def lastTimeWithAkka: Long = {
+    val cur = dbr query (TNode, Array(CCloudTime), s"$CCloudTime IS NOT NULL", Array(), null, null, s"$CCloudTime DESC")
+    safen(cur getLong 0) getOrElse 0L
+  }
+
   def createChildOf(parent: MindNode, ordering: Double) = {
     val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, Some(""), false, None)
     child commit()
