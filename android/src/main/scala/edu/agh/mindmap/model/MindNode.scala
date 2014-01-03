@@ -30,7 +30,7 @@ class MindNode private(val uuid: UUID,
                        val ordering: Double,
                        initialContent: Option[String],
                        val hasConflict: Boolean,
-                       val cloudTime: Option[Long]) extends Ordered[MindNode] {
+                       initialCloudTime: Option[Long]) extends Ordered[MindNode] {
 
   def isRoot = map.root == this
   def isRemoved = !content.isDefined
@@ -40,13 +40,22 @@ class MindNode private(val uuid: UUID,
     if (ord != 0) ord else this.uuid compareTo that.uuid
   }
 
+  private var _cloudTime = initialCloudTime
+  def cloudTime = _cloudTime
+
   private var _content = initialContent
-  def content = _content
-  def content_=(v: Option[String]) = { _content = v; commit() }
+  def content = _content.synchronized(_content)
+  def content_=(v: Option[String]) = _content.synchronized {
+    if (_content != v) {
+      _content = v
+      _cloudTime = None
+      commit()
+    }
+  }
 
   private val _children = new mutable.TreeSet[MindNode]
   private var childrenRead = false
-  def childrenIncludingDeleted = {
+  def childrenIncludingDeleted = _children.synchronized {
     if (!childrenRead) {
       import DBHelper._
 
@@ -95,9 +104,7 @@ class MindNode private(val uuid: UUID,
     v put (COrdering, ordering)
     v put (CContent, content getOrElse null)
     v put (CHasConflict, Long box (if (hasConflict) 1L else 0L))
-
-    ???; ??? // FIXME: cloud time should be NULL-ed after edit!
-    cloudTime foreach (ct => v put (CCloudTime, Long box ct))
+    v put (CCloudTime, cloudTime map Long.box getOrElse null)
 
     MindNode.dbw insertWithOnConflict (TNode, null, v, SQLiteDatabase.CONFLICT_REPLACE)
     Synchronizer.update()
