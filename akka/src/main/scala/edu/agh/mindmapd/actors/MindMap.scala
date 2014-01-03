@@ -49,7 +49,8 @@ class MindMap(mapUuid: UUID) extends Actor {
       private var timesInv = TreeMap.empty[UUID, Long]
 
       def findSince(time: Long): Iterable[MindNode] = (for {
-        (_, uuids) <- times from time
+        (tm, uuids) <- times from time take 50
+        if tm > time
         uuid <- uuids
       } yield nodes get uuid).flatten
 
