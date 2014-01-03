@@ -27,9 +27,9 @@ import android.content.ContentValues
 class MindNode private(val uuid: UUID,
                        val map: MindMap,
                        initialParent: Option[UUID],
-                       val ordering: Double,
+                       initialOrdering: Double,
                        initialContent: Option[String],
-                       val hasConflict: Boolean,
+                       initialHasConflict: Boolean,
                        initialCloudTime: Option[Long]) extends Ordered[MindNode] {
 
   def isRoot = map.root == this
@@ -39,6 +39,12 @@ class MindNode private(val uuid: UUID,
     val ord = this.ordering compare that.ordering
     if (ord != 0) ord else this.uuid compareTo that.uuid
   }
+
+  private var _ordering = initialOrdering
+  def ordering = _ordering
+
+  private var _hasConflict = initialHasConflict
+  def hasConflict = _hasConflict
 
   private var _cloudTime = initialCloudTime
   def cloudTime = _cloudTime
@@ -89,15 +95,7 @@ class MindNode private(val uuid: UUID,
   def children = childrenIncludingDeleted filterNot (_.isRemoved)
 
   def remove() = if (!isRoot) {
-    def deleteChildrenOf(node: MindNode) {
-      import DBHelper._
-      node.children foreach { ch =>
-        deleteChildrenOf(ch)
-        MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
-        MindNode.memo -= ch.uuid
-      }
-    }
-    deleteChildrenOf(this)
+    MindNode deleteChildrenOf this
 
 //    _children clear()
     content = None
@@ -188,17 +186,31 @@ object MindNode extends DBUser {
     child
   }
 
+  private def deleteChildrenOf(node: MindNode) {
+    import DBHelper._
+    node.children foreach { ch =>
+      deleteChildrenOf(ch)
+      MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
+      MindNode.memo -= ch.uuid
+    }
+  }
+
   def mergeIn(js: JsMindNode) {
     findByUuid(js.uuid) match {
       case Some(existing) =>
-        //existing._content = existing
-        // wtf with parents?!
+        existing._cloudTime = Some(js.cloudTime)
+        existing._parent = js.parent
+        existing._hasConflict = js.hasConflict
+        existing._ordering = js.ordering
+
+        existing._content = js.content
+        if (js.content.isEmpty) deleteChildrenOf(existing)
+
+        existing commit()
       case None =>
-        ???
+        ??? // FIXME: what with new MAPS?!
         ???
     }
-    ??? // FIXME: merge updates from Akka
-    ???
   }
 
 }
