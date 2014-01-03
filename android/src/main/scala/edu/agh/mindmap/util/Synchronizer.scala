@@ -21,10 +21,9 @@ import concurrent._
 import ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
 import com.michalrus.helper.MiscHelper.log
+import scala.util.Success
 
 object Synchronizer {
-  log(s"Hello, from $Synchronizer!")
-
   private val pollShouldRun = new AtomicBoolean(false)
   def pause() = pollShouldRun set false
 
@@ -39,9 +38,13 @@ object Synchronizer {
   def update() {
     if (updating compareAndSet (false, true)) {
       updateOnceMore set false
-      realUpdate andThen { case _ =>
-        updating set false
-        if (updateOnceMore.get) update()
+      realUpdate andThen {
+        case Success(true) =>
+          updating set false
+          if (updateOnceMore.get) update()
+        case _ =>
+          updating set false
+          update()
       }
       ()
     } else {
@@ -60,13 +63,16 @@ object Synchronizer {
     }
   }
 
-  private def realUpdate: Future[Unit] = future {
+  private def realUpdate: Future[Boolean] = future {
     log(s"UPDATE: starting...")
 
     // FIXME: get & send pending updates from `model.MindMap`
     Thread sleep 500
+    val connectionSucceeded = true
 
     log(s"UPDATE:    ... done")
+
+    connectionSucceeded
   }
 
   private def realPoll: Future[Unit] = future {

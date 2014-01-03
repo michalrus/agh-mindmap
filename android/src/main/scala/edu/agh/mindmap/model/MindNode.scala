@@ -19,7 +19,7 @@ package edu.agh.mindmap.model
 
 import scala.collection.mutable
 import java.util.UUID
-import edu.agh.mindmap.util.DBHelper
+import edu.agh.mindmap.util.{Synchronizer, DBHelper}
 import com.michalrus.helper.MiscHelper.safen
 import android.database.sqlite.SQLiteDatabase
 import android.content.ContentValues
@@ -82,6 +82,7 @@ class MindNode private(val uuid: UUID,
 
     _children clear()
     content = None
+    Synchronizer.update()
   }
 
   private def commit() {
@@ -94,12 +95,12 @@ class MindNode private(val uuid: UUID,
     v put (COrdering, ordering)
     v put (CContent, content getOrElse null)
     v put (CHasConflict, Long box (if (hasConflict) 1L else 0L))
+
+    ???; ??? // FIXME: cloud time should be NULL-ed after edit!
     cloudTime foreach (ct => v put (CCloudTime, Long box ct))
 
     MindNode.dbw insertWithOnConflict (TNode, null, v, SQLiteDatabase.CONFLICT_REPLACE)
-
-    // FIXME: sync
-    ()
+    Synchronizer.update()
   }
 
 }
