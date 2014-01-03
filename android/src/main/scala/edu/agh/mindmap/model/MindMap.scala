@@ -25,11 +25,9 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 
 class MindMap private(val uuid: UUID,
-                      val lastMod: Long,
-                      isNew: Boolean) {
+                      val lastMod: Long) {
 
-  val root: MindNode = (if (isNew) None else MindNode findRootOf this) getOrElse
-    (MindNode createRootOf this)
+  lazy val root: MindNode = MindNode findRootOf this
 
   private def commit() {
     import DBHelper._
@@ -50,7 +48,7 @@ object MindMap extends DBUser {
   import MiscHelper.safen
 
   def create = memo.synchronized {
-    val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime, true)
+    val map = new MindMap(UUID.randomUUID, (new java.util.Date).getTime)
     map commit()
     memo += map.uuid -> map
     map
@@ -60,32 +58,36 @@ object MindMap extends DBUser {
     val cur = dbr query (TMap, Array(CUuid), null, null, null, null, null)
 
     cur moveToFirst()
-    var r = Vector.empty[MindMap]
+    var uuids = Vector.empty[UUID]
     while (!cur.isAfterLast) {
       for {
         uuid <- safen(UUID fromString (cur getString 0))
-      } r :+= new MindMap(uuid, 0, false)
+      } uuids :+= uuid
       cur moveToNext()
     }
 
-    r foreach (m => memo += m.uuid -> m)
-
-    r
+    uuids map { uuid =>
+      findByUuid(uuid) getOrElse {
+        val m = new MindMap(uuid, 0)
+        memo += m.uuid -> m
+        m
+      }
+    }
   }
 
   private var memo = Map.empty[UUID, MindMap]
-  def findByUuid(uuid: UUID): Option[MindMap] = memo get uuid orElse {
+  def findByUuid(uuid: UUID): Option[MindMap] = memo.synchronized { memo get uuid orElse {
     val cur = dbr query (TMap, Array(CUuid), s"$CUuid = ?", Array(uuid.toString), null, null, null)
     cur moveToFirst()
 
     val candidate = for {
       uuid <- safen(UUID fromString (cur getString 0))
-    } yield new MindMap(uuid, 0, false)
+    } yield new MindMap(uuid, 0)
 
     candidate foreach (m => memo += m.uuid -> m)
 
     candidate
-  }
+  }}
 
   def importFrom(file: File): Seq[MindMap] = Importer importFrom file
 

@@ -26,7 +26,7 @@ import android.content.ContentValues
 
 class MindNode private(val uuid: UUID,
                        val map: MindMap,
-                       val parent: Option[MindNode],
+                       initialParent: Option[MindNode],
                        val ordering: Double,
                        initialContent: Option[String],
                        val hasConflict: Boolean,
@@ -43,6 +43,16 @@ class MindNode private(val uuid: UUID,
   private var _cloudTime = initialCloudTime
   def cloudTime = _cloudTime
 
+  private var _parent = initialParent
+  def parent = _parent
+  def parent_=(v: Option[MindNode]) = _parent.synchronized {
+    if (_parent != v) {
+      _parent = v
+      _cloudTime = None
+      commit()
+    }
+  }
+
   private var _content = initialContent
   def content = _content.synchronized(_content)
   def content_=(v: Option[String]) = _content.synchronized {
@@ -53,28 +63,27 @@ class MindNode private(val uuid: UUID,
     }
   }
 
-  private val _children = new mutable.TreeSet[MindNode]
-  private var childrenRead = false
-  def childrenIncludingDeleted = _children.synchronized {
-    if (!childrenRead) {
+//  private val _children = new mutable.TreeSet[MindNode]
+//  private var childrenRead = false // FIXME: I'm turning this off to always reread the local DB
+  def childrenIncludingDeleted: Vector[MindNode] = { //_children.synchronized {
+//    if (!childrenRead) {
       import DBHelper._
 
-      val cur = MindNode.dbr query (TNode, Array(CUuid, COrdering, CContent, CHasConflict, CCloudTime),
+      val _children = new mutable.TreeSet[MindNode]
+
+      val cur = MindNode.dbr query (TNode, Array(CUuid),
         s"$CParent = ?", Array(uuid.toString), null, null, null)
       cur moveToFirst()
       while (!cur.isAfterLast) {
         for {
           uuid <- safen(UUID fromString (cur getString 0))
-          ordering <- safen(cur getDouble 1)
-          content = safen(cur getString 2)
-          hasConflict <- safen(cur getLong 3)
-          cloudTime = safen(cur getLong 4)
-        } _children += new MindNode(uuid, map, Some(this), ordering, content, hasConflict != 0L, cloudTime)
+          node <- MindNode findByUuid uuid
+        } _children += node
         cur moveToNext()
       }
 
-      childrenRead = true
-    }
+//      childrenRead = true
+//    }
     _children.toVector
   }
   def children = childrenIncludingDeleted filterNot (_.isRemoved)
@@ -85,11 +94,12 @@ class MindNode private(val uuid: UUID,
       node.children foreach { ch =>
         deleteChildrenOf(ch)
         MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
+        MindNode.memo -= ch.uuid
       }
     }
     deleteChildrenOf(this)
 
-    _children clear()
+//    _children clear()
     content = None
     Synchronizer.update()
   }
@@ -107,6 +117,7 @@ class MindNode private(val uuid: UUID,
     v put (CCloudTime, cloudTime map Long.box getOrElse null)
 
     MindNode.dbw insertWithOnConflict (TNode, null, v, SQLiteDatabase.CONFLICT_REPLACE)
+    MindNode.memo += uuid -> this
     Synchronizer.update()
   }
 
@@ -115,29 +126,45 @@ class MindNode private(val uuid: UUID,
 object MindNode extends DBUser {
   import DBHelper._
 
-  def findRootOf(map: MindMap): Option[MindNode] = {
-    val cur = dbr query (TNode, Array(CUuid, COrdering, CContent, CHasConflict, CCloudTime),
-      s"$CMap = ? AND $CParent IS NULL", Array(map.uuid.toString), null, null, null)
+  private var memo = Map.empty[UUID, MindNode]
+  def findByUuid(uuid: UUID): Option[MindNode] = memo get uuid orElse {
+    val cur = dbr query (TNode, Array(CMap, CParent, COrdering, CContent, CHasConflict, CCloudTime),
+      s"$CUuid = ?", Array(uuid.toString), null, null, null)
     cur moveToFirst()
-    for {
-      uuid <- safen(UUID fromString (cur getString 0))
-      ordering <- safen(cur getDouble 1)
-      content = safen(cur getString 2)
-      hasConflict <- safen(cur getLong 3)
-      cloudTime = safen(cur getLong 4)
-    } yield new MindNode(uuid, map, None, ordering, content, hasConflict != 0L, cloudTime)
+    val candidate = for {
+      map <- safen(UUID fromString (cur getString 0))
+      mindMap <- MindMap findByUuid map
+      parent = safen(UUID fromString (cur getString 1)) flatMap findByUuid
+      ordering <- safen(cur getDouble 2)
+      content = safen(cur getString 3)
+      hasConflict <- safen(cur getLong 4)
+      cloudTime = safen(cur getLong 5)
+    } yield new MindNode(uuid, mindMap, parent, ordering, content, hasConflict != 0L, cloudTime)
+
+    candidate foreach (n => memo += n.uuid -> n)
+
+    candidate
   }
 
-  private[model] def createRootOf(map: MindMap) = {
-    val root = new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
-    root commit()
-    root
+  def findRootOf(map: MindMap): MindNode = {
+    val cur = dbr query (TNode, Array(CUuid),
+      s"$CMap = ? AND $CParent IS NULL", Array(map.uuid.toString), null, null, null)
+    cur moveToFirst()
+    val candidate = for {
+      uuid <- safen(UUID fromString (cur getString 0))
+      node <- findByUuid(uuid)
+    } yield node
+    candidate getOrElse {
+      val root = new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
+      root commit()
+      root
+    }
   }
 
   def createChildOf(parent: MindNode, ordering: Double) = {
     val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, Some(""), false, None)
     child commit()
-    parent._children += child
+//    parent._children += child
     child
   }
 
