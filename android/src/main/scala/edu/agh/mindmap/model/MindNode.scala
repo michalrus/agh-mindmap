@@ -26,7 +26,7 @@ import android.content.ContentValues
 
 class MindNode private(val uuid: UUID,
                        val map: MindMap,
-                       initialParent: Option[MindNode],
+                       initialParent: Option[UUID],
                        val ordering: Double,
                        initialContent: Option[String],
                        val hasConflict: Boolean,
@@ -45,7 +45,7 @@ class MindNode private(val uuid: UUID,
 
   private var _parent = initialParent
   def parent = _parent
-  def parent_=(v: Option[MindNode]) = _parent.synchronized {
+  def parent_=(v: Option[UUID]) = _parent.synchronized {
     if (_parent != v) {
       _parent = v
       _cloudTime = None
@@ -110,7 +110,7 @@ class MindNode private(val uuid: UUID,
     val v = new ContentValues
     v put (CUuid, uuid.toString)
     v put (CMap, map.uuid.toString)
-    v put (CParent, parent map (_.uuid.toString) getOrElse null)
+    v put (CParent, parent map (_.toString) getOrElse null)
     v put (COrdering, ordering)
     v put (CContent, content getOrElse null)
     v put (CHasConflict, Long box (if (hasConflict) 1L else 0L))
@@ -134,7 +134,7 @@ object MindNode extends DBUser {
     val candidate = for {
       map <- safen(UUID fromString (cur getString 0))
       mindMap <- MindMap findByUuid map
-      parent = safen(UUID fromString (cur getString 1)) flatMap findByUuid
+      parent = safen(UUID fromString (cur getString 1))
       ordering <- safen(cur getDouble 2)
       content = safen(cur getString 3)
       hasConflict <- safen(cur getLong 4)
@@ -182,7 +182,7 @@ object MindNode extends DBUser {
   }
 
   def createChildOf(parent: MindNode, ordering: Double) = {
-    val child = new MindNode(UUID.randomUUID, parent.map, Some(parent), ordering, Some(""), false, None)
+    val child = new MindNode(UUID.randomUUID, parent.map, Some(parent.uuid), ordering, Some(""), false, None)
     child commit()
 //    parent._children += child
     child

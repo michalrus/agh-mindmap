@@ -112,7 +112,7 @@ object Synchronizer {
 
     val msgs = model.MindNode.findModified groupBy (_.map.uuid) map { case (mapUuid, nodes) =>
       val jsNodes = nodes map { n =>
-        JsMindNode(n.uuid, n.parent map (_.uuid), n.ordering, n.content, n.hasConflict, 0)
+        JsMindNode(n.uuid, n.parent, n.ordering, n.content, n.hasConflict, 0)
       }
 
       UpdateRequest(mapUuid, lastSeenAkkaAt, jsNodes.toList)

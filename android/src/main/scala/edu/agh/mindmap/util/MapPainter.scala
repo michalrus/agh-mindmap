@@ -172,7 +172,7 @@ class MapPainter(dp2px: Int => Int,
         rp.leftMargin = a.boundingX
         rp.topMargin = a.boundingY
       }
-      def properArrow: Option[Arrow] = mindNode.parent map (SubtreeWrapper(_)) map { parent =>
+      def properArrow: Option[Arrow] = mindNode.parent flatMap MindNode.findByUuid map (SubtreeWrapper(_)) map { parent =>
         val x0 = parent.positions.node.x + parent.sizes.node.w / 2
         val y0 = parent.positions.node.y + parent.sizes.node.h / 2
         val x1 = positions.node.x + sizes.node.w / 2
