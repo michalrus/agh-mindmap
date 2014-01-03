@@ -52,7 +52,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   override def onResume() {
     super.onResume()
-    Synchronizer.resume()
+    Synchronizer.resume(getString(R.string.sync_base_url))
   }
 
   private lazy val tabHost = find[TabHost](R.id.tabhost).get // safe to throw here, application entry point, no way to deploy missing this

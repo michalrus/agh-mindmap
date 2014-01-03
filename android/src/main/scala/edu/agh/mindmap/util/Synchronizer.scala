@@ -24,12 +24,19 @@ import com.michalrus.helper.MiscHelper.log
 import scala.util.Success
 import java.util.UUID
 import spray.json._
+import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.client.methods.HttpGet
 
 object Synchronizer {
+  private var baseUrl = "http://undefined"
+  private def pollUrl(since: Long) = s"$baseUrl/poll/since/$since"
+  private def updateUrl = s"$baseUrl/update"
+
   private val pollShouldRun = new AtomicBoolean(false)
   def pause() = pollShouldRun set false
 
-  def resume() {
+  def resume(baseUrl: String) {
+    this.baseUrl = baseUrl
     pollShouldRun set true
 
     update()
@@ -81,7 +88,7 @@ object Synchronizer {
     log(s"POLL: starting...")
 
     // FIXME: pull & merge updates from Akka
-    Thread sleep 1000
+    val http = new DefaultHttpClient
 
     log(s"POLL:    ... done")
   }
