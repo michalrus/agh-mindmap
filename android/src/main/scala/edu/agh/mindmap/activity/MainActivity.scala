@@ -97,7 +97,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     true
   }
 
-  def onMapChanged(map: MindMap, title: String, refreshDrawing: Boolean) = laterOnUiThread {
+  def onMapChanged(map: MindMap, title: String, refreshDrawing: Boolean) = laterOnUiThread { () =>
     val key = map.uuid.toString
     tabManager retitleTab (key, title)
 
@@ -152,7 +152,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           val file = FileUtils.getFile(data.getData)
           val maps = MindMap.importFrom(file) // TODO: do this asynchronously?
           withMapListFragment(_ addMaps maps)
-          if (maps.nonEmpty) laterOnUiThread {
+          if (maps.nonEmpty) laterOnUiThread { () =>
             viewMindMap(maps.head)
           }
         } catch {
@@ -183,7 +183,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       Option(b getStringArray "tags") foreach(_ filter (_ != MainActivity.MapListTabTag) foreach { t =>
         MindMap findByUuid (UUID fromString t) foreach (viewMindMap(_, switchTab = false))
       })
-      laterOnUiThread {
+      laterOnUiThread { () =>
         Option(b getString "tab") foreach tabManager.focusTabOfTag
       }
     })
@@ -209,7 +209,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       b.putString("uuid", uuid)
 
       tabManager.addTab[MapFragment](uuid, map.root flatMap (_.content) getOrElse "", b)
-      if (switchTab) laterOnUiThread {
+      if (switchTab) laterOnUiThread { () =>
         tabManager.focusTabOfTag(uuid)
         ()
       }
@@ -278,7 +278,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         vg <- safen((tabHost.getTabWidget getChildTabViewAt i).asInstanceOf[ViewGroup])
         j <- 0 until vg.getChildCount
         tx <- safen((vg getChildAt j).asInstanceOf[TextView])
-      } tx.post { tx setText label }
+      } tx.post { () => tx setText label }
     }
 
     def removeTab(tag: String, tagAfterwards: String) {
@@ -355,7 +355,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
           ft.commit()
           activity.getSupportFragmentManager.executePendingTransactions()
         }
-        laterOnUiThread {
+        laterOnUiThread { () =>
           rescrollTabView()
         }
 

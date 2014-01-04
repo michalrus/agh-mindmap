@@ -16,18 +16,18 @@
 
 package com.michalrus.helper
 
-trait ConcurrencyHelper extends CurrentActivityProvider {
+trait ConcurrencyHelper extends CurrentActivityProvider with MiscHelper {
 
-  def laterOnUiThread(r: Runnable) = delayOnUiThread(0)(r)
+  def laterOnUiThread(r: () => Unit) = delayOnUiThread(0)(r)
 
-  def delayOnUiThread(ms: Long)(r: Runnable) {
-    import scala.concurrent.{ExecutionContext, future}
+  def delayOnUiThread(ms: Long)(r: () => Unit) {
+    import scala.concurrent.{ExecutionContext, future, blocking}
     import ExecutionContext.Implicits.global
 
-    future {
+    future { blocking {
       Thread sleep ms
       currentActivity runOnUiThread r
-    }
+    }}
     ()
   }
 

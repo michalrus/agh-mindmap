@@ -65,11 +65,9 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     } {
       hScroll.inner = vScroll
       paper onClick defocus()
-      laterOnUiThread(new Runnable {
-        def run(): Unit = {
-          painter paint (map, paper, inflater)
-        }
-      })
+      laterOnUiThread { () =>
+        painter paint (map, paper, inflater)
+      }
     }
 
     view
@@ -77,7 +75,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
   def refreshMap() {
     for (painter <- painter)
-      laterOnUiThread { painter.repaint() }
+      laterOnUiThread { () => painter.repaint() }
   }
 
   /**
@@ -135,17 +133,20 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
   def focusOn(t: EditText) {
     t requestFocus()
-    for (imm <- inputManager) laterOnUiThread { imm showSoftInput (t, 0); () }
+    for (imm <- inputManager) laterOnUiThread { () => imm showSoftInput (t, 0); () }
   }
 
   def defocus(hideIME: Boolean = true) = for (dummy <- dummyFocus) {
     dummy requestFocus()
-    if (hideIME) for (imm <- inputManager) laterOnUiThread { imm hideSoftInputFromWindow (dummy.getWindowToken, 0); () }
+    if (hideIME) for (imm <- inputManager) laterOnUiThread { () =>
+      imm hideSoftInputFromWindow (dummy.getWindowToken, 0)
+      ()
+    }
   }
 
   def addChildTo(node: MindNode) = {
     defocus(hideIME = false)
-    laterOnUiThread {
+    laterOnUiThread { () =>
       val ord = if (node.children.isEmpty) 0 else (node.children map (_.ordering)).max
       val newNode = MindNode createChildOf (node, ord + 10)
       painter foreach (_ repaint())
@@ -167,7 +168,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
         getString(R.string.sure_to_delete_node, node.content getOrElse "") setPositiveButton(android.R.string.yes,
         new DialogInterface.OnClickListener {
           def onClick(dialog: DialogInterface, which: Int) =
-            laterOnUiThread {
+            laterOnUiThread { () =>
               node remove()
               painter foreach (_ repaint())
             }

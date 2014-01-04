@@ -48,8 +48,9 @@ trait MiscHelper {
 
   import language.implicitConversions
 
-  implicit def blockToRunnable(f: => Unit) = new Runnable {
-    def run() = f
-  }
+  implicit def quasiblockToRunnable(f: () => Unit) =
+    new Runnable {
+      def run() = f()
+    }
 
 }

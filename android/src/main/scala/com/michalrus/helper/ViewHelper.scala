@@ -25,8 +25,11 @@ import scala.util.Try
 
 trait ViewHelper extends ViewHelperWithoutContext with CurrentActivityProvider {
 
-  def dp2px (dp: Float): Float =
+  def dp2px (dp: Float): Float = try {
     TypedValue applyDimension (TypedValue.COMPLEX_UNIT_DIP, dp, currentActivity.getResources.getDisplayMetrics)
+  } catch {
+    case _: Throwable => 0f
+  }
 
   def dp2px (dp: Int): Int = dp2px(dp.toFloat).toInt
 
