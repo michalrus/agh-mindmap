@@ -68,7 +68,7 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
       val map = getItem(position)
 
       for (name <- v.find[TextView](R.id.recent_list_item_name))
-        name setText (map.root.content getOrElse "")
+        name setText (map.root flatMap (_.content) getOrElse "")
 
       for (detail <- v.find[TextView](R.id.recent_list_item_detail))
         detail setText new java.util.Date(map.lastMod).toString

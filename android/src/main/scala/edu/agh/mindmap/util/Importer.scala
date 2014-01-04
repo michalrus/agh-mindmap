@@ -37,7 +37,7 @@ object Importer {
 
       val root = (sheet \ "topic").head
 
-      map.root.content = Some((root \ "title").head.text)
+      map.root foreach (_.content = Some((root \ "title").head.text))
 
       def extractor(topic: Node, parent: MindNode) {
         (topic \ "children" \ "topics" \ "topic").zipWithIndex.foreach {
@@ -48,7 +48,7 @@ object Importer {
         }
       }
 
-      extractor(root, map.root)
+      map.root foreach (extractor(root, _))
 
       map
     })

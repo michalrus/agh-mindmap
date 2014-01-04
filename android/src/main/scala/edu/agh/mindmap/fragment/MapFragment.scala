@@ -158,7 +158,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
 
   def removeNode(node: MindNode) = {
     defocus(hideIME = false)
-    if (node.map.root == node) false
+    if (node.isRoot) false
     else {
       val builder = new AlertDialog.Builder(getActivity)
       builder setMessage

@@ -46,7 +46,7 @@ class MapPainter(dp2px: Int => Int,
 
     def allSubtrees = memo.values
 
-    def recalculateAllSizes(map: MindMap) = SubtreeWrapper(map.root).sizes recalculate()
+    def recalculateAllSizes(map: MindMap) = map.root foreach (SubtreeWrapper(_).sizes recalculate())
   }
 
   private class SubtreeWrapper private(val mindNode: MindNode) {
@@ -238,13 +238,14 @@ class MapPainter(dp2px: Int => Int,
     map <- cachedMap
     inflater <- cachedInflater
     paper <- cachedPaper
+    mapRoot <- map.root
   } {
-    val root = SubtreeWrapper(map.root)
+    val root = SubtreeWrapper(mapRoot)
     root.positions.positionAt(0, 0, left = false)
 
     SubtreeWrapper recalculateAllSizes map
 
-    val trees = map.root.children map (SubtreeWrapper(_))
+    val trees = mapRoot.children map (SubtreeWrapper(_))
 
     val (ltrees, rtrees) = if (trees.isEmpty) (Vector.empty, Vector.empty) else {
       val hsum = (0 /: trees)(_ + _.sizes.subtree.h) / 2.0

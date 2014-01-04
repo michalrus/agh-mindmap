@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteDatabase
 class MindMap private(val uuid: UUID,
                       val lastMod: Long) {
 
-  lazy val root: MindNode = MindNode findRootOf this
+  def root: Option[MindNode] = MindNode findRootOf this
 
   private def commit() {
     import DBHelper._
@@ -47,7 +47,11 @@ object MindMap extends DBUser {
   import DBHelper._
   import MiscHelper.safen
 
-  def create = createWith(uuid = UUID.randomUUID)
+  def create = {
+    val map = createWith(uuid = UUID.randomUUID)
+    MindNode createRootOf map
+    map
+  }
 
   private[model] def createWith(uuid: UUID) = memo.synchronized {
     val map = new MindMap(uuid, (new java.util.Date).getTime)

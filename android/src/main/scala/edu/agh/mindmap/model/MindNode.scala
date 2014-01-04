@@ -32,8 +32,8 @@ class MindNode private(val uuid: UUID,
                        initialHasConflict: Boolean,
                        initialCloudTime: Option[Long]) extends Ordered[MindNode] {
 
-  def isRoot = map.root == this
-  def isRemoved = !content.isDefined
+  def isRoot = parent.isEmpty // rly? sufficient?
+  def isRemoved = content.isEmpty
 
   def compare(that: MindNode): Int = {
     val ord = this.ordering compare that.ordering
@@ -144,15 +144,18 @@ object MindNode extends DBUser {
     candidate
   }
 
-  def findRootOf(map: MindMap): MindNode = {
+  def findRootOf(map: MindMap): Option[MindNode] = {
     val cur = dbr query (TNode, Array(CUuid),
       s"$CMap = ? AND $CParent IS NULL", Array(map.uuid.toString), null, null, null)
     cur moveToFirst()
-    val candidate = for {
+    for {
       uuid <- safen(UUID fromString (cur getString 0))
       node <- findByUuid(uuid)
     } yield node
-    candidate getOrElse {
+  }
+
+  def createRootOf(map: MindMap): MindNode = {
+    findRootOf(map) getOrElse {
       val root = new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
       root commit()
       root
