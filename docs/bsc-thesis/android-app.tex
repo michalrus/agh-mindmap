@@ -36,12 +36,29 @@ In our application we implemented multi-directional scrolling in a class \inline
 
 \subsection{Drawing mind maps}
 \label{subsec:drawing}
-In the next stage of work we focused on
-\todo[inline]{\kasia{Describe all stages of implementation here.}}
-\todo[inline]{\kasia{Include positioning.}}
+In the next stage of work we focused on a single mind map view. The main components used in drawing are \inlinecode{NodeView} representing a single mind node and \inlinecode{ArrowView} which serves as a line connecting mind nodes. They are placed in the \inlinecode{MindFragment}. Every \inlinecode{NodeView}  is paired with SubtreeWrapper, which acts as a "container" circumjacent mind node and its children.
+
+\inlinecode{NodeView} is implemented as extending \inlinecode{FrameLayout}. It extends a \inlinecode{ViewGroup}, and we chose it because mind node's view have two children: a text field with node's content and a button. \inlinecode{FrameLayout} can be used as a parent for multiple children and it can control their position within the \inlinecode{ViewGroup} by assigning gravity to each child with the android:layout\_gravity attribute. Child views are drawn in a stack, with the latest added child on top \cite{API:2013:fl}.
+
+Arrow is implemented as a single View. It connects a mind node with its parent. If a mind node has multiple children, then lines coming out of the child nodes are connected in one point and then a single line goes to the parent node. It makes the whole map more readable. 
+
+In order to keep the code readability, we moved he process of drawing to a separate class -- \inlinecode{MapPainter}, whose constructor is called in the \inlinecode{onDrawView} method of the \inlinecode{MapFragment}. This class provides all necessary values and methods needed to draw a mind map:
+\begin{itemize}
+	\item paper padding and  subtree margin
+	\item the horizontal distance between child nodes
+	\item \inlinecode{arcShortRadius} which determines the radius depending on the number of children which is used later in map painter to calculate the position of mind node on the X axis
+	\item \inlinecode{nodeViewSize} setting the size of a mind node
+	\item \inlinecode{initializeNodeV} which initializes inflated mind node layout  
+	\item \inlinecode{updateNodeView} setting the content of a mind node
+\end{itemize}
+ As soon as other elements are prepared --  \inlinecode{HorizontalScrollView} and its inner \inlinecode{ScrollView} layouts are found and set, current mind map is found by uuid and the paper layout is set -- a map painter is called. 
+
+When it comes to the positioning, it was one of the most difficult tasks we faced. \inlinecode{MapPainter} handles calculating the position of mind nodes and arrows. It also manages \inlinecode{SubtreeWrappers} and their accordance with \inlinecode{NodeViews}. It can update the size and coordinates of mind nodes, as well as remove them, or recalculate nodes' positions. 
 
 \subsection{Creating, editing and removing mind nodes}
 \label{subsec:drawing}
+
+
 
 \begin{figure}[h]
 	\centering
@@ -63,4 +80,6 @@ In the next stage of work we focused on
 
 \subsection{User interface}
 \label{subsec:ui}
+Thanks to multi-directional scrolling it is easy to navigate even if the map is big.
+
 \todo[inline]{\kasia{Why we designed UI in such a way.}}
