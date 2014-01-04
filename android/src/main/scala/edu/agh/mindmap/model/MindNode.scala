@@ -215,15 +215,17 @@ object MindNode extends DBUser {
 
     for (js <- jss) findByUuid(js.uuid) match {
       case Some(existing) =>
-        existing._cloudTime = Some(js.cloudTime)
-        existing._parent = js.parent
-        existing._hasConflict = js.hasConflict
-        existing._ordering = js.ordering
+        if ((existing._cloudTime getOrElse 0L) < js.cloudTime) { // if it is a real update! _IMPORTANT_!
+          existing._cloudTime = Some(js.cloudTime)
+          existing._parent = js.parent
+          existing._hasConflict = js.hasConflict
+          existing._ordering = js.ordering
 
-        existing._content = js.content
-        if (js.content.isEmpty) deleteChildrenOf(existing)
+          existing._content = js.content
+          if (js.content.isEmpty) deleteChildrenOf(existing)
 
-        existing commit()
+          existing commit()
+        }
 
       case None =>
         val map = MindMap findByUuid mapUuid getOrElse {
