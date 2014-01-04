@@ -47,9 +47,9 @@ object MindMap extends DBUser {
   import DBHelper._
   import MiscHelper.safen
 
-  def create = {
+  def create(title: String): MindMap = {
     val map = createWith(uuid = UUID.randomUUID)
-    MindNode createRootOf map
+    MindNode createRootOf (map, title)
     map
   }
 

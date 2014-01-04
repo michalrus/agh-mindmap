@@ -155,9 +155,9 @@ object MindNode extends DBUser {
     } yield node
   }
 
-  def createRootOf(map: MindMap): MindNode = {
+  def createRootOf(map: MindMap, initialContent: String): MindNode = {
     findRootOf(map) getOrElse {
-      val root = new MindNode(UUID.randomUUID, map, None, 0, None, false, None)
+      val root = new MindNode(UUID.randomUUID, map, None, 0, Some(initialContent), false, None)
       root commit()
       root
     }

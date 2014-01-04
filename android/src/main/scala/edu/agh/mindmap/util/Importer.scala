@@ -33,11 +33,9 @@ object Importer {
     val xml = XML load is
 
     (xml \ "sheet").map(sheet => {
-      val map = MindMap.create
-
       val root = (sheet \ "topic").head
 
-      map.root foreach (_.content = Some((root \ "title").head.text))
+      val map = MindMap.create(title = (root \ "title").head.text)
 
       def extractor(topic: Node, parent: MindNode) {
         (topic \ "children" \ "topics" \ "topic").zipWithIndex.foreach {

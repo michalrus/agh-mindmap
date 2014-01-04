@@ -116,8 +116,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   }
 
   def createNewMap() {
-    val newMap = MindMap.create
-    newMap.root foreach (_.content = Some(getString(R.string.default_new_map_title)))
+    val newMap = MindMap.create(title = getString(R.string.default_new_map_title))
     withMapListFragment(_ addMaps newMap :: Nil )
     viewMindMap(newMap)
   }
