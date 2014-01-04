@@ -33,7 +33,7 @@ import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}
 import edu.agh.mindmap.model.{MindNode, MindMap}
-import edu.agh.mindmap.util.{Synchronizer, DBHelper, ImporterException}
+import edu.agh.mindmap.util.{Refresher, Synchronizer, DBHelper, ImporterException}
 import java.util.UUID
 import scala.util.Try
 
@@ -97,8 +97,15 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     true
   }
 
-  def onMapTitleChanged(map: MindMap, t: String) {
-    tabManager retitleTab (map.uuid.toString, t)
+  def onMapChanged(map: MindMap, title: String, refreshDrawing: Boolean) = laterOnUiThread {
+    val key = map.uuid.toString
+    tabManager retitleTab (key, title)
+
+    if (refreshDrawing) tabManager.fragments get key match {
+      case Some(mf: MapFragment) => mf.refreshMap()
+      case _ =>
+    }
+
     withMapListFragment(_ addMaps Seq(map))
   }
 
@@ -164,6 +171,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     val db = new DBHelper(this)
     MindMap setDb db
     MindNode setDb db
+
+    Refresher.mainActivity = Some(this) // should we unset it somewhere?... or maybe onStart/onStop?
 
     setContentView(R.layout.main)
     tabHost.setup()

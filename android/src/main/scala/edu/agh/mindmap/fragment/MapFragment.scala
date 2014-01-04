@@ -26,22 +26,16 @@ import java.util.UUID
 import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.component.{NodeView, HorizontalScrollViewWithPropagation}
 import android.widget._
-import edu.agh.mindmap.util.MapPainter
+import edu.agh.mindmap.util.{Refresher, MapPainter}
 import scala.util.Try
 import android.content.{DialogInterface, Context}
 import android.view.inputmethod.{EditorInfo, InputMethodManager}
 import android.widget.TextView.OnEditorActionListener
 import android.view.View.OnFocusChangeListener
-import edu.agh.mindmap.activity.MainActivity
 import android.app.AlertDialog
 
 class MapFragment extends SherlockFragment with ScalaFragment {
   private var painter: Option[MapPainter] = None
-
-  private lazy val onTitleChange: Option[(MindMap, String) => Unit] = getActivity match {
-    case a: MainActivity => Some(a.onMapTitleChanged)
-    case _ => None
-  }
 
   private lazy val dummyFocus = getView.find[View](R.id.dummy_focus)
   private lazy val inputManager = safen(getActivity.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager])
@@ -77,6 +71,11 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     view
   }
 
+  def refreshMap() {
+    for (painter <- painter)
+      laterOnUiThread { painter.repaint() }
+  }
+
   /**
    * Initialize inflated `R.layout.mind_node` view (event listeners and stuff).
    * @param node A node from the model.
@@ -101,8 +100,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
             node.content = newContent
             if (node.isRoot) for {
               cnt <- node.content
-              fun <- onTitleChange
-            } fun(node.map, cnt)
+            } Refresher.refresh(node.map.uuid, refreshDrawing = false)
           }
         }
     }

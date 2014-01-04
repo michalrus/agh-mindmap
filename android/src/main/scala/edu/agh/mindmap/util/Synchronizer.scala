@@ -153,7 +153,10 @@ object Synchronizer {
     request[PollResponse](new HttpGet(url)) match {
       case Success(PollResponse(updates)) =>
         log(s"POLL: $updates")
-        updates foreach model.MindNode.mergeIn
+        val grp = updates groupBy { case JsNodePlusMap(map, node) => map } mapValues { xs => xs map (_.node) }
+        grp foreach { case (map, nodes) =>
+          model.MindNode.mergeIn(map, nodes)
+        }
 
       case Failure(cause) =>
         log(s"POLL: ${cause.getMessage}")
