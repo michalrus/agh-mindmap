@@ -65,7 +65,11 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     } {
       hScroll.inner = vScroll
       paper onClick defocus()
-      laterOnUiThread { painter paint (map, paper, inflater) }
+      laterOnUiThread(new Runnable {
+        def run(): Unit = {
+          painter paint (map, paper, inflater)
+        }
+      })
     }
 
     view

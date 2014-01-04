@@ -104,9 +104,8 @@ object Synchronizer {
     response
   }
 
-  private def realUpdate: Future[Boolean] = future {
+  private def realUpdate: Future[Boolean] = future { blocking {
     val url = updateUrl
-    log(s"UPDATE: $url ...")
 
     val lastSeenAkkaAt = model.MindNode.lastTimeWithAkka
 
@@ -121,17 +120,14 @@ object Synchronizer {
     msgs foreach { msg =>
       val req = new HttpPost(url)
       val entity = new StringEntity(msg.toJson.compactPrint, HTTP.UTF_8)
-      log(s"UPDATE: msg :=\n${msg.toJson.prettyPrint}")
       entity setContentType "application/json"
       req setEntity entity
 
       request[UpdateResponse](req) match {
         case Success(UpdateResponse(unknownParents)) =>
           if (unknownParents.isEmpty) {
-            log(s"UPDATE: success!")
           }
           else {
-            log(s"UPDATE: failed: unknownParents.nonEmpty -> $unknownParents")
             throw new Exception // FIXME
           }
 
@@ -141,18 +137,13 @@ object Synchronizer {
       }
     }
 
-    if (msgs.isEmpty)
-      log(s"UPDATE: `msgs` was empty")
     true
-  }
+  }}
 
-  private def realPoll: Future[Unit] = future {
+  private def realPoll: Future[Unit] = future { blocking {
     val url = pollUrl(since = model.MindNode.lastTimeWithAkka)
-    log(s"POLL: $url ...")
-
     request[PollResponse](new HttpGet(url)) match {
       case Success(PollResponse(updates)) =>
-        log(s"POLL: $updates")
         val grp = updates groupBy { case JsNodePlusMap(map, node) => map } mapValues { xs => xs map (_.node) }
         grp foreach { case (map, nodes) =>
           model.MindNode.mergeIn(map, nodes)
@@ -161,6 +152,6 @@ object Synchronizer {
       case Failure(cause) =>
         log(s"POLL: ${cause.getMessage}")
     }
-  }
+  }}
 
 }

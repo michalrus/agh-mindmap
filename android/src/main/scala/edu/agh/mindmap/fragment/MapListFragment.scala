@@ -38,22 +38,36 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
 
   private val uuids = new mutable.TreeSet[UUID]
 
+  private var runAfterCreationMemo = Vector.empty[Runnable]
+  private def runAfterCreation(r: Runnable) = runAfterCreationMemo.synchronized {
+    runAfterCreationMemo :+= r
+    Option(getView) foreach runAfterCreationFlush
+  }
+  private def runAfterCreationFlush(v: View) = runAfterCreationMemo.synchronized {
+    runAfterCreationMemo foreach v.post
+    runAfterCreationMemo = Vector.empty[Runnable]
+  }
+
   def addMaps(maps: Seq[MindMap]) {
-    maps foreach { m =>
-      if (uuids contains m.uuid) {
-        var i = 0; var count = adapter.getCount
-        while (i < count) {
-          val item = adapter getItem i
-          if (item.uuid == m.uuid) {
-            adapter remove item
-            count -= 1
-          } else i += 1
+    runAfterCreation(new Runnable {
+      def run(): Unit = {
+        maps foreach { m =>
+          if (uuids contains m.uuid) {
+            var i = 0; var count = adapter.getCount
+            while (i < count) {
+              val item = adapter getItem i
+              if (item.uuid == m.uuid) {
+                adapter remove item
+                count -= 1
+              } else i += 1
+            }
+          }
+          uuids += m.uuid
+          adapter add m
         }
+        adapter notifyDataSetChanged()
       }
-      uuids += m.uuid
-      adapter add m
-    }
-    adapter notifyDataSetChanged()
+    })
   }
 
   private lazy val adapter = new ArrayAdapter(getActivity, MapListFragment.ItemXml, new java.util.ArrayList[MindMap]) {
@@ -98,6 +112,7 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
       }
     }
 
+    runAfterCreationFlush(view)
     view
   }
 

@@ -278,7 +278,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         vg <- safen((tabHost.getTabWidget getChildTabViewAt i).asInstanceOf[ViewGroup])
         j <- 0 until vg.getChildCount
         tx <- safen((vg getChildAt j).asInstanceOf[TextView])
-      } tx setText label
+      } tx.post { tx setText label }
     }
 
     def removeTab(tag: String, tagAfterwards: String) {
