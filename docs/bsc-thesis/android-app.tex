@@ -11,10 +11,10 @@ A basic component of most Android applications is an Action Bar. It is one of th
 
 There is a number of things that can be put inside Action Bar, for example search bar, action buttons etc. In our application we added the following components:
 \begin{itemize}
-	\item Button for importing an existing mind map  from an XMind file (in a main view with list of available maps)
-	\item Button for adding a new mind map (in a main view with list of available maps)
-	\item Button for closing an opened mind map (in a single map view)
-	\item Navigation bar which consists of tabs with opened maps (default tab is a view with list of available maps)
+	\item Button for importing an existing mind map  from an XMind file (in a main view with list of available maps),
+	\item Button for adding a new mind map (in a main view with list of available maps),
+	\item Button for closing an opened mind map (in a single map view),
+	\item Navigation bar which consists of tabs with opened maps (default tab is a view with list of available maps).
 \end{itemize}
 
 We want our application to be runnable even on older Android version, so instead of regular ActionBar libraries we decided to use support libraries, which take care of backward compatibility from 2.x Android versions.
@@ -44,16 +44,16 @@ Arrow is implemented as a single View. It connects a mind node with its parent. 
 
 In order to keep the code readability, we moved he process of drawing to a separate class -- \inlinecode{MapPainter}, whose constructor is called in the \inlinecode{onDrawView} method of the \inlinecode{MapFragment}. This class provides all necessary values and methods needed to draw a mind map:
 \begin{itemize}
-	\item paper padding and  subtree margin
-	\item the horizontal distance between child nodes
-	\item \inlinecode{arcShortRadius} which determines the radius depending on the number of children which is used later in map painter to calculate the position of mind node on the X axis
-	\item \inlinecode{nodeViewSize} setting the size of a mind node
-	\item \inlinecode{initializeNodeV} which initializes inflated mind node layout  
-	\item \inlinecode{updateNodeView} setting the content of a mind node
+	\item paper padding and  subtree margin,
+	\item the horizontal distance between child nodes,
+	\item \inlinecode{arcShortRadius} which determines the radius depending on the number of children which is used later in map painter to calculate the position of mind node on the X axis,
+	\item \inlinecode{nodeViewSize} setting the size of a mind node,
+	\item \inlinecode{initializeNodeV} which initializes inflated mind node layout,
+	\item \inlinecode{updateNodeView} setting the content of a mind node.
 \end{itemize}
- As soon as other elements are prepared --  \inlinecode{HorizontalScrollView} and its inner \inlinecode{ScrollView} layouts are found and set, current mind map is found by uuid and the paper layout is set -- a map painter is called. 
+ As soon as other elements are prepared --  \inlinecode{HorizontalScrollView} and its inner \inlinecode{ScrollView} layouts are found and set, current mind map is found by UUID	 and the paper layout is set -- a map painter is called. 
 
-When it comes to the positioning, it was one of the most difficult tasks we faced. \inlinecode{MapPainter} handles calculating the position of mind nodes and arrows. It also manages \inlinecode{SubtreeWrappers} and their accordance with \inlinecode{NodeViews}. It can update the size and coordinates of mind nodes, as well as remove them, or recalculate nodes' positions. 
+When it comes to the positioning, it was one of the most difficult tasks we faced. \inlinecode{MapPainter} handles calculating the position of mind nodes and arrows. It also manages \inlinecode{SubtreeWrappers} and their accordance with \inlinecode{NodeViews}. It can update the size and coordinates of mind nodes, as well as remove them, or recalculate nodes' positions. As far as the order of the children is concerned, in Mind Node model there is a field \inlinecode{initialOrdering}, and it is set when children are created. A detailed description can be found in \cref{subsec:problem-positioning}.
 
 \subsection{Creating, editing and removing mind nodes}
 \label{subsec:drawing}
@@ -61,15 +61,15 @@ Managing the mind nodes is fairly simple. There are three actions a user can per
 
 \subsubsection{Creating a child mind node}
 \label{subsubsec:create-child}
-In order to create a child mind node one must click on a plus button located on the outer part of the node.
+In order to create a child mind node one must click on a plus button located on the outer part of the parent node. It is implemented in the \inlinecode{addChildNode} method of \inlinecode{MapFragment} class. It calls \inlinecode{createChildOf} method from \inlinecode{MindNode} object and then repaints the map using an instance of \inlinecode{MapPainter}.
 
 \subsubsection{Deleting a mind node with its subtree}
 \label{subsubsec:delete-node}
- Deleting a node with its subtree can be performed by long click on the node. 
+ Deleting a node with its subtree can be performed by long click on the node. It is implemented in the \inlinecode{removeNode} method of the \inlinecode{MapFragment}. It also calls a \inlinecode{remove} method from \inlinecode{MindNode} class, which uses \inlinecode{deleteChildrenOf} private method from the \inlinecode{MindNode} object. It also cleans node's content and performs update on \inlinecode{Synchronizer} class. 
  
 \subsubsection{Editing a mind node's content}
 \label{subsubsec:delete-node}
-A user can edit node's content by clicking on node's body.
+A user can edit node's content by clicking on node's body. It is possible thanks to setting two listeners while initiatlizing a \inlinecode{NodeView}: \inlinecode{OnEditorActionListener} and \inlinecode{OnFocusChangeListener}. The actual change of content is performed while handling onFocusChange event.
 
 \begin{figure}[h]
 	\centering
