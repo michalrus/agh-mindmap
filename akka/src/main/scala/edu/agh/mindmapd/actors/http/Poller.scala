@@ -29,7 +29,7 @@ object Poller {
 
   case class Process(since: Long, completer: PollResponse => Unit, timeout: FiniteDuration)
 
-  private val MapsResponseTimeFrame = 1.seconds // since first map response
+  private val MapsResponseTimeFrame = 0.5.seconds // since first map response
   private case object FirstTimeout
   private case object SecondTimeout
 
