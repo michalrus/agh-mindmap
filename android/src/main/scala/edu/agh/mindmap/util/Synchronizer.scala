@@ -34,8 +34,8 @@ import org.apache.http.protocol.HTTP
 
 object Synchronizer {
   private var baseUrl = "http://undefined"
-  private def pollUrl(since: Long) = s"$baseUrl/poll/since/$since"
-  private def updateUrl = s"$baseUrl/update"
+  private def urlForPoll(since: Long) = s"$baseUrl/poll/since/$since"
+  private def urlForUpdate = s"$baseUrl/update"
 
   private val HttpTimeout = 30.seconds
   private val MinIntervalBetweenFailures = 5.seconds
@@ -105,7 +105,7 @@ object Synchronizer {
   }
 
   private def realUpdate: Future[Boolean] = future { blocking {
-    val url = updateUrl
+    val url = urlForUpdate
 
     val lastSeenAkkaAt = model.MindNode.lastTimeWithAkka
 
@@ -146,7 +146,7 @@ object Synchronizer {
   }}
 
   private def realPoll: Future[Unit] = future { blocking {
-    val url = pollUrl(since = model.MindNode.lastTimeWithAkka)
+    val url = urlForPoll(since = model.MindNode.lastTimeWithAkka)
     request[PollResponse](new HttpGet(url)) match {
       case Success(PollResponse(updates)) =>
         val grp = updates groupBy { case JsNodePlusMap(map, node) => map } mapValues { xs => xs map (_.node) }
