@@ -20,7 +20,7 @@
 
 Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
 
-As it turns out, we're able to make it work using just two main messages (and resolving two exceptional cases). However, the fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions (solved by subtree recreation algorithm in \cref{subsec:subtree-recreation}). Communication with an Android device from the \emph{moment it gets online} is as follows:
+As it turns out, we are able to make it work using just two main messages (and resolving two exceptional cases). However, the fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions (solved by subtree recreation algorithm in \cref{subsec:subtree-recreation}). Communication with an Android device from the \emph{moment it gets online} is described below.
 
 \begin{enumerate}
 	\item Android looks for the newest timestamp in \inlinecode{mind\_node} table --- this is the last time we had contact with Akka.
@@ -46,13 +46,13 @@ As it turns out, we're able to make it work using just two main messages (and re
 	\item Android, after receiving this update message, updates its local DB.
 \end{enumerate}
 
-And the two exceptional cases are as follows:
+These aforementioned two exceptional cases are described below.
 
 \begin{enumerate}
 	\item \label{akka-conflict} It might happen that another Android, A, updated a node, when currently synchonizing Android, B, was offline (and B, too, changed the node while offline). This causes a `merge conflict'. All merge conflicts are resolved automatically and strategies vary depeneding on which field causes the conflict:
 	\begin{itemize}
-		\item If theres a conflict in node's \emph{content}, then both conflicting contents are concatenated with a new line, \inlinecode{\textbackslash{}m} and the node's \inlinecode{has\_conflict} field is set to \inlinecode{true}. (This results in marking the field somehow in the UI, possibly with red.)
-		\item If, however, the conflicting field is node's \inlinecode{parent}, then we \emph{repin} the node accordnig to our last disposition. Changing node's parent does not destroy data and it's easy to reverse for contributors.
+		\item if there is a conflict in node's \emph{content}, then both conflicting contents are concatenated with a new line, \inlinecode{\textbackslash{}m} and the node's \inlinecode{has\_conflict} field is set to \inlinecode{true} (this results in marking the field somehow in the UI, possibly with red),
+		\item if, however, the conflicting field is node's \inlinecode{parent}, then we \emph{repin} the node accordnig to our last disposition. Changing node's parent does not destroy data and it is easy to reverse for contributors.
 	\end{itemize}
 
 	\item \label{akka-unknown-parent} It is possible that Akka will get an update request with a node which parent is \emph{not} in the DB. This might happen for two reasons:

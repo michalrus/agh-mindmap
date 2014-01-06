@@ -18,7 +18,7 @@
 \subsection{Subtree recreation algorithm}
 \label{subsec:subtree-recreation}
 
-This algorithm has to be used on the server-side, when given a scenario in which:
+This algorithm has to be used on the server-side, in case of a scenario described below.
 
 \begin{enumerate}
 	\item At least two users (Alice and Bob) share a map.
@@ -40,3 +40,5 @@ The following steps then need to be taken:
 	\item Android responds with original update message along with full requested subtrees from its local storage.
 	\item Akka updates its DB and notifies all connected devices about the changes.
 \end{enumerate}
+
+\todo[inline]{\igor{Any proof that the algorithms work?}}

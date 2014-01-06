@@ -18,39 +18,41 @@
 \subsection{Component: Akka.io application}
 \label{subsec:component-akka}
 
+\todo[inline]{\igor{"tutaj też DIAGRAM KOMPONENTÓW (albo ArchiMate)"}}
+
 Akka is used as a backend for the mobile application. It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
 
 Each REST-connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of `long-polling': mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor. See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
 
-Our Akka application consists of:
+Our Akka application consists of components described below.
 
 \begin{description}
 	\item[Actor system]{provided by Akka framework; an environment in which all actors (of custom and system origin) live.}
 	\item[Main supervisor actor]{provided by Akka; tightly integrated with the actor system. There is always one such actor for each system.}
-	\item[Squeryl]{being an object-relational mapper and domain specific language for Scala and SQL databases (including PostgreSQL). Squeryl puts great emphasis on minimum verbosity and maximum type safety, as well as Don't-Repeat-Yourself principle. Created statements are validated by Scala compiler (this includes types of field). Statements that pass compilation won't fail at runtime\cite{Squeryl:Intro},}
+	\item[Squeryl]{being an object-relational mapper and domain specific language for Scala and SQL databases (including PostgreSQL). Squeryl puts great emphasis on minimum verbosity and maximum type safety, as well as Don't-Repeat-Yourself principle. Created statements are validated by Scala compiler (this includes types of field). Statements that pass compilation won't fail at runtime\cite{Squeryl:Intro}.}
 	\item[Database interfacing actor(s)]{that provide a persistence interface for per-user actors. Currently implemented using Squeryl.}
 	\item[Spray.io based REST actors]{that manage connection between Android applications and per-user actors. These actors must encapsulate bidirectional message passing on a request-response style HTTP protocol. This is somewhat of a challenge, as described in \cref{subsec:problem-longpolling}.}
 	\item[Per-user actors]{that represent a particular user/connection/device to the rest of the actor system each. By separation of these and REST actors, its is possible to easily add some other front-ends to the system. Now, the only front-end is the Android application.}
 	\item[Managing actor for per-user actors]{which keeps track of all per-user actors and routes messages between them. If adding user privileges were planned, there would be no such actor (as it would be highly inefficient to check all the time which user should get which event). Instead, we would use so called `data streams' that particular per-user actors would subscribe to. Any message sent to the stream would then get automatically transmitted to all subscribed actors. Therefore a stream would represent a single mind map.}
 \end{description}
 
-The main means of communication is a `message'. This is the highest form of object-oriented model. No actor methods are called directly; instead, actors send and receive messages (similarily to Erlang's lightweight processes). Messages exchanged between different server-side actors in our system include:
+The main means of communication is a `message'. This is the highest form of object-oriented model. No actor methods are called directly; instead, actors send and receive messages (similarily to Erlang's lightweight processes). Messages exchanged between different server-side actors in our system are listed below.
 
 \begin{itemize}
-	\item Messages from \emph{REST actors} to \emph{per-user actors}:
+	\item Messages from \emph{REST actors} to \emph{per-user actors}.
 	\begin{description}
 		\item[CreateMindMap]{when user creates/imports a new mind map on their device.}
 		\item[UpdateNode]{when user updates a particular node on their device. This update might be a content update, parent change, deletion.}
 	\end{description}
 
-	\item Messages from \emph{per-user actors} to \emph{DB actors}:
+	\item Messages from \emph{per-user actors} to \emph{DB actors}.
 	\begin{description}
 		\item[CreateMindMap]{}
 		\item[UpdateContent]{}
 		\item[UpdateParent]{}
 	\end{description}
 
-	\item Messages exchanged between \emph{managing actor} and \emph{per-user actors}, and also forwarded from \emph{per-user actors} to \emph{REST actors}:
+	\item Messages exchanged between \emph{managing actor} and \emph{per-user actors}, and also forwarded from \emph{per-user actors} to \emph{REST actors}.
 	\begin{description}
 		\item[UpdatedNode]{used to notify managing actor and other per-user actors about a particular changed node.}
 	\end{description}
