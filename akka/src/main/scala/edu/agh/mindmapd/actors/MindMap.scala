@@ -157,7 +157,7 @@ class MindMap(mapUuid: UUID) extends Actor {
         (existing.content, fromClient.content) match {
 
           case (Some(o), Some(n)) => // content change
-            if (existing.cloudTime > atTime) // *** CONFLICT!!! ***
+            if (existing.cloudTime > atTime && o != n) // *** CONFLICT!!! ***
               fromClient.copy(content = Some(o + "\n" + n), hasConflict = true)
             else // normal content change
               fromClient.copy(hasConflict = false)
