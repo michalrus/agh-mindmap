@@ -25,4 +25,4 @@ object UpdateResponse extends DefaultJsonProtocol with CustomJsonFormats {
   implicit val format = jsonFormat1(apply)
 }
 
-case class UpdateResponse(unknownParents: List[UUID])
+case class UpdateResponse(orphanNodes: List[UUID])
