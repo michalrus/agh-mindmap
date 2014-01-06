@@ -51,7 +51,7 @@ In order to keep the code readability, we moved he process of drawing to a separ
 	\item \inlinecode{initializeNodeV} which initializes inflated mind node layout,
 	\item \inlinecode{updateNodeView} setting the content of a mind node.
 \end{itemize}
- As soon as other elements are prepared --  \inlinecode{HorizontalScrollView} and its inner \inlinecode{ScrollView} layouts are found and set, current mind map is found by UUID	 and the paper layout is set -- a map painter is called. 
+ As soon as other elements are prepared --  \inlinecode{HorizontalScrollView} and its inner \inlinecode{ScrollView} layouts are found and set, current mind map is found by UUID and the paper layout is set -- a map painter is called. 
 
 When it comes to the positioning, it was one of the most difficult tasks we faced. \inlinecode{MapPainter} handles calculating the position of mind nodes and arrows. It also manages \inlinecode{SubtreeWrappers} and their accordance with \inlinecode{NodeViews}. It can update the size and coordinates of mind nodes, as well as remove them, or recalculate nodes' positions. As far as the order of the children is concerned, in Mind Node model there is a field \inlinecode{initialOrdering}, and it is set when children are created. A detailed description can be found in \cref{subsec:problem-positioning}.
 
