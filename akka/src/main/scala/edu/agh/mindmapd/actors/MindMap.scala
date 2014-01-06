@@ -117,7 +117,7 @@ class MindMap(mapUuid: UUID) extends Actor {
         deleteChildrenOf(child.uuid)
 
         TimesIdx remove child
-        nodes -= node
+        nodes -= child.uuid
       }
     }
   }
