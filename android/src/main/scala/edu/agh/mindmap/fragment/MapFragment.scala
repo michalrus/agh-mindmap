@@ -115,7 +115,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    */
   def updateNodeView(node: MindNode, v: NodeView) = {
     val cnt = node.content getOrElse ""
-    if (v.content.getText.toString != cnt) v.content setText cnt
+    if (v.content.getText.toString != cnt && !v.content.hasFocus) v.content setText cnt
   }
 
   def arcShortRadius(numChildren: Int): Int = // [dp]
