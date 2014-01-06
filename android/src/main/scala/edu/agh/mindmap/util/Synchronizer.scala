@@ -124,11 +124,16 @@ object Synchronizer {
       req setEntity entity
 
       request[UpdateResponse](req) match {
-        case Success(UpdateResponse(unknownParents)) =>
-          if (unknownParents.isEmpty) {
-          }
-          else {
-            throw new Exception // FIXME
+        case Success(UpdateResponse(orphanNodes)) =>
+          if (orphanNodes.nonEmpty) {
+            for {
+              orphUuid <- orphanNodes
+              orph <- model.MindNode.findByUuid(orphUuid)
+              parentUuid <- orph.parent
+              parent <- model.MindNode.findByUuid(parentUuid)
+            } model.MindNode.touchAllOfTree(parent) // ... to have them resent in the next `UpdateRequest`
+
+            update() // primitively "schedule" a new update
           }
 
         case Failure(cause) =>
