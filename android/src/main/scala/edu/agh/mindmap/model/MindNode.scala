@@ -216,15 +216,29 @@ object MindNode extends DBUser {
     for (js <- jss) findByUuid(js.uuid) match {
       case Some(existing) =>
         if ((existing._cloudTime getOrElse 0L) < js.cloudTime) { // if it is a real update! _IMPORTANT_!
-          existing._cloudTime = Some(js.cloudTime)
-          existing._parent = js.parent
-          existing._hasConflict = js.hasConflict
-          existing._ordering = js.ordering
+          val allowed: Boolean = (existing.content, js.content) match {
+            case (Some(_), None) => // if akka wants to delete...
+              // ... check if any children were updated and not yet synchronized
+              def anyUpdatedInTree(r: MindNode): Boolean = {
+                if (r.cloudTime.isEmpty) true
+                else r.children exists anyUpdatedInTree
+              }
+              val isUpd = anyUpdatedInTree(existing)
+              !isUpd
+            case _ => true
+          }
 
-          existing._content = js.content
-          if (js.content.isEmpty) deleteChildrenOf(existing)
+          if (allowed) {
+            existing._cloudTime = Some(js.cloudTime)
+            existing._parent = js.parent
+            existing._hasConflict = js.hasConflict
+            existing._ordering = js.ordering
 
-          existing commit()
+            existing._content = js.content
+            if (js.content.isEmpty) deleteChildrenOf(existing)
+
+            existing commit()
+          }
         }
 
       case None =>
