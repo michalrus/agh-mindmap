@@ -1,6 +1,25 @@
 \section{Akka.io application}
 \label{sec:akka-app}
+Akka component was implemented almost entirely according to our project. In order to make it possible to communicate between Android devices and actor system on the server-side there are several REST web services from Spray.io. When more than one user is working on the mind map, each device gets its own actor.  Two-directional communication is implemented by long-polling: a mobile app initiates a connection with a REST service which waits with responding until its actor receives a message from another actor. See \cref{subsec:android-akka-comm} for theoretical details.  
 
+\subsection{Actors system }
+\label{subsection:akka-actors}
+
+\subsubsection{Supervisor actor}
+\label{subsubsection:akka-actors-supervisor}
+Main supervisor actor is provided by Akka; tightly integrated with the actor system. There is always one such actor for each system.
+	
+\subsubsection{Per-user actors}
+\label{subsubsection:akka-actors-peruser}
+
+\subsection{Database and Squeryl}
+\label{subsection:akka-database}
+
+\subsection{Spray and JSON}
+\label{subsection:akka-spray}
+
+\subsection{Synchronization}
+\label{subsection:akka-synchro}
 
 \begin{figure}[h]
 	\centering
