@@ -190,8 +190,8 @@ class MindMap(mapUuid: UUID) extends Actor {
         () // cool, modifying already existing node
       else node.parent match {
         case Some(parent) =>
-          if ((DB contains parent) || (request contains parent))
-            () // cool, adding a new child to a known parent
+          if ((DB find parent exists (_.content.isDefined)) || (request contains parent))
+            () // cool, adding a new child to a known and not already deleted parent
           else
             orphans += node.uuid // not cool, no parent known for this node :(
         case None =>
