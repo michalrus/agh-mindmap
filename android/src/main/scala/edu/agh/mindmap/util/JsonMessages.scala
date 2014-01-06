@@ -64,7 +64,7 @@ object UpdateRequest extends DefaultJsonProtocol with CustomJsonFormats {
 case class UpdateRequest(mindMap: UUID, lastServerTime: Long, nodes: List[JsMindNode])
 
 object UpdateResponse extends DefaultJsonProtocol with CustomJsonFormats {
-  implicit val format = jsonFormat(apply _, "unknownParents")
+  implicit val format = jsonFormat(apply _, "orphanNodes")
 }
 
-case class UpdateResponse(unknownParents: List[UUID])
+case class UpdateResponse(orphanNodes: List[UUID])
