@@ -69,7 +69,7 @@ In order to create a child mind node one must click on a plus button located on 
  
 \subsubsection{Editing a mind node's content}
 \label{subsubsec:delete-node}
-A user can edit node's content by clicking on node's body. It is possible thanks to setting two listeners while initiatlizing a \inlinecode{NodeView}: \inlinecode{OnEditorActionListener} and \inlinecode{OnFocusChangeListener}. The actual change of content is performed while handling onFocusChange event.
+A user can edit node's content by clicking on node's body. It is possible thanks to setting two listeners while initializing a \inlinecode{NodeView}: \inlinecode{OnEditorActionListener} and \inlinecode{OnFocusChangeListener}. The actual change of content is performed while handling onFocusChange event.
 
 \begin{figure}[h]
 	\centering
@@ -80,6 +80,20 @@ A user can edit node's content by clicking on node's body. It is possible thanks
 
 \subsection{Importing from existing .xmind files}
 \label{subsec:import}
+Processing the given .xmind file is going according to the project. We implemented the basic version of importing which does not take into account the extra information which are provided in a standard .xmind file. We save only the structure of a mind map, the content of all nodes and their order. A single XMind file can have multiple sheets, meaning multiple mind maps and we implemented handling this feature. 
+
+As we supposed, Scala turned out to be very handy in processing XML files. Method extracting a single mind map from an XMind sheet has only 5 lines: 
+\begin{verbatim}
+def extractor(topic: Node, parent: MindNode) {
+  (topic \textbackslash "children" \ "topics" \ "topic").zipWithIndex.foreach {
+    case (childXml, i) =>
+      val child = MindNode.createChildOf(parent, i.toDouble)
+      child.content = Some((childXml \ "title").head.text)
+      extractor(childXml, child)
+  }
+}\end{verbatim}
+
+Here is the short explanation of the above excerpt. A single topic represents a node and root's children nodes are imported recursively. As we described in \cref{subsec:xmind-exchange}, one can navigate through the data using \inlinecode{\textbackslash} and \inlinecode{\textbackslash\textbackslash} operators, meaning, respectively, 'search in direct children' and 'search in all subtags'. While creating a node we set ordering, here represented by \inlinecode{i}.  A content of a tag can be accessed by \inlinecode{text} method. 
 
 \begin{figure}[h]
 	\centering
