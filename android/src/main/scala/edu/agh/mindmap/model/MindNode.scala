@@ -55,9 +55,13 @@ class MindNode private(val uuid: UUID,
   def parent_=(v: Option[UUID]) = _parent.synchronized {
     if (_parent != v) {
       _parent = v
-      _cloudTime = None
-      commit()
+      touch()
     }
+  }
+
+  def touch() {
+    _cloudTime = None
+    commit()
   }
 
   private var _content = initialContent
@@ -65,8 +69,7 @@ class MindNode private(val uuid: UUID,
   def content_=(v: Option[String]) = _content.synchronized {
     if (_content != v) {
       _content = v
-      _cloudTime = None
-      commit()
+      touch()
     }
   }
 
@@ -208,6 +211,11 @@ object MindNode extends DBUser {
       MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
       MindNode.memo -= ch.uuid
     }
+  }
+
+  def touchAllOfTree(treeRoot: MindNode) {
+    treeRoot.touch()
+    treeRoot.children foreach touchAllOfTree
   }
 
   def mergeIn(mapUuid: UUID, jss: List[JsMindNode]) {
