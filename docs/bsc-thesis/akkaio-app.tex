@@ -39,10 +39,14 @@ In our application we have a number of actors which perform various functions.
 	\item[http.Updater] represents a \inlinecode{POST}-ed update of some mind map.
 \end{description}
 
-\subsection{Database and Squeryl}
+\subsection{Data storage and Squeryl}
 \label{subsection:akka-database}
 
-\todo[inline]{\michal{What to write about Squeryl and Postgres?!}}
+We have decided to store our data in a PostgreSQL database. It does not scale well horizontally (to a cluster of many servers), so it is probably a subject of a near change (to MongoDB, probably).
+
+Another problem with SQL is that its query is just a primitive \inlinecode{String} of characters, unchecked at compile time. One cannot be sure whether it is correct or not until it fails at runtime. Therefore we have also decided to use Squery, a DSL for object-relational mapping in Scala for SQL, checked \emph{completely} at compile time, thus providing us with a maximum type safety of the mappings. Automatic checking of correctness at compile time turned out to be invaluable.
+
+All tables kept their structure from the project stage, see \cref{fig:erd}.
 
 \subsection{Spray and JSON}
 \label{subsection:akka-spray}
