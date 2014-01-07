@@ -18,6 +18,8 @@
 \subsection{Android--Akka communication}
 \label{subsec:android-akka-comm}
 
+\todo[inline]{\igor{"dlaczego algorytm synchronizacji działa? albo np.: bazujemy na doświadczeniach Git, albo formalny dowód"}}
+
 Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
 
 As it turns out, we are able to make it work using just two main messages (and resolving two exceptional cases). However, the fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions (solved by subtree recreation algorithm in \cref{subsec:subtree-recreation}). Communication with an Android device from the \emph{moment it gets online} is described below.
