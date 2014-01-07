@@ -17,30 +17,42 @@
 
 \section{Akka.io application}
 \label{sec:akka-app}
-Akka component was implemented almost entirely according to our project. In order to make it possible to communicate between Android devices and actor system on the server-side there are several REST web services from Spray.io. When more than one user is working on the mind map, each device gets its own actor.  Two-directional communication is implemented by long-polling: a mobile app initiates a connection with a REST service which waits with responding until its actor receives a message from another actor. See \cref{subsec:android-akka-comm} for theoretical details.  
+Akka component was implemented almost entirely according to our project (with the only exception of blocking simultaneous edits to the same leaf). In order to make it possible to communicate between Android devices and actor system on the server-side, we have created one REST web service with two paths using the DSL of Spray.io. Any number of users can be working on a mind map, as each device gets its own actors: one for polling (Poller) and one for updates (Updater).
 
-\subsection{Actors system }
+Two-directional communication is implemented by means of long-polling: a mobile app (or any other client) initiates a connection with a REST service which waits---before sending a response---until its actor receives a message from another actor \emph{or} a timeout of 20~seconds occurs. See \cref{subsec:android-akka-comm} for theoretical details.  
+
+\subsection{Actor system}
 \label{subsection:akka-actors}
-The actor model is described in \cref{subsection:akka-actors}. `Since Akka enforces parental supervision, every actor is supervised and (potentially) the supervisor of its children'~\cite{AkkaDoc:2013:Actors}. In order to receive messages, every actor must implement a \inlinecode{receive} method, which describes its initial behavior.
+The actor model is described in \cref{subsection:akka-actors}. `Since Akka enforces parental supervision, every actor is supervised and (potentially) the supervisor of its children'~\cite{AkkaDoc:2013:Actors}. In order to receive messages, each actor has to implement a \inlinecode{receive} method, which describes its initial behavior. Behaviors can be switched later (one way to create a Finite State Machine).
 
 In our application we have a number of actors which perform various functions.
 
-\todo{\michal{ocb z tym listingiem?}}\inlinecode{Poller} 
-\inlinecode{Updater}
-\inlinecode{Service}
+\begin{description}
+	\item[Supervisor] not the real Akka's supervisor, but an user-land supervisor. The main actor that is started in \inlinecode{main()} method of the application. It starts MapsSupervisor and http.Service (described below).
+	\item[MapsSupervisor] This is the parent of all MindMaps, creating them as the need arises. It provides means of getting appriopriate MindMap's ActorRef for a given map UUID. Pollers can subscribe to it, which results in this subscription message being routed to all MindMaps.
+	\item[http.Service] Starts a HTTP listener (service) on a given port and address. Provides two paths: \begin{itemize}
+		\item \inlinecode{POST /update} starts a new http.Updater actor,
+		\item \inlinecode{GET /poll/since/\$TIME} starts a new http.Poller.
+	\end{itemize}
+	\item[MindMap] represents one concrete mind map on the server. It allows Pollers to subscribe to its changes (notifying them if any occur). It also processes messages from Updaters, ones that update the map in one way or another.
+	\item[http.Poller] Represents a long-polling connection to the server.
+	\item[http.Updater] Represents a \inlinecode{POST}-ed update of some mind map.
+\end{description}
 
 \subsection{Database and Squeryl}
 \label{subsection:akka-database}
 
+\todo[inline]{\michal{What to write about Squeryl and Postgres?!}}
+
 \subsection{Spray and JSON}
 \label{subsection:akka-spray}
-Spray is an additional layer which enables connections between Akka and client applications using JSON format messages.
+Spray is an additional layer which enables communication over HTTP between Akka and client applications using JSON format messages (or any other format, but JSON is by far the most popular).
 
-In our application we added a trait \inlinecode{CustomJsonFormats}, which does necessary additions (type-safe UUID conversion) to the default JSON protocol provided by Spray.
+In our application we had to create a trait \inlinecode{CustomJsonFormats}, which does necessary additions (type-safe UUID conversion) to the default JSON protocol provided by Spray. Extending the functionality of an existing library in Scala is used extensively and is possible thanks to so called \emph{type classes}, a construct of Scala's type system that supports ad hoc polymorphism.
 
 \subsection{Synchronization}
 \label{subsection:akka-synchro}
-The synchronization is based \emph{only} on the server time, as planned. Client times could be unsynchronized with atomic time (and most probably would be) which renders them undependable.
+\todo{\michal{M., fix sync ASAP!}}The synchronization is based \emph{only} on the server time, as planned. Client times could be unsynchronized with atomic time (and most probably would be) which renders them undependable.
 
 There are two API URLs:
 
@@ -51,7 +63,7 @@ private def urlForUpdate = s"$baseUrl/update"
 
 Every node has its cloudTime written in a database. The cloudTime is database time of the node's last modification.
 
-\todo{\michal{blabla, nie rozumiem}}Server does not have to keep the state of the connected devices. Every device checks the highest time of modification and sends a request for update since that time.
+Server does not have to keep the state of the connected devices. Every device checks the highest time of modification and sends a request for update since that time.
 
 
 \begin{figure}[h]
