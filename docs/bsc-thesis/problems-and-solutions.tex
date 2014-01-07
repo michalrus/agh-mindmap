@@ -21,11 +21,13 @@
 \subsection{Encapsulation of bidirectional message passing over request-response style HTTP protocol}
 \label{subsec:problem-longpolling}
 
-\todo[inline]{\michal{M., write about long-polling.}}
+Most web browsers have a limit for concurrently open connections to the same server set to a value close to 2. This means it would be best to encapsulate message passing in \emph{one} constantly open connection, to leave the other free to be used in any way needed (e.g. to download some media resources).
 
-Most browsers have a limit for concurrently open connections to the same server set to a value close to 2. This means it would be best to encapsulate message passing in \emph{one} constantly open connection, to leave the other free to be used in any way needed. E.g. to download some media resources.
+This is not much of an issue when Android is concerned, because as many connections can be opened as we need. However, as it is really easy to add other front-ends (web application), it is wise to implement the REST actors (\cref{subsection:akka-actors}) and the client to be able to operate sequentially on one connection only.
 
-This is not such an issue when Android is concerned, because as many connections can be opened as needed. However, as it is internally easy to add other front-ends (web application), it is wise to project the REST actors (\cref{subsec:component-akka}) to operate on one connection only.
+What has to be done on the client-side is to disconnect/destroy the connection with a request og \inlinecode{GET /poll/since/\$TIME} and only then send \inlinecode{POST /update}. This is almost equally straightforward with Spray: we have to overload \inlinecode{onConnectionClosed} method of \inlinecode{HttpServiceBase} and in its new, overloaded body stop an appriopriate Poller actor.
+
+The final choice whether to use one or two connections is left to the client: to our Akka backend both of these cases are of completely no difference.
 
 \subsection{No removing of tabs in Android's TabHost}
 \label{subsec:problem-tabhost}
