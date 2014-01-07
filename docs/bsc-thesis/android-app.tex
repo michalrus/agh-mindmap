@@ -37,7 +37,7 @@ There are a number of things that can be put inside Action Bar, for example: a s
 
 We wanted our application to be runnable even on older Android version, so instead of regular system-provided ActionBar library, we decided to use support libraries, which take care of backward compatibility from 2.x Android versions up.
 
-ActionBarSherlock is an standalone library designed to simplify the use of the Action Bar in all versions of Android through a single API. The library will automatically use the native \inlinecode{ActionBar} implementation on Android 4.0 or later \cite{Wharton:2013:sherlock}. Using it is fairly simple: the main difference lies in names of \inlinecode{ActionBar} classes and methods. Most of them are prefixed with `Sherlock-' (for example: \inlinecode{SherlockActivity, SherlockFragmentActivity, SherlockFragmen} etc.). The same goes for imports.
+ActionBarSherlock is an standalone library designed to simplify the use of the Action Bar in all versions of Android through a single API. The library will automatically use the native \inlinecode{ActionBar} implementation on Android 4.0 or later~\cite{Wharton:2013:sherlock}. Using it is fairly simple: the main difference lies in names of \inlinecode{ActionBar} classes and methods. Most of them are prefixed with `Sherlock-' (for example: \inlinecode{SherlockActivity, SherlockFragmentActivity, SherlockFragmen} etc.). The same goes for imports.
 
 \subsubsection{Bidirectional ScrollView}
 \label{subsubsec:action-bar}
@@ -54,7 +54,7 @@ Our application's most important feature---creating mind maps---requires a conve
 \label{subsec:drawing}
 In the next stage of work, we focused on a single mind map view. The main components used in drawing here are: \inlinecode{NodeView}, representing a single mind node, and \inlinecode{ArrowView} which serves as a line connecting the mind nodes. They are placed in the \inlinecode{MindFragment}. Every \inlinecode{NodeView} is paired with a \inlinecode{SubtreeWrapper}, which acts as a `container' holding the mind node and all its children.
 
-\inlinecode{NodeView} is implemented as extending \inlinecode{FrameLayout}. It extends a \inlinecode{ViewGroup}, and we chose it because mind node's view have two children: a text field with node's content and a button. \inlinecode{FrameLayout} can be used as a parent for multiple children and it can control their position within the \inlinecode{ViewGroup} by assigning gravity to each child with the \inlinecode{android:layout\_gravity} attribute. Child views are drawn in a stack, with the latest added child on top \cite{API:2013:fl}.
+\inlinecode{NodeView} is implemented as extending \inlinecode{FrameLayout}. It extends a \inlinecode{ViewGroup}, and we chose it because mind node's view have two children: a text field with node's content and a button. \inlinecode{FrameLayout} can be used as a parent for multiple children and it can control their position within the \inlinecode{ViewGroup} by assigning gravity to each child with the \inlinecode{android:layout\_gravity} attribute. Child views are drawn in a stack, with the latest added child on top~\cite{API:2013:fl}.
 
 Arrow is implemented as a single View with custom onDraw method. It connects a mind node with its parent. If a mind node has multiple children, then lines coming out of the child nodes are connected in one point and then a single line goes to the parent node. It makes the whole map more readable.
 
