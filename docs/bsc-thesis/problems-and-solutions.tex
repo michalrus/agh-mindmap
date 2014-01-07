@@ -32,11 +32,9 @@ The final choice whether to use one or two connections is left to the client: to
 \subsection{No removing of tabs in Android's TabHost}
 \label{subsec:problem-tabhost}
 
-\todo[inline]{\michal{M., describe custom removing of tabs.}}
+Strange as it may seem, the system-provided TabHost component does not allow a removal of tabs on the same level of abstraction as it allows adding them. To remove a tab, one has to find the tab's \emph{raw} view and remove the view from its parent, the TabHost. On the other hand, to add a new tab, one has to create a TabSpec object and add this object to the TabHost. Quite a discrepancy.
 
-Resolved: \href{https://github.com/michalrus/agh-mindmap/commit/ebe22968dc091f575ab16be0d0051dbfb7f3e434}{ebe22968dc091f575ab16be0d0051dbfb7f3e434}.
-
-All tabs had to be removed and then readded. Also we had to manually use another container for our Fragments.
+It has been decided to keep track of all created TabSpecs manually and at removal request, remove \emph{all} of added tabs, remove a corresponding TabSpec from our collection and then recreate all tabs from this just reduced collection.
 
 \subsection{No bidirectional scroll view in Android standard components}
 \label{subsec:problem-scrollview}
