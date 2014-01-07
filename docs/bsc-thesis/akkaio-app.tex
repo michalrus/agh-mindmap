@@ -11,12 +11,6 @@ In our application we have a number of actors which perform various functions.
 \inlinecode{Updater}
 \inlinecode{Service}
 
-\subsubsection{Supervisor actor}
-\label{subsubsection:akka-actors-supervisor}
-Main supervisor actor is provided by Akka; tightly integrated with the actor system. There is always one such actor for each system.
-	
-\subsubsection{Per-user actors}
-\label{subsubsection:akka-actors-peruser}
 
 \subsection{Database and Squeryl}
 \label{subsection:akka-database}
@@ -35,7 +29,7 @@ There are two API URLs:
 private def urlForPoll(since: Long) = s"$baseUrl/poll/since/$since"
 private def urlForUpdate = s"$baseUrl/update"
 \end{verbatim}
-Every node has written its cloudTime (meaning server time). Server does not have to keep the state of the connected devices -- every device checks the highest time of modification and sends a request for update since that time.
+Every node has written its cloudTime (meaning server time) in a database. Server does not have to keep the state of the connected devices -- every device checks the highest time of modification and sends a request for update since that time.
 
 
 \begin{figure}[h]
