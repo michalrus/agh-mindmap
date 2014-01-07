@@ -23,6 +23,15 @@
 \section{Planned solution}
 \label{sec:plan}
 
+Our application allows its users to edit maps collaboratively, either over the Internet in real time, or offline with later online synchronization. This system consists of two main components:
+
+\begin{itemize}
+	\item an Android application running on any number of Android powered devices,
+	\item and a cluster of any number of servers running a distributed, highly parallelized Akka actor system with a REST interface.
+\end{itemize}
+
+To see how the system basically works, see \cref{fig:diagram-components-system} and \cref{fig:diagram-dfd}.
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{component-diagram}
@@ -37,13 +46,6 @@
 	\caption{Data flow diagram of the system.}
 	\label{fig:diagram-dfd}
 \end{figure}
-
-Our application allows its users to edit maps collaboratively, either over the Internet in real time, or offline with later online synchronization. This system consists of two main components:
-
-\begin{itemize}
-	\item an Android application running on any number of Android powered devices,
-	\item and a cluster of any number of servers running a distributed, highly parallelized Akka actor system with a REST interface.
-\end{itemize}
 
 \input{main-components}
 \input{data-representation}

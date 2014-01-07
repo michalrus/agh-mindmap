@@ -27,7 +27,7 @@
 	\label{fig:diagram-components-android}
 \end{figure}
 
-The UI of our consist of the following main components:
+The UI of our consist of the following main components (compare with \cref{fig:diagram-components-android}):
 
 \begin{itemize}
 	\item an action bar at the top of user's display; on the left side of it, there should be our application's name displayed; on the right side: action items that enable the user to create/import/close a mind map,
@@ -86,7 +86,7 @@ Akka, on the other hand, is used as a backend for the mobile application (and---
 
 Each REST-connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of `long-polling': mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor. See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
 
-Our Akka application consists of components described below.
+Our Akka application consists of components described below (compare with \cref{fig:diagram-components-akka}).
 
 \begin{description}
 	\item[Actor system]{provided by Akka framework; an environment in which all actors (of custom and system origin) live.}
