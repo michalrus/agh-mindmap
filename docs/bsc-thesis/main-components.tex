@@ -33,13 +33,13 @@
 		\item \inlinecode{ListView}
 		\item \inlinecode{TabHost} + \inlinecode{TabView}'s
 		\item \inlinecode{ActionBarSherlock}
-		\item \inlinecode{ScrollView} + \inlinecode{HorizontalScrollView} --- for our custom map view.
+		\item \inlinecode{ScrollView} + \inlinecode{HorizontalScrollView} (for our custom map view)
 	\end{itemize}
-	
+
 	\item Own:
 	\begin{itemize}
-		\item \inlinecode{MainActivity} --- tabs, has fragments switchable by these tabs.
-		\item \inlinecode{MapListFragment} --- alist of maps.
+		\item \inlinecode{MainActivity} (tabs, has fragments switchable by these tabs)
+		\item \inlinecode{MapListFragment} (alist of maps)
 		\item \inlinecode{MapViewFragment}
 	\end{itemize}
 \end{itemize}
@@ -111,19 +111,18 @@ The main means of communication is a `message'. This is the highest form of obje
 		\item[CreateMindMap]{when user creates/imports a new mind map on their device.}
 		\item[UpdateNode]{when user updates a particular node on their device. This update might be a content update, parent change, deletion.}
 	\end{description}
-	
+
 	\item Messages from \emph{per-user actors} to \emph{DB actors}.
 	\begin{description}
 		\item[CreateMindMap]{}
 		\item[UpdateContent]{}
 		\item[UpdateParent]{}
 	\end{description}
-	
+
 	\item Messages exchanged between \emph{managing actor} and \emph{per-user actors}, and also forwarded from \emph{per-user actors} to \emph{REST actors}.
 	\begin{description}
 		\item[UpdatedNode]{used to notify managing actor and other per-user actors about a particular changed node.}
 	\end{description}
 \end{itemize}
-
 
 Again, see \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
