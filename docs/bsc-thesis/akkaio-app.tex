@@ -4,37 +4,42 @@ Akka component was implemented almost entirely according to our project. In orde
 
 \subsection{Actors system }
 \label{subsection:akka-actors}
-The actor model is described in \cref{subsection:akka-actors}. "Since Akka enforces parental supervision every actor is supervised and (potentially) the supervisor of its children" \cite{AkkaDoc:2013:Actors}. In order to receive messages, every actor must implement \inlinecode{receive} methods, which describe its behavior. 
+The actor model is described in \cref{subsection:akka-actors}. ``Since Akka enforces parental supervision, every actor is supervised and (potentially) the supervisor of its children'' \cite{AkkaDoc:2013:Actors}. In order to receive messages, every actor must implement a \inlinecode{receive} method, which describes its initial behavior.
 
 In our application we have a number of actors which perform various functions.
-\inlinecode{Poller} 
+
+\todo{\michal{ocb z tym listingiem?}}\inlinecode{Poller} 
 \inlinecode{Updater}
 \inlinecode{Service}
-
 
 \subsection{Database and Squeryl}
 \label{subsection:akka-database}
 
 \subsection{Spray and JSON}
 \label{subsection:akka-spray}
-Spray is an additional layer which enables connection between Akka and application using JSON protocol. 
+Spray is an additional layer which enables connections between Akka and client applications using JSON format messages.
 
-In our application we added a trait \inlinecode{CustomJsonFormats}, which does necessary modifications in default JSON protocol. 
+In our application we added a trait \inlinecode{CustomJsonFormats}, which does necessary additions (type-safe UUID conversion) to the default JSON protocol provided by Spray.
 
 \subsection{Synchronization}
 \label{subsection:akka-synchro}
-The synchronization is based on the server time. 
-There are two API URLs: 
+The synchronization is based \emph{only} on the server time, as planned. Client times could be unsynchronized with atomic time (and most probably would be) which renders them undependable.
+
+There are two API URLs:
+
 \begin{verbatim}
 private def urlForPoll(since: Long) = s"$baseUrl/poll/since/$since"
 private def urlForUpdate = s"$baseUrl/update"
 \end{verbatim}
-Every node has written its cloudTime (meaning server time) in a database. Server does not have to keep the state of the connected devices -- every device checks the highest time of modification and sends a request for update since that time.
+
+Every node has its cloudTime written in a database. The cloudTime is database time of the node's last modification.
+
+\todo{\michal{blabla, nie rozumiem}}Server does not have to keep the state of the connected devices. Every device checks the highest time of modification and sends a request for update since that time.
 
 
 \begin{figure}[h]
 	\centering
-	\missingfigure{\michal{2 devices, collaboration}}
+	\missingfigure{\kasia{2 devices, collaboration} \michal{ale jak to ma wyglądać? to samo na obu?}}
 	\caption{View of collaboration.}
 	\label{fig:screen-collaboration}
 \end{figure}
