@@ -1,9 +1,26 @@
+%
+%   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
+%       and Michał Rus <m@michalrus.com>
+%
+%   Licensed under the Apache License, Version 2.0 (the "License");
+%   you may not use this file except in compliance with the License.
+%   You may obtain a copy of the License at
+%
+%       http://www.apache.org/licenses/LICENSE-2.0
+%
+%   Unless required by applicable law or agreed to in writing, software
+%   distributed under the License is distributed on an "AS IS" BASIS,
+%   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%   See the License for the specific language governing permissions and
+%   limitations under the License.
+%
+
 \section{Android application}
 \label{sec:android-app}
 
 \subsection{Navigation}
 \label{subsec:drawing}
-The first step in creating an Android application was writing of the basic views. According to the project, our application should consist of two ``views'': the first with list of mind maps and the second, with a view of a single map. Both views share an Action Bar with action buttons (which, for example, open a file, close a map, add a new map) and application's name and icon, as well as a navigation bar with tabs.
+The first step in creating an Android application was writing of the basic views. According to the project, our application should consist of two `views': the first with list of mind maps and the second, with a view of a single map. Both views share an Action Bar with action buttons (which, for example, open a file, close a map, add a new map) and application's name and icon, as well as a navigation bar with tabs.
 
 \subsubsection{Action Bar}
 \label{subsubsec:action-bar}
@@ -20,7 +37,7 @@ There are a number of things that can be put inside Action Bar, for example: a s
 
 We wanted our application to be runnable even on older Android version, so instead of regular system-provided ActionBar library, we decided to use support libraries, which take care of backward compatibility from 2.x Android versions up.
 
-ActionBarSherlock is an standalone library designed to simplify the use of the Action Bar in all versions of Android through a single API. The library will automatically use the native \inlinecode{ActionBar} implementation on Android 4.0 or later \cite{Wharton:2013:sherlock}. Using it is fairly simple: the main difference lies in names of \inlinecode{ActionBar} classes and methods. Most of them are prefixed with ``Sherlock-'' (for example: \inlinecode{SherlockActivity, SherlockFragmentActivity, SherlockFragmen} etc.). The same goes for imports.
+ActionBarSherlock is an standalone library designed to simplify the use of the Action Bar in all versions of Android through a single API. The library will automatically use the native \inlinecode{ActionBar} implementation on Android 4.0 or later \cite{Wharton:2013:sherlock}. Using it is fairly simple: the main difference lies in names of \inlinecode{ActionBar} classes and methods. Most of them are prefixed with `Sherlock-' (for example: \inlinecode{SherlockActivity, SherlockFragmentActivity, SherlockFragmen} etc.). The same goes for imports.
 
 \subsubsection{Bidirectional ScrollView}
 \label{subsubsec:action-bar}
@@ -29,13 +46,13 @@ Our application's most important feature---creating mind maps---requires a conve
 \begin{figure}[h]
 	\centering
 	\missingfigure{\michal{List view screen}}
-	\caption{View of mind map list, initial screen.}
+	\caption{View of a mind map list, initial screen.}
 	\label{fig:screen-maplist}
 \end{figure}
 
 \subsection{Drawing mind maps}
 \label{subsec:drawing}
-In the next stage of work, we focused on a single mind map view. The main components used in drawing here are: \inlinecode{NodeView}, representing a single mind node, and \inlinecode{ArrowView} which serves as a line connecting the mind nodes. They are placed in the \inlinecode{MindFragment}. Every \inlinecode{NodeView} is paired with a \inlinecode{SubtreeWrapper}, which acts as a ``container'' holding the mind node and all its children.
+In the next stage of work, we focused on a single mind map view. The main components used in drawing here are: \inlinecode{NodeView}, representing a single mind node, and \inlinecode{ArrowView} which serves as a line connecting the mind nodes. They are placed in the \inlinecode{MindFragment}. Every \inlinecode{NodeView} is paired with a \inlinecode{SubtreeWrapper}, which acts as a `container' holding the mind node and all its children.
 
 \inlinecode{NodeView} is implemented as extending \inlinecode{FrameLayout}. It extends a \inlinecode{ViewGroup}, and we chose it because mind node's view have two children: a text field with node's content and a button. \inlinecode{FrameLayout} can be used as a parent for multiple children and it can control their position within the \inlinecode{ViewGroup} by assigning gravity to each child with the \inlinecode{android:layout\_gravity} attribute. Child views are drawn in a stack, with the latest added child on top \cite{API:2013:fl}.
 
@@ -58,7 +75,7 @@ When it comes to the positioning, it was one of the most difficult tasks we face
 
 \subsection{Creating, editing and removing mind nodes}
 \label{subsec:drawing}
-Managing the mind nodes is fairly simple. There are three actions a user can perform: create a ``child'' mind node, delete a node (with its whole subtree) and edit node's content. 
+Managing the mind nodes is fairly simple. There are three actions a user can perform: create a `child' mind node, delete a node (with its whole subtree) and edit node's content. 
 
 \subsubsection{Creating a child mind node}
 \label{subsubsec:create-child}
@@ -76,7 +93,7 @@ A user can edit node's content by clicking on node's body. It is possible thanks
 \begin{figure}[h]
 	\centering
 	\missingfigure{\michal{Mind map view screen}}
-	\caption{View of mind map.}
+	\caption{View of a mind map.}
 	\label{fig:screen-map}
 \end{figure}
 
@@ -95,12 +112,12 @@ def extractor(topic: Node, parent: MindNode) {
   }
 }\end{verbatim}
 
-Here is a short explanation of the above excerpt. A single topic represents a node and root's children nodes are imported recursively. As we described in \cref{subsec:xmind-exchange}, one can navigate through the data using \inlinecode{\textbackslash} and \inlinecode{\textbackslash\textbackslash} operators, meaning, respectively, ``search in direct children'' and ``search in all subtags.'' While creating a node, we are setting ordering, here derived from index \inlinecode{i}. A content of a tag can be accessed its \inlinecode{text} method.
+Here is a short explanation of the above excerpt. A single topic represents a node and root's children nodes are imported recursively. As we described in \cref{subsec:xmind-exchange}, one can navigate through the data using \inlinecode{\textbackslash} and \inlinecode{\textbackslash\textbackslash} operators, meaning, respectively, `search in direct children' and `search in all subtags.' While creating a node, we are setting ordering, here derived from index \inlinecode{i}. A content of a tag can be accessed its \inlinecode{text} method.
 
 \begin{figure}[h]
 	\centering
 	\missingfigure{\kasia{A file chooser screen}}
-	\caption{View of file chooser - importing an existing .xmind file.}
+	\caption{View of a file chooser, importing an existing .xmind file.}
 	\label{fig:screen-filechooser}
 \end{figure}
 

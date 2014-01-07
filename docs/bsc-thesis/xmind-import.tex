@@ -18,7 +18,7 @@
 \subsection{XMind import}
 \label{subsec:xmind-exchange}
 
-XMind files (`workbooks') are saved as a ZIP archive of mostly \inlinecode{.xml} files. Two of them are the most important and always present. First, \inlinecode{content.xml} stores the actual data and its hierarchy. The second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments\cite{XMind:2009:Format}.
+XMind files (`workbooks') are saved as a ZIP archive of mostly \inlinecode{.xml} files. Two of them are the most important and always present. First, \inlinecode{content.xml} stores the actual data and its hierarchy. The second, \inlinecode{META-INF/manifest.xml} is the list of files included in the archive. An {\em XMind} file could also contain separate \inlinecode{.xml} documents for content and styles, a \inlinecode{.jpg} image file for thumbnails, and directories for related attachments \cite{XMind:2009:Format}.
 
 XML is a way of storing data as a labeled tree created of nested tags with various attributes. Most of the attributes in  XMind tags will not be necessary, and some of them are not even used in XMind. Specifically, we want to omit data that is used to determine a style assigned to the sheet. The first step to importing an {\em XMind} file is to open it as a ZIP archive. The inlinecode{content.xml} is wrapped in an \inlinecode{InputStream}, and converted to Scala's XML object. Then, the actual parsing may be started.
 
