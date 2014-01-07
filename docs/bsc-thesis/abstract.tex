@@ -19,11 +19,11 @@
 	% What was done?
 	This is a paper about project and implementation of mind-mapping solution for Android system with online real-time collaboration and offline synchronization.
 	% Why was it done?
-	At the time of writing, there was no such existing solution, while mind-mapping was getting more and more popular.
+	At the time of writing, there was no such existing solution, especially one that would support online and offline collaboration, while mind-mapping was getting more and more popular.
 	% How was it done?
-	The system was implemented completely in Scala using Android SDK for client-side and Akka.io for server-side.
+	The system was implemented completely in Scala using Android SDK for client-side and Akka actor model with Spray.io REST wiring for server-side.
 	% What was found?
-	\todo[inline]{Abstract: What was found?}
+	It was found that using an actor model greatly simplifies all of the issues one might come across when developing such a demanding system (in the sense of thought process) as a one with real-time collaboration and automatic `editorial' conflict resolution.
 	% What is the significance of the findings?
-	\todo[inline]{Abstract: What is the significance of the findings?}
+	We believe our findings would be of significant value to any future developers adding massive online/offline collaborative features to their applications/systems.
 \end{abstract}
