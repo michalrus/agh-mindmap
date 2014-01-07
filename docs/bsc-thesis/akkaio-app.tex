@@ -35,8 +35,8 @@ In our application we have a number of actors which perform various functions.
 		\item \inlinecode{GET /poll/since/\$TIME} starts a new http.Poller.
 	\end{itemize}
 	\item[MindMap] represents one concrete mind map on the server. It allows Pollers to subscribe to its changes (notifying them if any occur). It also processes messages from Updaters, ones that update the map in one way or another.
-	\item[http.Poller] Represents a long-polling connection to the server.
-	\item[http.Updater] Represents a \inlinecode{POST}-ed update of some mind map.
+	\item[http.Poller] represents a long-polling connection to the server.
+	\item[http.Updater] represents a \inlinecode{POST}-ed update of some mind map.
 \end{description}
 
 \subsection{Database and Squeryl}
@@ -52,15 +52,46 @@ In our application, we had to create a trait \inlinecode{CustomJsonFormats}, whi
 
 \subsection{Synchronization}
 \label{subsection:akka-synchro}
-\todo{\michal{M., fix sync ASAP!}}The synchronization is based \emph{only} on the server time, as planned. Client times could be unsynchronized with atomic time (and most probably would be) which renders them undependable.
+As previously stated, the synchronization is based \emph{only} on the server time, as planned. Client times could be unsynchronized with atomic time (and most probably would be) which renders them completely undependable (not to mention malicious users).
 
-There are two API URLs:
+Each client does two things completely asynchronously.
 
-\begin{verbatim}
-private def urlForPoll(since: Long) = s"$baseUrl/poll/since/$since"
-private def urlForUpdate = s"$baseUrl/update"
-\end{verbatim}
+\begin{enumerate}
+	\item Polls for updates using \inlinecode{GET /poll/since/\$TIME}: \begin{enumerate}
+		\item Akka responds with a JSON-encoded list of updates that happened \emph{after} this \inlinecode{\$TIME},
+		\item one update looks like:\begin{verbatim}
+{
+  "mindMap": "9c91d4d4-fd6d-47da-a412-13ea931cd3ef",
+  "node": {
+    "uuid": "006392b3-797f-4a43-99f0-cf27748f54d9",
+    "parent": "05acfa1c-1bc8-4b76-a200-b8ac8414c5b5",
+    "ordering": 50.0,
+    "content": "ale zabawa",
+    "hasConflict": false,
+    "cloudTime": 1389035195150
+  }
+}
+		\end{verbatim}\ldots so it has its own \inlinecode{cloudTime} value,
+		\item maximum of these cloud times (number of milliseconds since UNIX Epoch) is then saved at client-side and then used to poll again,
+		\item and it is worth noting that a client \emph{will receive its own} updates while polling.
+	\end{enumerate}
+	\item Sends updates using \inlinecode{POST /update}: \begin{enumerate}
+		\item the body of each update request is, too, a JSON object that looks like:\begin{verbatim}
+{
+  "mindMap": "9c91d4d4-fd6d-47da-a412-13ea931cd3ef",
+  "nodes": [{
+    "uuid": "006392b3-797f-4a43-99f0-cf27748f54d9",
+    "parent": "05acfa1c-1bc8-4b76-a200-b8ac8414c5b5",
+    "ordering": 50.0,
+    "content": "ale zabawa",
+    "hasConflict": false,
+    "cloudTime": 0
+  }, ...]
+}
+		\end{verbatim} \ldots so many nodes may be updated in one request but of only one map. Client has to group its pending updates by their map UUID,
+		\item Akka responds with a list of UUID of so called \emph{orphan nodes}---nodes for which Akka does not know their respective parents---and if the list is empty, it means that everything worked,
+		\item if, on the other hand, the list is non-empty, the client has to resend all the subtrees with roots being equal to parents of these \emph{orphan nodes}.
+	\end{enumerate}
+\end{enumerate}
 
-Every node has its cloudTime written in a database. The cloudTime is database time of the node's last modification.
-
-Server does not have to keep the state of the connected devices. Every device checks the highest time of modification and sends a request for update since that time.
+Its, again, worth noting, that the server does not keep any state of the connected devices (i.e. the \emph{sessions}). Every device keeps track of what it knows itself and asks the server only for the resources it needs. Therefore, REST's statelessness constraint holds.
