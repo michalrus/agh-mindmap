@@ -18,19 +18,19 @@
 \subsection{Android--Akka communication}
 \label{subsec:android-akka-comm}
 
-\todo[inline]{\igor{"dlaczego algorytm synchronizacji działa? albo np.: bazujemy na doświadczeniach Git, albo formalny dowód"}}
+\todo[inline]{\igor{"dlaczego algorytm synchronizacji działa? Wyjaśnieniem ma być albo np.: bazujemy na doświadczeniach Git, albo formalny dowód"}}
 
 Real-time collaboration (along with \emph{offline} synchronization) is by any means the most challenging part of designing and later implementing the system.
 
 As it turns out, we are able to make it work using just two main messages (and resolving two exceptional cases). However, the fact that a single node remembers only its parent will cause a number of problems with merge conflicts dealing with node deletions (solved by subtree recreation algorithm in \cref{subsec:subtree-recreation}). Communication with an Android device from the \emph{moment it gets online} is described below.
 
 \begin{enumerate}
-	\item Android looks for the newest timestamp in \inlinecode{mind\_node} table --- this is the last time we had contact with Akka.
+	\item Android looks for the newest timestamp in \inlinecode{mind\_node} table. This is the last time we had contact with Akka.
 
 	\item Android sends a message to Akka. The message contains:
 	\begin{itemize}
 		\item request for all changes that happened after that \emph{newest timestamp},
-		\item all local changes --- that is a list of all nodes that have their timestamp set to \inlinecode{NULL}. This list of modified nodes needs to be sorted so that \emph{parents} come before \emph{children} for any two nodes in the list. \Cref{akka-unknown-parent} of exceptional cases below explains why.
+		\item all local changes, that is a list of all nodes that have their timestamp set to \inlinecode{NULL}. This list of modified nodes needs to be sorted so that \emph{parents} come before \emph{children} for any two nodes in the list. \Cref{akka-unknown-parent} of exceptional cases below explains why.
 	\end{itemize}
 
 	\item Akka receives the message and:
