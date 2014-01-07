@@ -48,7 +48,7 @@ In our application we have a number of actors which perform various functions.
 \label{subsection:akka-spray}
 Spray is an additional layer which enables communication over HTTP between Akka and client applications using JSON format messages (or any other format, but JSON is by far the most popular).
 
-In our application we had to create a trait \inlinecode{CustomJsonFormats}, which does necessary additions (type-safe UUID conversion) to the default JSON protocol provided by Spray. Extending the functionality of an existing library in Scala is used extensively and is possible thanks to so called \emph{type classes}, a construct of Scala's type system that supports ad hoc polymorphism.
+In our application, we had to create a trait \inlinecode{CustomJsonFormats}, which does necessary additions (type-safe UUID conversion) to the default JSON protocol provided by Spray. Extending the functionality of an existing library in Scala is used extensively and is possible thanks to so called \emph{type classes}, a construct of Scala's type system that supports ad hoc polymorphism.
 
 \subsection{Synchronization}
 \label{subsection:akka-synchro}
@@ -64,11 +64,3 @@ private def urlForUpdate = s"$baseUrl/update"
 Every node has its cloudTime written in a database. The cloudTime is database time of the node's last modification.
 
 Server does not have to keep the state of the connected devices. Every device checks the highest time of modification and sends a request for update since that time.
-
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\kasia{2 devices, collaboration} \michal{ale jak to ma wyglądać? to samo na obu?}}
-	\caption{View of collaboration.}
-	\label{fig:screen-collaboration}
-\end{figure}
