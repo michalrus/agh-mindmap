@@ -18,17 +18,19 @@
 \subsection{\todo{\igor{Merge with \cref{subsec:component-akka}}}Component: Android application}
 \label{subsec:component-android}
 
-\todo[inline]{\igor{"tutaj DUUUUUUŻY DIAGRAM KOMPONENTÓW używanych w części Androidowej --- UML albo ArchiMate"}}
-\todo[inline]{\igor{"UI consists of: 1) OPISOWO: komponent, który daje listę --- opisowo"}}
-
-\todo[inline]{\michal{Project Android: what subcomponents? (Own and from system library!)}}
+\begin{figure}[h]
+	\centering
+	\missingfigure{\igor{"tutaj DUUUUUUŻY DIAGRAM KOMPONENTÓW używanych w części Androidowej --- UML albo ArchiMate"}}
+	\caption{Component diagram of the Android application.}
+	\label{fig:diagram-components-android}
+\end{figure}
 
 \begin{itemize}
-	\item System:
+	\item \todo{\igor{"ŹLE. Dobrze będzie: UI consists of: 1) OPISOWO: komponent, który daje listę --- opisowo"}}System:
 	\begin{itemize}
 		\item \inlinecode{ListView}
 		\item \inlinecode{TabHost} + \inlinecode{TabView}'s
-		\item \todo{\michal{A lot can be written here!}}\inlinecode{ActionBarSherlock}
+		\item \inlinecode{ActionBarSherlock}
 		\item \inlinecode{ScrollView} + \inlinecode{HorizontalScrollView} --- for our custom map view.
 	\end{itemize}
 
