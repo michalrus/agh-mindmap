@@ -4,6 +4,12 @@ Akka component was implemented almost entirely according to our project. In orde
 
 \subsection{Actors system }
 \label{subsection:akka-actors}
+The actor model is described in \cref{subsection:akka-actors}. "Since Akka enforces parental supervision every actor is supervised and (potentially) the supervisor of its children" \cite{AkkaDoc:2013:Actors}. In order to receive messages, every actor must implement \inlinecode{receive} methods, which describe its behavior. 
+
+In our application we have a number of actors which perform various functions.
+\inlinecode{Poller} 
+\inlinecode{Updater}
+\inlinecode{Service}
 
 \subsubsection{Supervisor actor}
 \label{subsubsection:akka-actors-supervisor}
@@ -17,9 +23,20 @@ Main supervisor actor is provided by Akka; tightly integrated with the actor sys
 
 \subsection{Spray and JSON}
 \label{subsection:akka-spray}
+Spray is an additional layer which enables connection between Akka and application using JSON protocol. 
+
+In our application we added a trait \inlinecode{CustomJsonFormats}, which does necessary modifications in default JSON protocol. 
 
 \subsection{Synchronization}
 \label{subsection:akka-synchro}
+The synchronization is based on the server time. 
+There are two API URLs: 
+\begin{verbatim}
+private def urlForPoll(since: Long) = s"$baseUrl/poll/since/$since"
+private def urlForUpdate = s"$baseUrl/update"
+\end{verbatim}
+Every node has written its cloudTime (meaning server time). Server does not have to keep the state of the connected devices -- every device checks the highest time of modification and sends a request for update since that time.
+
 
 \begin{figure}[h]
 	\centering
