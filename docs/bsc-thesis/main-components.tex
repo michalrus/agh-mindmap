@@ -27,31 +27,26 @@
 	\label{fig:diagram-components-android}
 \end{figure}
 
-\begin{itemize}
-	\item \todo{\igor{"ŹLE. Dobrze będzie: UI consists of: 1) OPISOWO: komponent, który daje listę --- opisowo"}}System:
-	\begin{itemize}
-		\item \inlinecode{ListView}
-		\item \inlinecode{TabHost} + \inlinecode{TabView}'s
-		\item \inlinecode{ActionBarSherlock}
-		\item \inlinecode{ScrollView} + \inlinecode{HorizontalScrollView} (for our custom map view)
-	\end{itemize}
+The UI of our consist of the following main components:
 
-	\item Own:
-	\begin{itemize}
-		\item \inlinecode{MainActivity} (tabs, has fragments switchable by these tabs)
-		\item \inlinecode{MapListFragment} (alist of maps)
-		\item \inlinecode{MapViewFragment}
+\begin{itemize}
+	\item an action bar at the top of user's display; on the left side of it, there should be our application's name displayed; on the right side: action items that enable the user to create/import/close a mind map,
+	\item a view with tabs, that lets the user switch between currently opened maps and a list of all maps available,
+	\item a view with a list of maps available to the user consisting of vertically positioned clickable areas with map title and date of its last modification; a click/tap on such an area (re)opens a tab with proper mind map,
+	\item a custom view for displaying a mind map in its tab; this contains many:\begin{itemize}
+		\item mind node views consisting of a text field with node's content and a button to add children to the node,
+		\item views of arrows that connect children to their parents.
 	\end{itemize}
 \end{itemize}
 
-\Cref{fig:mockup-maplist} below shows a \emph{mock-up} (a sketch/plan) of the main, initial screen of the Android application. The user can:
+\Cref{fig:mockup-maplist} below shows a \emph{mock-up} (a sketch/plan) of the main, initial screen of the Android application. As planned, the user can:
 
 \begin{itemize}
 	\item choose an existing map to edit,
 	\item select and delete a map by long-pressing it,
 	\item add a new map,
 	\item import an existing XMind map,
-	\item switch to any other opened map by means of tabs at the top.
+	\item switch to any other opened map using the tabs at the top.
 \end{itemize}
 
 \begin{figure}[h]
