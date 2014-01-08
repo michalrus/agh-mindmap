@@ -5,7 +5,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{bsc}
 
-\LoadClass[12pt]{report}
+\LoadClass[12pt,twoside,openright]{report}
 
 \RequirePackage{url}
 
