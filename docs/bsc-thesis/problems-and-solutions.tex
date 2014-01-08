@@ -42,4 +42,18 @@ In our application we implemented multi-directional scrolling in a class \inline
 
 \subsection{Positioning child nodes}
 \label{subsec:problem-positioning}
-\todo[inline]{\kasia{M., describe positioning nodes.}}
+
+Positioning of the nodes on a map was the thing that took us the most time. (While the most thinking, on the other hand, was taken by synchronization issues.) This is a completely custom controller. We had to create a view that knows exactly how to position its child views according to not-really-well defined rules for positioning nodes of a mind map.
+
+Much thinking resulted in the following algorithm for repainting a mind map.
+
+\begin{enumerate}
+	\item Set the root's (main) node position to $(0,0)$,
+	\item Find all children of the root node and sort them by their ordering parameter.
+	\item Wrap 1st-level nodes in a SubtreeWrapper class. This class represents a size of a bounding rectangle for the wrapped node (any node but the root) and all of its children, the \emph{subtree}.
+	\item Recursively calculate the sizes of all SubtreeWrappers using a kind of a DFS algorithm.
+	\item, having the sizes of bounding rectangles for 1st-level subtrees, divide these subtrees into two `almost-halves' by their heights: sum of heights of the subtrees in the left half should be as close as possible to the sum of heights in the right one.
+	\item Now it is trivial to set $y$ positions of the subtrees. $x$ positions of the 1st-level subtrees are set using a half of the $\sin(Cy)$ function.
+	\item Having set the positions of the 1st level, it is relatively easy to set the positions of the 2nd level, and so on, recursively. This time it is a BFS-type algorithm.
+	\item After we have all positions set, all that is left to do is actual drawing of the inflated \inlinecode{mind\_node.xml} views along with arrows connecting children to their parents.
+	\end{enumerate}
