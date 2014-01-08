@@ -17,6 +17,7 @@
 
 \section{Akka.io application}
 \label{sec:akka-app}
+
 Akka component was implemented almost entirely according to our project (with the only exception of blocking simultaneous edits to the same leaf). In order to make it possible to communicate between Android devices and actor system on the server-side, we have created one REST web service with two paths using the DSL of Spray.io. Any number of users can be working on a mind map, as each device gets its own actors: one for polling (Poller) and one for updates (Updater).
 
 Two-directional communication is implemented by means of long-polling: a mobile app (or any other client) initiates a connection with a REST service which waits---before sending a response---until its actor receives a message from another actor \emph{or} a timeout of 20~seconds occurs. See \cref{subsec:android-akka-comm} for theoretical details.  

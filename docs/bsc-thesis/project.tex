@@ -30,21 +30,13 @@ Our application allows its users to edit maps collaboratively, either over the I
 	\item and a cluster of any number of servers running a distributed, highly parallelized Akka actor system with a REST interface.
 \end{itemize}
 
-To see how the system basically works, see \cref{fig:diagram-components-system} and \cref{fig:diagram-dfd}.
+To see how the system basically works, see \cref{fig:diagram-components-system}.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{component-diagram}
-	%\missingfigure{\igor{"prosty OBRAZEK z czego się składa system: z serwera i klienta, czyli:   SERWER <------ SYSTEM -------> KLIENT ; zaznaczone też główne składowe (tylko po kilka, 2-3) klienta i serwera"}}
 	\caption{Base component diagram of the system.}
 	\label{fig:diagram-components-system}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\missingfigure{\igor{"jakiś inny obrazek, np. Data Flow Diagram. Cokolwiek!"}}
-	\caption{Data flow diagram of the system.}
-	\label{fig:diagram-dfd}
 \end{figure}
 
 \input{main-components}

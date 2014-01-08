@@ -20,14 +20,7 @@
 
 % -------------------------------- Android
 
-\begin{figure}[h]
-	\centering
-	\missingfigure{\igor{"tutaj DUUUUUUŻY DIAGRAM KOMPONENTÓW używanych w części Androidowej --- UML albo ArchiMate"}}
-	\caption{Component diagram of the Android application.}
-	\label{fig:diagram-components-android}
-\end{figure}
-
-The UI of our consist of the following main components (compare with \cref{fig:diagram-components-android}):
+The UI of our consist of the following main components:
 
 \begin{itemize}
 	\item an action bar at the top of user's display; on the left side of it, there should be our application's name displayed; on the right side: action items that enable the user to create/import/close a mind map,
@@ -75,18 +68,11 @@ The UI of our consist of the following main components (compare with \cref{fig:d
 
 % -------------------------------- Akka
 
-\begin{figure}[h]
-	\centering
-	\missingfigure{\igor{"tutaj też DIAGRAM KOMPONENTÓW (albo ArchiMate) używanych w Akka"}}
-	\caption{Component diagram of the Akka application.}
-	\label{fig:diagram-components-akka}
-\end{figure}
-
 Akka, on the other hand, is used as a backend for the mobile application (and---possibly---for \emph{any other} client app yet-to-come into existence). It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
 
 Each REST-connected mobile device gets its own actor. Instant bidirectional communication between devices is achieved by means of `long-polling': mobile app initiates a connection with a REST service which does not respond until its actor receives a message from another actor. See \cref{subsec:android-akka-comm} for details about Android--Akka communication protocol.
 
-Our Akka application consists of components described below (compare with \cref{fig:diagram-components-akka}).
+Our Akka application consists of components described below.
 
 \begin{description}
 	\item[Actor system]{provided by Akka framework; an environment in which all actors (of custom and system origin) live.}
