@@ -19,30 +19,29 @@
 \label{chap:summary}
 
 \section{Testing the applications}
-\label{summary-testing}
-\todo[inline,caption={Conducted tests}]{\michal{K., shall we involve some random people in using our app and\ldots observe them? \kasia{I'd put here short information about manual tests, the impression of users and some backend performance  statistics maybe?}} \michal{Sounds great!}}
-
-\todo[inline,caption={How the reqs were met: implications, consequences, values(?)}]{\\\michal{K., well, isn't this already present in \cref{summary-how-solve}?}}
+\label{sec:summary-testing}
+During the final stage of creating our application, we had to find a way to verify how it met the requirements and whether all the functionalities we implemented work in an anticipated way. We conducted application tests, mostly by ourselves. We also asked two of our friends to test this application for us. We wanted to find any bugs and verify whether the user interface is intuitive and handy. The results were satisfying - the users did not have problems using the application. The designed synchronization algorithm works as we thought. Also, the technologies we used for writing the server part turned out to be robust.
 
 \section{How does the implementation solve the problem?}
-\label{summary-how-solve}
-\todo[inline]{How does the implementation solve the problem?}
-\todo[inline]{Remind about the objective.}
+\label{sec:summary-how-solve}
 The aims of our work are put in \cref{sec:requirements}. Now we will sum up what we managed to implement. 
  
 The first objective was to create an application compatible with XMind which lets its users create, edit and display mind maps. We succeeded in this task: our application enables creating, editing, displaying and deleting mind maps.
 
 Next, there was a part about presenting maps in a clean, structured way. We believe our application meets tis requirement. We put a lot of effort in positioning mind nodes, bidirectional scroll view also turned out to be troublesome and it is described in the \cref{sec:impl-problems}.
 
+The collaboration works very well, just as it is described in the requirements, with one exception, mentioned in the next section. The algorithm of synchronization we designes in the project part worked  as we anticipated. 
+
 \section{What is missing in our solution?}
-\label{summary-missing}
-\todo[inline]{Were all problems solved? If not: why?}
+\label{sec:summary-missing}
 The Android application is visually compatibile with XMind only on a very basic level. The main reason for that is that that was not the main issue while creating the software. We wanted to focus on creating the \emph{collaboration} tool. Still, a better compatibility would definitely be beneficial. 
 
 When it comes to the UI, we did not implement subtree folding, which seems a basic functionality in mind mapping software (althought not mentioned in our requirements). Also, the feature of moving any node (reassigning its parent node) by long-pressing it and choosing `Change parent' option, and then tapping on the new parent-to-be was not implemented. At that point, there was not enough time left to add it.
 
+Speaking of collaboration, there is one thing we did not implement - blocking edited leafs. It is an important for application usability, but due to the limited time we had, we did not manage to work our an appropriate solution. 
+
 \section{Future works}
-\label{summary-future}
+\label{sec:summary-future}
 When it comes to what could be done next, some of the things we would like to see implemented include:
 
 \begin{itemize}
