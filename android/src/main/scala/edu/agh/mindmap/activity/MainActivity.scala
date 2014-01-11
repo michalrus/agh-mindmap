@@ -223,11 +223,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     val scrollView = activity.find[HorizontalScrollView](scrollId).get // safe to throw here, too; the app won't start at all
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
-    val tabSpecs = new mutable.ArrayBuffer[TabHost#TabSpec]
+
+    case class MyTabSpec(spec: TabHost#TabSpec, label: String)
+    var tabSpecs = Vector.empty[MyTabSpec]
 
     var lastTabTag: Option[String] = None
 
-    def addedTags = (tabSpecs map (_.getTag)).toArray
+    def addedTags = (tabSpecs map (_.spec.getTag)).toArray
 
     class DummyTabFactory(val context: Context) extends TabHost.TabContentFactory {
       override def createTabContent(tag: String) = {
@@ -242,11 +244,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       if (label.length <= MainActivity.TabTitleMaxLength) label
       else (label take MainActivity.TabTitleMaxLength) + '\u2026'
 
-    def addTab[F](tag: String, label: String, args: Bundle = null)(implicit classTag: ClassTag[F]) {
-      val indicator = shortenLabel(label)
+    private def tabSpecFor(tag: String, label: String): TabHost#TabSpec = {
+      tabHost newTabSpec tag setIndicator shortenLabel(label) setContent new DummyTabFactory(activity)
+    }
 
-      val tabSpec = tabHost newTabSpec tag setIndicator indicator setContent new DummyTabFactory(activity)
-      creators += tag -> (() => Fragment.instantiate(activity, classTag.runtimeClass.getName, args))
+    def addTab[F: Manifest](tag: String, label: String, args: Bundle = null) {
+      val tabSpec = tabSpecFor(tag, label)
+      creators += tag -> (() => Fragment.instantiate(activity, implicitly[Manifest[F]].runtimeClass.getName, args))
 
       // Check to see if we already have a fragment for this tab, probably
       // from a previously saved state.  If so, deactivate it, because our
@@ -262,44 +266,44 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         case _ =>
       }
 
-      tabSpecs += tabSpec
+      tabSpecs :+= MyTabSpec(tabSpec, label)
       tabHost addTab tabSpec
     }
 
-    def retitleTab(tag: String, newLabel: String) {
-      val label = shortenLabel(newLabel)
+    def retitleTab(tag: String, label: String) {
+      val shortenedLabel = shortenLabel(label)
 
-      val ts = tabSpecs.zipWithIndex filter { case (t, i) => t.getTag == tag }
+      val ts = tabSpecs.zipWithIndex filter { case (t, i) => t.spec.getTag == tag }
 
-      ts foreach { case (t, _) => t setIndicator label }
+      ts foreach { case (t, i) =>
+        t.spec setIndicator shortenedLabel
+        tabSpecs = tabSpecs updated (i, MyTabSpec(t.spec, label))
+      }
 
       for {
         (_, i) <- ts
         vg <- safen((tabHost.getTabWidget getChildTabViewAt i).asInstanceOf[ViewGroup])
         j <- 0 until vg.getChildCount
         tx <- safen((vg getChildAt j).asInstanceOf[TextView])
-      } tx.post { () => tx setText label }
+      } tx.post { () => tx setText shortenedLabel }
     }
 
     def removeTab(tag: String, tagAfterwards: String) {
       // remove unwanted TabSpec(s)
-      val tabSpecsSize = tabSpecs.size
-      def loop() {
-        val idx = tabSpecs indexWhere (_.getTag == tag)
-        if (idx > 0) {
-          tabSpecs remove idx
-          loop()
-        }
+      val newTabSpecs = tabSpecs filterNot (_.spec.getTag == tag) map { t =>
+        MyTabSpec(tabSpecFor(t.spec.getTag, t.label), t.label)
       }
-      loop()
 
       // if anything changed...
-      if (tabSpecsSize != tabSpecs.size) {
+      if (tabSpecs.size != newTabSpecs.size) {
+        tabSpecs = newTabSpecs
+
         // recreate tab view(s)
         val scrollX = tabHost.getScrollX
+        val scrollY = tabHost.getScrollY
         tabHost clearAllTabs()
-        tabSpecs foreach (s => tabHost addTab s)
-        tabHost setScrollX scrollX
+        tabSpecs foreach (tabHost addTab _.spec)
+        tabHost scrollTo (scrollX, scrollY)
 
         // switch to another tab
         focusTabOfTag(tagAfterwards)
