@@ -325,8 +325,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       creators get tag match {
         case Some(_) =>
           val sX = tabHost.getScrollX
+          val sY = tabHost.getScrollY
           tabHost setCurrentTabByTag tag
-          tabHost setScrollX sX // setCurrentTabByTag scrolls without anim, that's why
+          tabHost scrollTo (sX, sY) // setCurrentTabByTag scrolls without anim, that's why
           true
         case _ => false
       }

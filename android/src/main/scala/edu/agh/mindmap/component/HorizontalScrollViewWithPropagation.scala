@@ -29,11 +29,20 @@ class HorizontalScrollViewWithPropagation(context: Context, attrs: AttributeSet)
 
   override def dispatchTouchEvent(ev: MotionEvent) = {
     for (inner <- inner) {
-      val copy = MotionEvent obtain ev
-      val m = new Matrix
-      m setTranslate (getScrollX.toFloat, 0)
-      copy transform m
-      inner dispatchTouchEvent copy
+      val transformed: MotionEvent = {
+        val dx = getScrollX.toFloat
+        val dy = 0f
+        val copy = MotionEvent obtain ev
+        try {
+          val m = new Matrix
+          m setTranslate (dx, dy)
+          copy transform m
+        } catch { case _: Throwable =>
+          copy offsetLocation (dx, dy)
+        }
+        copy
+      }
+      inner dispatchTouchEvent transformed
     }
     onTouchEvent(ev)
     true
