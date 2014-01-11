@@ -301,6 +301,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         // recreate tab view(s)
         val scrollX = tabHost.getScrollX
         val scrollY = tabHost.getScrollY
+        tabHost setCurrentTab 0
         tabHost clearAllTabs()
         tabSpecs foreach (tabHost addTab _.spec)
         tabHost scrollTo (scrollX, scrollY)
