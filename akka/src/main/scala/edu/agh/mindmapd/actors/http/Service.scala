@@ -34,12 +34,12 @@ import spray.http.StatusCodes
 
 object Service {
 
-  def props(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervisor: ActorRef) =
-    Props(classOf[Service], hostname, port, timeout, mapsSupervisor)
+  def props(hostname: String, port: Int, mapsSupervisor: ActorRef) =
+    Props(classOf[Service], hostname, port, mapsSupervisor)
 
 }
 
-class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervisor: ActorRef)
+class Service(hostname: String, port: Int, mapsSupervisor: ActorRef)
   extends HttpServiceActor with ActorLogging with SprayJsonSupport {
   import context.dispatcher
 
@@ -59,7 +59,7 @@ class Service(hostname: String, port: Int, timeout: FiniteDuration, mapsSupervis
     path("poll" / "since" / LongNumber) { since =>
       get { produce(instanceOf[PollResponse]) { completer => _ =>
         val poller = context actorOf Poller.props(mapsSupervisor) // *** this Actor has to be local!
-        poller ! Poller.Process(since, completer, timeout)
+        poller ! Poller.Process(since, completer)
       }}
     } ~
     path("die") { get { complete {

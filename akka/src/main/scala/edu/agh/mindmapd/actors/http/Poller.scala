@@ -17,21 +17,21 @@
 
 package edu.agh.mindmapd.actors.http
 
-import akka.actor.{ActorRef, Props, Actor}
+import akka.actor.{Cancellable, ActorRef, Props, Actor}
 import edu.agh.mindmapd.json.PollResponse
 import edu.agh.mindmapd.actors.{MindMap, MapsSupervisor}
 import concurrent.duration._
 import edu.agh.mindmapd.model.NodePlusMap
+import edu.agh.mindmapd.extensions.Settings
 
 object Poller {
 
   def props(mapsSupervisor: ActorRef) = Props(classOf[Poller], mapsSupervisor)
 
-  case class Process(since: Long, completer: PollResponse => Unit, timeout: FiniteDuration)
+  case class Process(since: Long, completer: PollResponse => Unit)
 
-  private val MapsResponseTimeFrame = 0.5.seconds // since first map response
-  private case object FirstTimeout
-  private case object SecondTimeout
+  private case object PollTimeout
+  private case object MapsTimeout
 
 }
 
@@ -41,29 +41,33 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
 
   def receive = initial
 
+  val settings = Settings(context.system)
+  var cancellables = List.empty[Cancellable]
+
   def initial: Receive = {
-    case Process(since, completer, timeout) =>
+    case Process(since, completer) =>
       mapsSupervisor ! MapsSupervisor.Subscribe(self, since)
-      context.system.scheduler scheduleOnce (timeout, self, FirstTimeout)
+      cancellables ::= context.system.scheduler scheduleOnce (settings.pollTimeout, self, PollTimeout)
       context become waitingForFirst(completer)
   }
 
   def waitingForFirst(completer: PollResponse => Unit): Receive = {
-    case FirstTimeout => complete(Nil, completer)
+    case PollTimeout => complete(Nil, completer)
 
     case MindMap.Changed(node) =>
-      context.system.scheduler scheduleOnce (MapsResponseTimeFrame, self, SecondTimeout)
+      cancellables ::= context.system.scheduler scheduleOnce (settings.mapResponseTimeFrame, self, MapsTimeout)
       context become waitingForRest(node :: Nil, completer)
   }
 
   def waitingForRest(data: List[NodePlusMap], completer: PollResponse => Unit): Receive = {
-    case FirstTimeout | SecondTimeout => complete(data, completer)
+    case PollTimeout | MapsTimeout => complete(data, completer)
 
     case MindMap.Changed(node) =>
       context become waitingForRest(node :: data, completer)
   }
 
   def complete(data: List[NodePlusMap], completer: PollResponse => Unit) {
+    cancellables foreach (_.cancel())
     completer(PollResponse(data))
     mapsSupervisor ! MapsSupervisor.Unsubscribe(self)
     context stop self
