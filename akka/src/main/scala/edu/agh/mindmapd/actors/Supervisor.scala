@@ -26,7 +26,7 @@ class Supervisor extends Actor {
 
   val mapsSupervisor = context actorOf (MapsSupervisor.props, "maps")
 
-  context actorOf (http.Service.props(s.hostname, s.port, mapsSupervisor), "http-service")
+  context actorOf (http.Service.props(mapsSupervisor), "http-service")
 
   def receive = Actor.emptyBehavior
 

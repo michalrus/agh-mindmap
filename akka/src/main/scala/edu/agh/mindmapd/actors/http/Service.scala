@@ -34,32 +34,37 @@ import spray.http.StatusCodes
 
 object Service {
 
-  def props(hostname: String, port: Int, mapsSupervisor: ActorRef) =
-    Props(classOf[Service], hostname, port, mapsSupervisor)
+  def props(mapsSupervisor: ActorRef) =
+    Props(classOf[Service], mapsSupervisor)
 
 }
 
-class Service(hostname: String, port: Int, mapsSupervisor: ActorRef)
+class Service(mapsSupervisor: ActorRef)
   extends HttpServiceActor with ActorLogging with SprayJsonSupport {
   import context.dispatcher
 
-  IO(Http)(context.system) ! Http.Bind(self, hostname, port)
+  val settings = Settings(context.system)
+
+  IO(Http)(context.system) ! Http.Bind(self, settings.hostname, settings.port)
 
   def receive = runRoute {
     path("update") {
       post { entity(as[UpdateRequest]) { req =>
-        produce(instanceOf[UpdateResponse]) { completer => _ =>
-          val updater = context actorOf Updater.props // *** this Actor has to be local!
+        complete {
+          val updater = context actorOf Updater.props
+          implicit val tm = Timeout(settings.timeout.update + settings.timeout.internalMessage)
           for {
             map <- mindMapFor(req.mindMap)
-          } updater ! Updater.Process(req, map, completer)
+            resp <- (updater ? Updater.Process(req, map)).mapTo[UpdateResponse]
+          } yield resp
         }
       }}
     } ~
     path("poll" / "since" / LongNumber) { since =>
-      get { produce(instanceOf[PollResponse]) { completer => _ =>
-        val poller = context actorOf Poller.props(mapsSupervisor) // *** this Actor has to be local!
-        poller ! Poller.Process(since, completer)
+      get { complete {
+        val poller = context actorOf Poller.props(mapsSupervisor)
+        implicit val tm = Timeout(settings.timeout.poll + settings.timeout.internalMessage)
+        (poller ? Poller.Process(since)).mapTo[PollResponse]
       }}
     } ~
     path("die") { get { complete {
@@ -67,14 +72,14 @@ class Service(hostname: String, port: Int, mapsSupervisor: ActorRef)
         (StatusCodes.Forbidden, "Won't die at production, u mad? =,=\n")
       } else {
         val sys = context.system
-        sys.scheduler.scheduleOnce(100.millis) { sys.shutdown() }
+        sys.scheduler.scheduleOnce(100.millis) { sys.shutdown() } // FIXME
         "Dying...\n"
       }
     }}}
   }
 
   def mindMapFor(uuid: UUID): Future[ActorRef] = {
-    implicit val timeout = Timeout(5.seconds)
+    implicit val timeout = Timeout(settings.timeout.internalMessage)
     (mapsSupervisor ? MapsSupervisor.Find(uuid)).mapTo[ActorRef]
   }
 

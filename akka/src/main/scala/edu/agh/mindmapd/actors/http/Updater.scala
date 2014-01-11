@@ -25,7 +25,7 @@ object Updater {
 
   def props = Props(classOf[Updater])
 
-  case class Process(update: UpdateRequest, mindMap: ActorRef, completer: UpdateResponse => Unit)
+  case class Process(update: UpdateRequest, mindMap: ActorRef)
 
 }
 
@@ -35,14 +35,14 @@ class Updater extends Actor {
   def receive = initial
 
   def initial: Receive = {
-    case Process(update, mindMap, completer) =>
+    case Process(update, mindMap) =>
       mindMap ! MindMap.Update(update.lastServerTime, update.nodes)
-      context become waitingForMap(completer)
+      context become waitingForMap(sender)
   }
 
-  def waitingForMap(completer: UpdateResponse => Unit): Receive = {
+  def waitingForMap(requester: ActorRef): Receive = {
     case MindMap.UpdateResult(orphanNodes) =>
-      completer(UpdateResponse(orphanNodes))
+      requester ! UpdateResponse(orphanNodes)
   }
 
 }

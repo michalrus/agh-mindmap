@@ -28,7 +28,7 @@ object Poller {
 
   def props(mapsSupervisor: ActorRef) = Props(classOf[Poller], mapsSupervisor)
 
-  case class Process(since: Long, completer: PollResponse => Unit)
+  case class Process(since: Long)
 
   private case object PollTimeout
   private case object MapsTimeout
@@ -42,33 +42,36 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
   def receive = initial
 
   val settings = Settings(context.system)
+
+  var requester: Option[ActorRef] = None
   var cancellables = List.empty[Cancellable]
 
   def initial: Receive = {
-    case Process(since, completer) =>
+    case Process(since) =>
       mapsSupervisor ! MapsSupervisor.Subscribe(self, since)
-      cancellables ::= context.system.scheduler scheduleOnce (settings.pollTimeout, self, PollTimeout)
-      context become waitingForFirst(completer)
+      requester = Some(sender)
+      cancellables ::= context.system.scheduler scheduleOnce (settings.timeout.poll, self, PollTimeout)
+      context become waitingForFirst
   }
 
-  def waitingForFirst(completer: PollResponse => Unit): Receive = {
-    case PollTimeout => complete(Nil, completer)
+  def waitingForFirst: Receive = {
+    case PollTimeout => complete(Nil)
 
     case MindMap.Changed(node) =>
-      cancellables ::= context.system.scheduler scheduleOnce (settings.mapResponseTimeFrame, self, MapsTimeout)
-      context become waitingForRest(node :: Nil, completer)
+      cancellables ::= context.system.scheduler scheduleOnce (settings.timeout.mapResponse, self, MapsTimeout)
+      context become waitingForRest(node :: Nil)
   }
 
-  def waitingForRest(data: List[NodePlusMap], completer: PollResponse => Unit): Receive = {
-    case PollTimeout | MapsTimeout => complete(data, completer)
+  def waitingForRest(data: List[NodePlusMap]): Receive = {
+    case PollTimeout | MapsTimeout => complete(data)
 
     case MindMap.Changed(node) =>
-      context become waitingForRest(node :: data, completer)
+      context become waitingForRest(node :: data)
   }
 
-  def complete(data: List[NodePlusMap], completer: PollResponse => Unit) {
+  def complete(data: List[NodePlusMap]) {
     cancellables foreach (_.cancel())
-    completer(PollResponse(data))
+    requester foreach (_ ! PollResponse(data))
     mapsSupervisor ! MapsSupervisor.Unsubscribe(self)
     context stop self
   }
