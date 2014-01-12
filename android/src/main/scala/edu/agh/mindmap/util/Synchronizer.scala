@@ -111,7 +111,7 @@ object Synchronizer {
 
     val msgs = model.MindNode.findModified groupBy (_.map.uuid) map { case (mapUuid, nodes) =>
       val jsNodes = nodes map { n =>
-        JsMindNode(n.uuid, n.parent, n.ordering, n.content, n.hasConflict, 0)
+        JsMindNode(n.uuid, n.map.uuid, n.parent, n.ordering, n.content, n.hasConflict, 0)
       }
 
       UpdateRequest(mapUuid, lastSeenAkkaAt, jsNodes.toList)
@@ -149,7 +149,7 @@ object Synchronizer {
     val url = urlForPoll(since = model.MindNode.lastTimeWithAkka)
     request[PollResponse](new HttpGet(url)) match {
       case Success(PollResponse(updates)) =>
-        val grp = updates groupBy { case JsNodePlusMap(map, node) => map } mapValues { xs => xs map (_.node) }
+        val grp = updates groupBy (_.mindMap)
         grp foreach { case (map, nodes) =>
           model.MindNode.mergeIn(map, nodes)
         }

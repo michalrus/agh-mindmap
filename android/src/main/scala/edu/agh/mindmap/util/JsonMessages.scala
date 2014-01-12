@@ -35,27 +35,22 @@ trait CustomJsonFormats {
 }
 
 object JsMindNode extends DefaultJsonProtocol with CustomJsonFormats {
-  implicit val format = jsonFormat(apply, "uuid", "parent", "ordering", "content", "hasConflict", "cloudTime")
+  implicit val format = jsonFormat(apply, "uuid", "mindMap", "parent", "ordering", "content", "hasConflict", "cloudTime")
 }
 
 case class JsMindNode(uuid: UUID,
+                      mindMap: UUID,
                       parent: Option[UUID],
                       ordering: Double,
                       content: Option[String],
                       hasConflict: Boolean,
                       cloudTime: Long)
 
-object JsNodePlusMap extends DefaultJsonProtocol with CustomJsonFormats {
-  implicit val format = jsonFormat(apply, "mindMap", "node")
-}
-
-case class JsNodePlusMap(mindMap: UUID, node: JsMindNode)
-
 object PollResponse extends DefaultJsonProtocol {
   implicit val format = jsonFormat(apply _, "nodes")
 }
 
-case class PollResponse(nodes: List[JsNodePlusMap])
+case class PollResponse(nodes: List[JsMindNode])
 
 object UpdateRequest extends DefaultJsonProtocol with CustomJsonFormats {
   implicit val format = jsonFormat(apply, "mindMap", "lastServerTime", "nodes")
