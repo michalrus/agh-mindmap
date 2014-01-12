@@ -24,23 +24,24 @@ object Settings extends ExtensionKey[Settings]
 
 class Settings(system: ExtendedActorSystem) extends Extension {
 
-  @inline private def cf = system.settings.config
+  private implicit class KeyOps(k: String) {
+    @inline private def cf = system.settings.config
+    def boo = cf getBoolean k
+    def dur = FiniteDuration(cf getMilliseconds k, MILLISECONDS)
+    def int = cf getInt k
+    def str = cf getString k
+  }
 
-  private def boolean(k: String) = cf getBoolean k
-  private def string(k: String) = cf getString k
-  private def int(k: String) = cf getInt k
-  private def duration(k: String) = FiniteDuration(cf getMilliseconds k, MILLISECONDS)
+  val isProduction = "mindmapd.is-production".boo
 
-  val isProduction = boolean("mindmapd.is-production")
-
-  val hostname = string("mindmapd.hostname")
-  val port     = int("mindmapd.port")
+  val hostname = "mindmapd.hostname".str
+  val port = "mindmapd.port".int
 
   object timeout {
-    val poll = duration("mindmapd.timeout.poll")
-    val mapResponse = duration("mindmapd.timeout.maps-response")
-    val update = duration("mindmapd.timeout.update")
-    val internalMessage = duration("mindmapd.timeout.internal-message")
+    val poll = "mindmapd.timeout.poll".dur
+    val mapResponse = "mindmapd.timeout.maps-response".dur
+    val update = "mindmapd.timeout.update".dur
+    val internalMessage = "mindmapd.timeout.internal-message".dur
   }
 
 }
