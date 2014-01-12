@@ -21,7 +21,7 @@ import akka.actor.{Cancellable, ActorRef, Props, Actor}
 import edu.agh.mindmapd.json.PollResponse
 import edu.agh.mindmapd.actors.{MindMap, MapsSupervisor}
 import concurrent.duration._
-import edu.agh.mindmapd.model.NodePlusMap
+import edu.agh.mindmapd.model.MindNode
 import edu.agh.mindmapd.extensions.Settings
 
 object Poller {
@@ -62,14 +62,14 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
       context become waitingForRest(node :: Nil)
   }
 
-  def waitingForRest(data: List[NodePlusMap]): Receive = {
+  def waitingForRest(data: List[MindNode]): Receive = {
     case PollTimeout | MapsTimeout => complete(data)
 
     case MindMap.Changed(node) =>
       context become waitingForRest(node :: data)
   }
 
-  def complete(data: List[NodePlusMap]) {
+  def complete(data: List[MindNode]) {
     cancellables foreach (_.cancel())
     requester foreach (_ ! PollResponse(data))
     mapsSupervisor ! MapsSupervisor.Unsubscribe(self)

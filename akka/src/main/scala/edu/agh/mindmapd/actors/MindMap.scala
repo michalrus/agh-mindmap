@@ -19,7 +19,7 @@ package edu.agh.mindmapd.actors
 
 import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
-import edu.agh.mindmapd.model.{NodePlusMap, MindNode}
+import edu.agh.mindmapd.model.MindNode
 
 object MindMap {
 
@@ -28,7 +28,7 @@ object MindMap {
   case class Subscribe(whom: ActorRef, since: Long)
   case class Unsubscribe(whom: ActorRef)
 
-  case class Changed(npm: NodePlusMap)
+  case class Changed(node: MindNode)
 
   def props(mapUuid: UUID) = Props(classOf[MindMap], mapUuid)
 
@@ -124,7 +124,7 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   def receive = {
     case Subscribe(whom, since) =>
-      DB findSince since foreach (n => whom ! Changed(NodePlusMap(mapUuid, n)))
+      DB findSince since foreach (whom ! Changed(_))
       subscribers += whom
 
     case Unsubscribe(whom) =>
@@ -146,7 +146,7 @@ class MindMap(mapUuid: UUID) extends Actor {
         copy(cloudTime = System.currentTimeMillis)
 
       DB insertOrReplace update
-      subscribers foreach (_ ! Changed(NodePlusMap(mapUuid, update)))
+      subscribers foreach (_ ! Changed(update))
     }
 
   def merged(fromClient: MindNode, atTime: Long): MindNode =

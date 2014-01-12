@@ -22,18 +22,13 @@ import spray.json._
 import edu.agh.mindmapd.extensions.CustomJsonFormats
 
 object MindNode extends DefaultJsonProtocol with CustomJsonFormats {
-  implicit val format = jsonFormat6(apply)
+  implicit val format = jsonFormat7(apply)
 }
 
 case class MindNode(uuid: UUID,
+                    mindMap: UUID,
                     parent: Option[UUID],
                     ordering: Double,
                     content: Option[String],
                     hasConflict: Boolean,
                     cloudTime: Long)
-
-object NodePlusMap extends DefaultJsonProtocol with CustomJsonFormats {
-  implicit val format = jsonFormat2(apply)
-}
-
-case class NodePlusMap(mindMap: UUID, node: MindNode)

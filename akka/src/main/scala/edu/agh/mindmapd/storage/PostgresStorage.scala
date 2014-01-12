@@ -19,11 +19,12 @@ package edu.agh.mindmapd.storage
 
 import java.util.UUID
 import edu.agh.mindmapd.model.MindNode
-import org.squeryl.{Schema, Session, SessionFactory}
+import org.squeryl.{Schema, Session, SessionFactory, PrimitiveTypeMode}
+import PrimitiveTypeMode._
 import edu.agh.mindmapd.extensions.Settings
 import org.squeryl.adapters.PostgreSqlAdapter
 
-private object PostgresStorage extends Schema {
+object PostgresStorage extends Schema {
 
   def init(settings: Settings) {
     if (SessionFactory.concreteFactory.isEmpty)
@@ -31,7 +32,18 @@ private object PostgresStorage extends Schema {
         java.sql.DriverManager getConnection(settings.db.url, settings.db.user, settings.db.password),
         new PostgreSqlAdapter
         ))
+
+    transaction { printDdl }
   }
+
+  val mindNodes = table[MindNode]
+
+  on(mindNodes)(n => declare(
+    columns(n.mindMap, n.uuid) are primaryKey,
+    columns(n.mindMap, n.parent) are indexed,
+    n.content is dbType("text"),
+    columns(n.mindMap, n.cloudTime) are indexed
+  ))
 
 }
 
