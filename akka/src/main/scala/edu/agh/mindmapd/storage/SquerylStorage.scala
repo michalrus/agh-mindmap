@@ -47,7 +47,7 @@ object SquerylStorage extends Schema {
 
 class SquerylStorage(val mindMap: UUID, settings: Settings) extends Storage {
   import SquerylStorage._
-  init(settings.db.url, settings.db.user, settings.db.password)
+  init(settings.squeryl.url, settings.squeryl.user, settings.squeryl.password)
 
   def exists(node: UUID): Boolean = find(node).isDefined
 

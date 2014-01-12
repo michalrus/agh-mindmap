@@ -45,11 +45,11 @@ class Settings(system: ExtendedActorSystem) extends Extension {
     val internalMessage = "mindmapd.timeout.internal-message".dur
   }; timeout // create now
 
-  object db {
+  object squeryl {
     val driver = "mindmapd.db.driver".cls
     val url = "mindmapd.db.url".str
     val user = "mindmapd.db.user".str
     val password = "mindmapd.db.password".str
-  }; db // create now
+  }; squeryl // create now
 
 }
