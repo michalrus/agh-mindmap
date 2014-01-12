@@ -20,6 +20,9 @@ package edu.agh.mindmapd.model
 import java.util.UUID
 import spray.json._
 import edu.agh.mindmapd.extensions.CustomJsonFormats
+import org.squeryl.KeyedEntity
+import org.squeryl.PrimitiveTypeMode._
+import org.squeryl.dsl.CompositeKey2
 
 object MindNode extends DefaultJsonProtocol with CustomJsonFormats {
   implicit val format = jsonFormat7(apply)
@@ -31,4 +34,8 @@ case class MindNode(uuid: UUID,
                     ordering: Double,
                     content: Option[String],
                     hasConflict: Boolean,
-                    cloudTime: Long)
+                    cloudTime: Long) extends KeyedEntity[CompositeKey2[UUID, UUID]] {
+
+  def id = compositeKey(mindMap, uuid)
+
+}

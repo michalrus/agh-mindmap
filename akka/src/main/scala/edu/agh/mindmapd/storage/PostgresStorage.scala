@@ -23,23 +23,21 @@ import org.squeryl.{Schema, Session, SessionFactory, PrimitiveTypeMode}
 import PrimitiveTypeMode._
 import edu.agh.mindmapd.extensions.Settings
 import org.squeryl.adapters.PostgreSqlAdapter
+import org.squeryl.dsl.ast.LogicalBoolean
 
 object PostgresStorage extends Schema {
 
-  def init(settings: Settings) {
+  def init(url: String, user: String, password: String) {
     if (SessionFactory.concreteFactory.isEmpty)
       SessionFactory.concreteFactory = Some(() => Session create (
-        java.sql.DriverManager getConnection(settings.db.url, settings.db.user, settings.db.password),
+        java.sql.DriverManager getConnection(url, user, password),
         new PostgreSqlAdapter
         ))
-
-    transaction { printDdl }
   }
 
   val mindNodes = table[MindNode]
 
   on(mindNodes)(n => declare(
-    columns(n.mindMap, n.uuid) are primaryKey,
     columns(n.mindMap, n.parent) are indexed,
     n.content is dbType("text"),
     columns(n.mindMap, n.cloudTime) are indexed
@@ -49,22 +47,65 @@ object PostgresStorage extends Schema {
 
 class PostgresStorage(val mindMap: UUID, settings: Settings) extends Storage {
   import PostgresStorage._
-  init(settings)
+  init(settings.db.url, settings.db.user, settings.db.password)
 
-  def existsMindnode(uuid: UUID): Boolean = ???
+  def exists(node: UUID): Boolean = find(node).isDefined
 
-  def find(uuid: UUID): Option[MindNode] = ???
+  def find(node: UUID): Option[MindNode] = inTransaction {
+    from(mindNodes)(n =>
+      where(n.mindMap.~ === mindMap and n.uuid.~ === node)
+        select n).headOption
+  }
 
-  def findSince(time: Long): Iterable[MindNode] = ???
+  def findSince(time: Long, limit: Int): Iterable[MindNode] = inTransaction {
+    from(mindNodes)(n =>
+      where(n.mindMap.~ === mindMap and n.cloudTime.~ >= time)
+        select n orderBy n.cloudTime.asc) page (0, limit)
+  }
 
-  def insertOrReplace(node: MindNode): Unit = ???
+  def insertOrReplace(node: MindNode) = inTransaction {
+    mindNodes insertOrUpdate node
+    ()
+  }
 
-  def deleteChildrenOf(node: UUID): Unit = ???
+  private def children(parent: UUID): Iterable[MindNode] = inTransaction {
+    from(mindNodes)(n =>
+      where(n.mindMap.~ === mindMap and n.parent.~ === Some(parent))
+        select n
+    )
+  }
 
-  def touchTimesOfSubtree(parent: MindNode): Unit = ???
+  def deleteChildrenOf(parent: UUID) = inTransaction {
+    for (ch <- children(parent)) deleteChildrenOf(ch.uuid)
+    // *** DFS, DO NOT CHANGE ORDER! ***
+    mindNodes deleteWhere (n => n.mindMap.~ === mindMap and n.parent.~ === Some(parent))
+    ()
+  }
 
-  def wasAnyChangedInSubtree(parent: MindNode, since: Long): Boolean = ???
+  def touchTimesOfSubtree(parent: UUID) = inTransaction {
+    val now = System.currentTimeMillis
+    def upd(f: MindNode => LogicalBoolean) =
+      update(mindNodes)(n => where(n.mindMap.~ === mindMap and f(n)) set(n.cloudTime := now))
 
-  def hasNoNodesYet: Boolean = ???
+    def touchChildrenOf(parent: UUID) {
+      for (ch <- children(parent)) touchChildrenOf(ch.uuid)
+      upd(_.parent.~ === Some(parent))
+      ()
+    }
+
+    touchChildrenOf(parent)
+    upd(_.uuid.~ === parent)
+    ()
+  }
+
+  def wasAnyChangedInSubtree(parent: MindNode, since: Long): Boolean = inTransaction {
+    if (parent.cloudTime > since) true
+    else children(parent.uuid) forall (wasAnyChangedInSubtree(_, since))
+  }
+
+  def hasNoNodesYet: Boolean = inTransaction {
+    val num: Long = from(mindNodes)(n => where(n.mindMap.~ === mindMap) compute count).single.measures
+    num == 0
+  }
 
 }

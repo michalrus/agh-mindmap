@@ -24,16 +24,17 @@ trait Storage {
 
   def mindMap: UUID
 
-  def existsMindnode(uuid: UUID): Boolean
+  def exists(node: UUID): Boolean
 
-  def find(uuid: UUID): Option[MindNode]
-  def findSince(time: Long): Iterable[MindNode]
+  def find(node: UUID): Option[MindNode]
+
+  def findSince(time: Long, limit: Int): Iterable[MindNode]
 
   def insertOrReplace(node: MindNode): Unit
 
-  def deleteChildrenOf(node: UUID): Unit
+  def deleteChildrenOf(parent: UUID): Unit
 
-  def touchTimesOfSubtree(parent: MindNode): Unit
+  def touchTimesOfSubtree(parent: UUID): Unit
 
   def wasAnyChangedInSubtree(parent: MindNode, since: Long): Boolean
 
