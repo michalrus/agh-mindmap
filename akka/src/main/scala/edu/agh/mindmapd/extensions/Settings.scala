@@ -46,10 +46,10 @@ class Settings(system: ExtendedActorSystem) extends Extension {
   }; timeout // create now
 
   object squeryl {
-    val driver = "mindmapd.db.driver".cls
-    val url = "mindmapd.db.url".str
-    val user = "mindmapd.db.user".str
-    val password = "mindmapd.db.password".str
+    val driver = "mindmapd.squeryl.driver".cls
+    val url = "mindmapd.squeryl.url".str
+    val user = "mindmapd.squeryl.user".str
+    val password = "mindmapd.squeryl.password".str
   }; squeryl // create now
 
 }
