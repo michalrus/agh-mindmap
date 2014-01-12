@@ -24,7 +24,7 @@ trait Storage {
 
   def mindMap: UUID
 
-  def exists(node: UUID): Boolean
+  def contains(node: UUID): Boolean
 
   def find(node: UUID): Option[MindNode]
 

@@ -27,7 +27,12 @@ import org.squeryl.dsl.ast.LogicalBoolean
 
 object SquerylStorage extends Schema {
 
-  def init(url: String, user: String, password: String) {
+  def apply(mindMap: UUID, settings: Settings): Storage = {
+    init(settings.squeryl.url, settings.squeryl.user, settings.squeryl.password)
+    new SquerylStorage(mindMap)
+  }
+
+  private[this] def init(url: String, user: String, password: String) {
     if (SessionFactory.concreteFactory.isEmpty)
       SessionFactory.concreteFactory = Some(() => Session create (
         java.sql.DriverManager getConnection(url, user, password),
@@ -35,7 +40,7 @@ object SquerylStorage extends Schema {
         ))
   }
 
-  val mindNodes = table[MindNode]
+  private val mindNodes = table[MindNode]
 
   on(mindNodes)(n => declare(
     columns(n.mindMap, n.parent) are indexed,
@@ -45,11 +50,11 @@ object SquerylStorage extends Schema {
 
 }
 
-class SquerylStorage(val mindMap: UUID, settings: Settings) extends Storage {
-  import SquerylStorage._
-  init(settings.squeryl.url, settings.squeryl.user, settings.squeryl.password)
+class SquerylStorage private(val mindMap: UUID) extends Storage {
 
-  def exists(node: UUID): Boolean = find(node).isDefined
+  import SquerylStorage._
+
+  def contains(node: UUID): Boolean = find(node).isDefined
 
   def find(node: UUID): Option[MindNode] = inTransaction {
     from(mindNodes)(n =>

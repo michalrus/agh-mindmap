@@ -20,6 +20,8 @@ package edu.agh.mindmapd.actors
 import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
 import edu.agh.mindmapd.model.MindNode
+import edu.agh.mindmapd.extensions.Settings
+import edu.agh.mindmapd.storage.{Storage, SquerylStorage}
 
 object MindMap {
 
@@ -39,92 +41,13 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   import collection.immutable.TreeMap
 
+  val storage = SquerylStorage(mapUuid, Settings(context.system))
+
   var subscribers = Set.empty[ActorRef]
-
-  object DB {
-    // FIXME: this should be a real database ;-)
-
-    object TimesIdx {
-      private var times = TreeMap.empty[Long, Set[UUID]]
-      private var timesInv = TreeMap.empty[UUID, Long]
-
-      def findSince(time: Long): Iterable[MindNode] = (for {
-        (tm, uuids) <- times from time take 50
-        if tm > time
-        uuid <- uuids
-      } yield nodes get uuid).flatten
-
-      def remove(node: MindNode) {
-        for {
-          time <- timesInv get node.uuid
-          oldSet <- times get time
-        } times += time -> (oldSet - node.uuid)
-        timesInv -= node.uuid
-      }
-
-      def add(node: MindNode) {
-        times += node.cloudTime -> (times get node.cloudTime match {
-          case Some(set) => set + node.uuid
-          case None => Set(node.uuid)
-        })
-        timesInv += node.uuid -> node.cloudTime
-      }
-    }
-
-    private var nodes = Map.empty[UUID, MindNode]
-
-    def find(uuid: UUID): Option[MindNode] = nodes get uuid
-
-    private def allChildren(parent: MindNode): Set[MindNode] = {
-      val children = (nodes.values filter (_.parent == Some(parent.uuid))).toSet
-
-      children flatMap (child => allChildren(child) + child)
-    }
-
-    def touchAll(parent: MindNode) {
-      val now = System.currentTimeMillis
-
-      (allChildren(parent) + parent) foreach { oldNode =>
-        val newNode = oldNode.copy(cloudTime = now)
-        nodes -= oldNode.uuid
-        nodes += newNode.uuid -> newNode
-        TimesIdx remove oldNode
-        TimesIdx add newNode
-      }
-    }
-
-    def wasAnyChanged(parent: MindNode, since: Long): Boolean =
-      (allChildren(parent) + parent) forall (_.cloudTime > since)
-
-    def contains(uuid: UUID): Boolean = nodes contains uuid
-
-    def isEmpty: Boolean = nodes.isEmpty
-
-    def findSince(time: Long): Iterable[MindNode] = TimesIdx findSince time
-
-    def insertOrReplace(node: MindNode) {
-      TimesIdx remove node
-      TimesIdx add node
-      nodes += node.uuid -> node
-    }
-
-    def deleteChildrenOf(node: UUID) {
-      // FIXME: inefficient `children` lookup
-      val children = nodes.values filter (_.parent exists node.==)
-
-      children foreach { child =>
-        // *** DFS, DO NOT CHANGE ORDER! ***
-        deleteChildrenOf(child.uuid)
-
-        TimesIdx remove child
-        nodes -= child.uuid
-      }
-    }
-  }
 
   def receive = {
     case Subscribe(whom, since) =>
-      DB findSince since foreach (whom ! Changed(_))
+      storage findSince (since, limit = 50) foreach (whom ! Changed(_))
       subscribers += whom
 
     case Unsubscribe(whom) =>
@@ -145,12 +68,12 @@ class MindMap(mapUuid: UUID) extends Actor {
       val update = merged(suggestion, atTime).
         copy(cloudTime = System.currentTimeMillis)
 
-      DB insertOrReplace update
+      storage insertOrReplace update
       subscribers foreach (_ ! Changed(update))
     }
 
   def merged(fromClient: MindNode, atTime: Long): MindNode =
-    DB find fromClient.uuid match {
+    storage find fromClient.uuid match {
       case None => fromClient // new node creation
 
       case Some(existing) => // `existing` node update
@@ -163,11 +86,11 @@ class MindMap(mapUuid: UUID) extends Actor {
               fromClient.copy(hasConflict = false)
 
           case (Some(o), None) => // subtree deletion
-            if (DB wasAnyChanged (existing, atTime)) {
-              DB touchAll existing
+            if (storage wasAnyChangedInSubtree (existing, atTime)) {
+              storage touchTimesOfSubtree existing.uuid
               existing.copy(hasConflict = false)
             } else {
-              DB deleteChildrenOf existing.uuid
+              storage deleteChildrenOf existing.uuid
               fromClient.copy(hasConflict = false)
             }
 
@@ -186,16 +109,16 @@ class MindMap(mapUuid: UUID) extends Actor {
     val request = (potentialUpdates map (n => n.uuid -> n)).toMap
 
     request foreach { case (_, node) =>
-      if (DB contains node.uuid)
+      if (storage contains node.uuid)
         () // cool, modifying already existing node
       else node.parent match {
         case Some(parent) =>
-          if ((DB find parent exists (_.content.isDefined)) || (request contains parent))
+          if ((storage find parent exists (_.content.isDefined)) || (request contains parent))
             () // cool, adding a new child to a known and not already deleted parent
           else
             orphans += node.uuid // not cool, no parent known for this node :(
         case None =>
-          if (DB.isEmpty)
+          if (storage.hasNoNodesYet)
             () // cool, new map creation
           else
             orphans += node.uuid // not cool, should not happen (adding a second root?!?!)
