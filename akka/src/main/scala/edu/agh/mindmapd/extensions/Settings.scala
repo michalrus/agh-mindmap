@@ -30,6 +30,7 @@ class Settings(system: ExtendedActorSystem) extends Extension {
     def dur = FiniteDuration(cf getMilliseconds k, MILLISECONDS)
     def int = cf getInt k
     def str = cf getString k
+    def cls = Class forName (cf getString k)
   }
 
   val isProduction = "mindmapd.is-production".boo
@@ -42,6 +43,13 @@ class Settings(system: ExtendedActorSystem) extends Extension {
     val mapResponse = "mindmapd.timeout.maps-response".dur
     val update = "mindmapd.timeout.update".dur
     val internalMessage = "mindmapd.timeout.internal-message".dur
-  }
+  }; timeout // create now
+
+  object db {
+    val driver = "mindmapd.db.driver".cls
+    val url = "mindmapd.db.url".str
+    val user = "mindmapd.db.user".str
+    val password = "mindmapd.db.password".str
+  }; db // create now
 
 }
