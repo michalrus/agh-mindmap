@@ -25,7 +25,7 @@ import edu.agh.mindmapd.extensions.Settings
 import org.squeryl.adapters.PostgreSqlAdapter
 import org.squeryl.dsl.ast.LogicalBoolean
 
-object PostgresStorage extends Schema {
+object SquerylStorage extends Schema {
 
   def init(url: String, user: String, password: String) {
     if (SessionFactory.concreteFactory.isEmpty)
@@ -45,8 +45,8 @@ object PostgresStorage extends Schema {
 
 }
 
-class PostgresStorage(val mindMap: UUID, settings: Settings) extends Storage {
-  import PostgresStorage._
+class SquerylStorage(val mindMap: UUID, settings: Settings) extends Storage {
+  import SquerylStorage._
   init(settings.db.url, settings.db.user, settings.db.password)
 
   def exists(node: UUID): Boolean = find(node).isDefined
