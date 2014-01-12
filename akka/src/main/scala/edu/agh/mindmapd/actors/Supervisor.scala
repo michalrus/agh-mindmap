@@ -17,7 +17,7 @@
 
 package edu.agh.mindmapd.actors
 
-import akka.actor.Actor
+import akka.actor.{Terminated, Actor}
 import edu.agh.mindmapd.extensions.Settings
 
 class Supervisor extends Actor {
@@ -26,8 +26,11 @@ class Supervisor extends Actor {
 
   val mapsSupervisor = context actorOf (MapsSupervisor.props, "maps")
 
-  context actorOf (http.Service.props(mapsSupervisor), "http-service")
+  val httpService = context actorOf (http.Service.props(mapsSupervisor), "http-service")
+  context watch httpService
 
-  def receive = Actor.emptyBehavior
+  def receive = {
+    case Terminated(`httpService`) => context stop self
+  }
 
 }

@@ -18,7 +18,7 @@
 package edu.agh.mindmapd.actors.http
 
 import akka.pattern.ask
-import akka.actor.{ActorRef, ActorLogging, Props}
+import akka.actor.{PoisonPill, ActorRef, ActorLogging, Props}
 import concurrent.duration._
 import spray.routing.HttpServiceActor
 import spray.httpx.SprayJsonSupport
@@ -71,8 +71,7 @@ class Service(mapsSupervisor: ActorRef)
       if (Settings(context.system).isProduction) {
         (StatusCodes.Forbidden, "Won't die at production, u mad? =,=\n")
       } else {
-        val sys = context.system
-        sys.scheduler.scheduleOnce(100.millis) { sys.shutdown() } // FIXME
+        context.system.scheduler scheduleOnce (100.millis, self, PoisonPill)
         "Dying...\n"
       }
     }}}
