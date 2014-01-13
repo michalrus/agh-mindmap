@@ -36,6 +36,7 @@ import edu.agh.mindmap.model.{MindNode, MindMap}
 import edu.agh.mindmap.util.{Refresher, Synchronizer, DBHelper, ImporterException}
 import java.util.UUID
 import scala.util.Try
+import android.text.Html
 
 object MainActivity {
   val FileChooserRequestCode = 31337
@@ -174,6 +175,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     Refresher.mainActivity = Some(this) // should we unset it somewhere?... or maybe onStart/onStop?
 
     setContentView(R.layout.main)
+    Refresher setState Refresher.State(online = false)
+
     tabHost.setup()
 
     tabManager.addTab[MapListFragment](MainActivity.MapListTabTag, getString(R.string.all_maps))
@@ -214,6 +217,13 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         ()
       }
     }
+  }
+
+  def setState(state: Refresher.State) = laterOnUiThread { () =>
+    val (color, tx) = if (state.online) ("#00ff00", R.string.online) else ("#ff0000", R.string.offline)
+    val title = Html fromHtml s"${getString(R.string.action_bar)} <b><font color='$color'>${getString(tx)}</font></b>"
+
+    getSupportActionBar setTitle title
   }
 
   class TabManager(val activity: FragmentActivity with ScalaActivity, tabHost: TabHost, fakeContainerId: Int, realContainerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {

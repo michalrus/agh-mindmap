@@ -24,6 +24,8 @@ import edu.agh.mindmap.model.MindMap
 
 object Refresher extends MiscHelper {
 
+  case class State(online: Boolean)
+
   var mainActivity: Option[MainActivity] = None
 
   def refresh(mindMapUuid: UUID, refreshDrawing: Boolean) {
@@ -33,6 +35,10 @@ object Refresher extends MiscHelper {
       rootNode <- mindMap.root
       title <- rootNode.content
     } act onMapChanged (mindMap, title, refreshDrawing)
+  }
+
+  def setState(state: State) {
+    for (act <- mainActivity) act setState state
   }
 
 }

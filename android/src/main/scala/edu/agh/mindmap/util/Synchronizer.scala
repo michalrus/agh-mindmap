@@ -95,10 +95,13 @@ object Synchronizer {
     }
 
     if (response.isFailure) {
+      Refresher setState Refresher.State(online = false)
       val dur = System.currentTimeMillis - startedAt
       val diff = MinIntervalBetweenFailures.toMillis - dur
       if (diff > 0)
         Thread sleep diff
+    } else {
+      Refresher setState Refresher.State(online = true)
     }
 
     response

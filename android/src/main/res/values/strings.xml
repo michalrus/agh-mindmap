@@ -18,6 +18,10 @@
 
 <resources>
 
+  <string name="action_bar">agh-mindmap —</string>
+  <string name="online">online</string>
+  <string name="offline">offline</string>
+
   <string name="sync_base_url">https://agh-mindmap.michalrus.com</string>
 
   <string name="action_create">Create</string>
