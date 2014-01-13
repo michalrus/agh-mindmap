@@ -18,7 +18,7 @@
 
 <resources>
 
-  <string name="action_bar">agh-mindmap —</string>
+  <string name="action_bar"/>
   <string name="online">online</string>
   <string name="offline">offline</string>
 
