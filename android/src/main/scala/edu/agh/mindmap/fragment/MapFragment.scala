@@ -126,22 +126,18 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    * @param node A node from the model.
    * @return `(width, height)` in DP
    */
-  def nodeViewSize(node: MindNode): (Int, Int) = {
+  def nodeViewSize(node: MindNode): (Int, Int) =
     node.content match {
       case Some(s) =>
         if (s.length > 0) {
           val w = s.length * 12
-          if (w > 200)
-            ( 220 , 50 * (w/200 + 1) )
-          else
-            (w, 50)
+          if (w > 200) (205, 45 * (w / 200 + 1))
+          else (w, 45)
         }
         else
-          (150, 50)
-
+          (150, 45)
       case None =>
         (0, 0)
-    }
 
 
   }
