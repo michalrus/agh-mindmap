@@ -100,9 +100,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
           val newContent = Some(v.content.getText.toString)
           if (newContent != node.content) {
             node.content = newContent
-            if (node.isRoot) for {
-              cnt <- node.content
-            } Refresher.refresh(node.map.uuid, refreshDrawing = false)
+            Refresher.refresh(node.map.uuid, refreshDrawing = true)
           }
         }
     }
@@ -129,7 +127,20 @@ class MapFragment extends SherlockFragment with ScalaFragment {
    * @return `(width, height)` in DP
    */
   def nodeViewSize(node: MindNode): (Int, Int) =
-    (120, 30)
+    node.content match {
+      case Some(s) =>
+        if (s.length > 0) {
+          val w = s.length * 12
+          if (w > 200) (205, 45 * (w / 200 + 1))
+          else (w, 45)
+        }
+        else
+          (150, 45)
+      case None =>
+        (0, 0)
+
+
+  }
 
   def focusOn(t: EditText) {
     t requestFocus()
