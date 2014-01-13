@@ -19,6 +19,8 @@ package edu.agh.mindmapd.actors
 
 import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
+import edu.agh.mindmapd.storage.SquerylStorage
+import edu.agh.mindmapd.extensions.Settings
 
 object MapsSupervisor {
 
@@ -34,6 +36,9 @@ class MapsSupervisor extends Actor {
   import MapsSupervisor._
 
   var subscribers = Map.empty[ActorRef, Long]
+
+  // create MindMap actors for mind maps already existing in Storage
+  SquerylStorage allMaps Settings(context.system) map refFor
 
   def receive = {
     case Find(uuid) => sender ! refFor(uuid)

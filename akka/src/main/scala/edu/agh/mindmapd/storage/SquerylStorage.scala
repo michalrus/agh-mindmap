@@ -27,9 +27,18 @@ import org.squeryl.dsl.ast.LogicalBoolean
 
 object SquerylStorage extends Schema {
 
+  def allMaps(settings: Settings): Vector[UUID] = {
+    init(settings)
+    inTransaction { from(mindNodes)(n => select(&(n.mindMap))).distinct.toVector }
+  }
+
   def apply(mindMap: UUID, settings: Settings): Storage = {
-    init(settings.squeryl.url, settings.squeryl.user, settings.squeryl.password)
+    init(settings)
     new SquerylStorage(mindMap)
+  }
+
+  private[this] def init(settings: Settings) {
+    init(settings.squeryl.url, settings.squeryl.user, settings.squeryl.password)
   }
 
   private[this] def init(url: String, user: String, password: String) {
