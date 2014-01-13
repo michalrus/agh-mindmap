@@ -51,7 +51,6 @@ object SquerylStorage extends Schema {
 }
 
 class SquerylStorage private(val mindMap: UUID) extends Storage {
-
   import SquerylStorage._
 
   def contains(node: UUID): Boolean = find(node).isDefined
@@ -62,14 +61,16 @@ class SquerylStorage private(val mindMap: UUID) extends Storage {
         select n).headOption
   }
 
-  def findSince(time: Long, limit: Int): Iterable[MindNode] = inTransaction {
-    from(mindNodes)(n =>
+  def findSince(time: Long, limit: Int): Vector[MindNode] = inTransaction {
+    val q = from(mindNodes)(n =>
       where(n.mindMap.~ === mindMap and n.cloudTime.~ >= time)
         select n orderBy n.cloudTime.asc) page (0, limit)
+    q.toVector
   }
 
   def insertOrReplace(node: MindNode) = inTransaction {
-    mindNodes insertOrUpdate node
+    if (contains(node.uuid)) mindNodes update node
+    else mindNodes insert node
     ()
   }
 
@@ -105,7 +106,7 @@ class SquerylStorage private(val mindMap: UUID) extends Storage {
 
   def wasAnyChangedInSubtree(parent: MindNode, since: Long): Boolean = inTransaction {
     if (parent.cloudTime > since) true
-    else children(parent.uuid) forall (wasAnyChangedInSubtree(_, since))
+    else children(parent.uuid) exists (wasAnyChangedInSubtree(_, since))
   }
 
   def hasNoNodesYet: Boolean = inTransaction {

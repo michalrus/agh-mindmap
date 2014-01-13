@@ -21,7 +21,7 @@ import akka.actor.{ActorRef, Props, Actor}
 import java.util.UUID
 import edu.agh.mindmapd.model.MindNode
 import edu.agh.mindmapd.extensions.Settings
-import edu.agh.mindmapd.storage.{Storage, SquerylStorage}
+import edu.agh.mindmapd.storage.SquerylStorage
 
 object MindMap {
 
@@ -38,8 +38,6 @@ object MindMap {
 
 class MindMap(mapUuid: UUID) extends Actor {
   import MindMap._
-
-  import collection.immutable.TreeMap
 
   val storage = SquerylStorage(mapUuid, Settings(context.system))
 

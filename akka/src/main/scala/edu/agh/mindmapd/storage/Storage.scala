@@ -28,7 +28,7 @@ trait Storage {
 
   def find(node: UUID): Option[MindNode]
 
-  def findSince(time: Long, limit: Int): Iterable[MindNode]
+  def findSince(time: Long, limit: Int): Vector[MindNode]
 
   def insertOrReplace(node: MindNode): Unit
 
