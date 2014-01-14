@@ -26,7 +26,7 @@ During the final stage of creating our application, we had to find a way to veri
 \label{sec:summary-how-solve}
 The aims of our work are put in \cref{sec:requirements}. Now we will sum up what we managed to implement. 
  
-The first objective was to create an application compatible with XMind which lets its users create, edit and display mind maps. We succeeded in this task: our application enables creating, editing, displaying and deleting mind maps.
+The first objective was to create an application compatible with XMind which lets its users create, edit and display mind maps. We succeeded in this task: our application enables creating, editing and displaying mind maps. We did not implement deleting mind maps, but a user can delete any node with subtree he wants, apart from root node.
 
 Next, there was a part about presenting maps in a clean, structured way. We believe our application meets tis requirement. We put a lot of effort in positioning mind nodes, bidirectional scroll view also turned out to be troublesome and it is described in the \cref{sec:impl-problems}.
 
@@ -36,9 +36,17 @@ The collaboration works very well, just as it is described in the requirements, 
 \label{sec:summary-missing}
 The Android application is visually compatibile with XMind only on a very basic level. The main reason for that is that that was not the main issue while creating the software. We wanted to focus on creating the \emph{collaboration} tool. Still, a better compatibility would definitely be beneficial. 
 
-When it comes to the UI, we did not implement subtree folding, which seems a basic functionality in mind mapping software (althought not mentioned in our requirements). Also, the feature of moving any node (reassigning its parent node) by long-pressing it and choosing `Change parent' option, and then tapping on the new parent-to-be was not implemented. At that point, there was not enough time left to add it.
+When it comes to XMind functionalities, there are two which are quite useful. First is the ability to mark a relation between two nodes. We did not implement this feature due to its UI complexity. Adding it on a backend level (storage in database and importing from XMind files) is simple, but at this point our system of positioning supports tree structure. A line connecting any two nodes should  bypass other nodes. The second is adding longer notes to a single node. That would also be pretty easy to implement on data model level, but again the problem is UI - we did not came across a suitable way of displaying, editing or deleting notes.
+
+When it comes to the UI, we did not implement deleting whole mind maps, which seems a basic functionality in mind mapping software. However, we had a conceptual problem with how to solve this in collaboration - there was a problem with how to restore a mind map if one user deletes it and other would change its content.
+
+ Subtree folding also seems very important (althought not mentioned in our requirements). 
+ 
+ Another missing feature is moving any node (reassigning its parent node) by long-pressing it and choosing `Change parent' option, and then tapping on the new parent-to-be was not implemented. At that point, there was not enough time left to add it.
 
 Speaking of collaboration, there is one thing we did not implement - blocking edited leafs. It is an important for application usability, but due to the limited time we had, we did not manage to work our an appropriate solution. 
+
+
 
 \section{Future works}
 \label{sec:summary-future}
