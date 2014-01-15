@@ -27,7 +27,7 @@ Akka is an actor model for Scala (and Java) languages: `a toolkit and runtime fo
 
 Actors can be thought of as concurrent processes which communicate by passing messages. At the same time they are really efficient: especially 1 actor is \emph{not} equivalent to 1 thread, and \emph{not even 1} lightweight JVM thread.
 
-\section{Spray.io}
+\section{Spray.io and REST}
 \label{sec:theory-spray}
 
 Spray.io is a highly performant HTTP connectivity layer for Akka actors, see \cref{fig:spray-benchmark}. It also provides a convenient---and user-extendable---way of marshalling and unmarshalling of JSON requests and responses.
@@ -38,3 +38,12 @@ Spray.io is a highly performant HTTP connectivity layer for Akka actors, see \cr
 	\caption{Benchmark of HTTP throughput of various existing solutions published by \href{http://www.techempower.com}{techempower.com} \cite{Spray:2013:Benchmark}.}
 	\label{fig:spray-benchmark}
 \end{figure}
+
+REST---representational state transfer---is a style of creating web services, that makes them particularly easily horizontally scalable. A few constrains (fundamental ones listed below) have to be met to call a service RESTful.
+
+\begin{description}
+	\item[Client--server] Servers do not know about user interface and state, while clients are not concerned about data storage.
+	\item[Stateless] No client context is kept on the server between requests. Clients take care of what they already know and what they need from the server.
+	\item[Cacheable] As clients can cache responses, these need to be marked as cacheable or not.
+	\item[Layered system] A client cannot tell if it is being server by the end server, or by a proxy, load balancer etc.
+\end{description}
