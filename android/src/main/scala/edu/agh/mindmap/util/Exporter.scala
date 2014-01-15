@@ -22,24 +22,37 @@ import android.content.Context
 import android.widget.Toast
 import edu.agh.mindmap.R
 import android.os.Environment
+import java.io.File
 
 object Exporter {
   import com.michalrus.helper.MiscHelper.log
 
-  private val SanitizeRegex = """[^A-Za-z0-9]+""".r
-  private val SanitizeWith = "_"
-  private def fileName(in: String): String = {
-    val clean = SanitizeRegex replaceAllIn (in, SanitizeWith) stripPrefix SanitizeWith stripSuffix SanitizeWith
-    val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-    dir + "/" + clean + ".xmind"
-  }
-
   def export(context: Context, map: MindMap) {
     val ctx = context.getApplicationContext
     val title = map.root flatMap (_.content) getOrElse SanitizeWith
-    val filename = fileName(title)
-    log(s"exporting mind map ${map.uuid}") // FIXME
-    Toast makeText (ctx, ctx getString (R.string.export_error, filename), Toast.LENGTH_SHORT) show()
+    val file = fileFor(title)
+
+    def toast(id: Int) =
+      Toast makeText (ctx, ctx getString (id, file.getAbsolutePath), Toast.LENGTH_SHORT) show()
+    try {
+      exportImpl(file, map)
+      toast(R.string.export_success)
+    } catch {
+      case _: Throwable => toast(R.string.export_error)
+    }
+  }
+
+  private def exportImpl(file: File, map: MindMap) {
+    log(s"exporting mind map ${map.uuid} to ${file.getAbsolutePath}") // FIXME
+    throw new Exception
+  }
+
+  private val SanitizeRegex = """[^A-Za-z0-9]+""".r
+  private val SanitizeWith = "_"
+  private def fileFor(title: String): File = {
+    val clean = SanitizeRegex replaceAllIn (title, SanitizeWith) stripPrefix SanitizeWith stripSuffix SanitizeWith
+    val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+    new File(dir + "/" + clean + ".xmind")
   }
 
 }
