@@ -17,15 +17,18 @@
 
 package edu.agh.mindmap.util
 
-import edu.agh.mindmap.model.MindMap
+import edu.agh.mindmap.model.{MindNode, MindMap}
 import android.content.Context
 import android.widget.Toast
 import edu.agh.mindmap.R
 import android.os.Environment
-import java.io.File
+import java.io.{FileOutputStream, BufferedOutputStream, File}
+import scala.xml._
+import java.util.zip.{ZipEntry, ZipOutputStream}
+import java.nio.charset.Charset
 
 object Exporter {
-  import com.michalrus.helper.MiscHelper.log
+  import com.michalrus.helper.MiscHelper.{rng, log}
 
   def export(context: Context, map: MindMap) {
     val ctx = context.getApplicationContext
@@ -35,17 +38,60 @@ object Exporter {
     def toast(id: Int) =
       Toast makeText (ctx, ctx getString (id, file.getAbsolutePath), Toast.LENGTH_SHORT) show()
     try {
-      exportImpl(file, map)
+      val root = map.root.get // safe to throw here (won't happen anywayz)
+      exportImpl(file, root, ctx getString R.string.export_sheet_title)
       toast(R.string.export_success)
     } catch {
-      case _: Throwable => toast(R.string.export_error)
+      case e: Throwable =>
+        toast(R.string.export_error)
+        log(s"$e\n${e.getStackTraceString}\n")
     }
   }
 
-  private def exportImpl(file: File, map: MindMap) {
-    log(s"exporting mind map ${map.uuid} to ${file.getAbsolutePath}") // FIXME
-    throw new Exception
+  private def exportImpl(file: File, root: MindNode, sheetTitle: String) {
+    val timestamp = System.currentTimeMillis.toString
+    val xmap = <xmap-content
+    xmlns="urn:xmind:xmap:xmlns:content:2.0"
+    xmlns:fo="http://www.w3.org/1999/XSL/Format"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    timestamp="1389783862526"
+    version="2.0">
+      <sheet id={randomId} timestamp={timestamp}>
+        {topic2Xml(root, timestamp)}
+        <title>{sheetTitle}</title>
+      </sheet>
+    </xmap-content>
+    val content = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>""" +
+      "\n" + xmap.mkString
+
+    val os = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
+    try {
+      os putNextEntry new ZipEntry("content.xml")
+      os write (content getBytes (Charset forName "UTF-8"))
+    } finally {
+      os close()
+    }
   }
+
+  private def topic2Xml(node: MindNode, timestamp: String): Node = {
+    val children = node.children
+    val t = <topic id={randomId} timestamp={timestamp}>
+      <title>{node.content getOrElse ""}</title>
+      {if (children.nonEmpty) <children>
+        <topics type="attached">
+          {children map (topic2Xml(_, timestamp))}
+        </topics>
+      </children>}
+    </topic>
+
+    if (node.isRoot) t % Attribute(None, "structure-class", Text("org.xmind.ui.map.clockwise"), Null)
+    else t
+  }
+
+  private val RandomIdInput = "qwertyuiopasdfghjklzxcvbnm1234567890"
+  private def randomId = (Array fill 26)(RandomIdInput(rng nextInt RandomIdInput.length)).mkString
 
   private val SanitizeRegex = """[^A-Za-z0-9]+""".r
   private val SanitizeWith = "_"

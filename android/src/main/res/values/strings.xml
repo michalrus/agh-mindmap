@@ -38,6 +38,7 @@
   <string name="import_error_body">Make sure it\'s a valid XMind file.</string>
   <string name="export_success">Exporting \"%s\" succeeded</string>
   <string name="export_error">Exporting \"%s\" failed :(</string>
+  <string name="export_sheet_title">Sheet from agh-mindmap</string>
   <string name="file_error_title">Could not open file.</string>
   <string name="file_error_body">The file you\'ve chosen could not be opened for reading.</string>
   <string name="button_ok">OK</string>

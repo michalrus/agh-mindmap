@@ -27,7 +27,7 @@ object MiscHelper {
 
   def safen[T](block: => T): Option[T] = Try(Option(block)).toOption.flatten
 
-  class Random extends java.util.Random {
+  class Random extends util.Random {
     /** Returns pseudo-random integer from range [a;b] */
     def nextInt(a: Int, b: Int): Int = {
       val c = a min b
