@@ -28,6 +28,13 @@ Akka is an actor model for Scala (and Java) languages: `a toolkit and runtime fo
 Actors can be thought of as concurrent processes which communicate by passing messages. At the same time they are really efficient: especially 1 actor is \emph{not} equivalent to 1 thread, and \emph{not even 1} lightweight JVM thread.
 
 \section{Spray.io}
-\label{sec:xmind}
+\label{sec:theory-spray}
 
-\todo[inline]{To-do.}
+Spray.io is a highly performant HTTP connectivity layer for Akka actors, see \cref{fig:spray-benchmark}. It also provides a convenient---and user-extendable---way of marshalling and unmarshalling of JSON requests and responses.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{graphics-spray-benchmark}
+	\caption{Benchmark of HTTP throughput of various existing solutions published by \href{http://www.techempower.com}{techempower.com} \cite{Spray:2013:Benchmark}.}
+	\label{fig:spray-benchmark}
+\end{figure}
