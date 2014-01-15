@@ -24,7 +24,7 @@ Mind maps are diagrams which visually gather ideas and put them in a logical str
 
 % How? Shortly about the method
 
-The subject of the thesis is project and implementation of a cloud-based mind-mapping tool for Android. It should support bidirectional data exchange with one of the most popular mind-mapping software: XMind. Also, it should provide tools for collaboration: working on the same map in real-time by more than one person. The task will be divided into two modules. First one is creating an Android application, which supports XMind files. It will be implemented using Scala language and Android SDK. Second part of the task, the most important, is creation of collaboration tool for many users. To achieve this, we are going to use Akka.io and Spray.io, an actor system with REST communication model designed for Scala. Collaboration will be implemented with a limitation: one leaf can only be edited by one person at a time. After some time of idleness, editing should be disabled to unlock the leaf for other collaborators.
+The subject of the thesis is project and implementation of a cloud-based mind-mapping tool for Android. It should support bidirectional data exchange with one of the most popular mind-mapping software: XMind. Also, it should provide tools for collaboration: working on the same map in real-time by more than one person. The task will be divided into two modules. First one is creating an Android application, which supports XMind files. Second part of the task, the most important, is creation of collaboration tool for many users. 
 
 % Why? The source
 
@@ -38,9 +38,8 @@ Mind-mapping tools are used in a whole range of disciplines, both in science and
 
 Next chapters include the theoretical analysis of the problem and detailed description of the possible solution. Then, we will discuss the implementation details. In the final part we will focus on the analysis of our solution, providing tests to check how many of the initial problems were solved by the application.
 
-\section{Who did what}
-\label{sec:who-did-what}
-
+The work was split between two persons. The details of the division of tasks can be traced below in \cref{tab:who-did-impl}, \cref{tab:who-did-impl-akk} and \cref{tab:who-did-docs}.
+ 
 \begin{table}[h]
 	\centering
 	\begin{tabular}{l|c|c}
@@ -74,6 +73,8 @@ Next chapters include the theoretical analysis of the problem and detailed descr
 	\label{tab:who-did-impl}
 \end{table}
 
+
+
 \begin{table}[h]
 	\centering
 	\begin{tabular}{l|c|c}
@@ -97,7 +98,7 @@ Next chapters include the theoretical analysis of the problem and detailed descr
 		Setting up akka application on Amazon EC2 &  & M\\
 	\end{tabular}
 	\caption{Division of Akka related implementation tasks.}
-	\label{tab:who-did-impl}
+	\label{tab:who-did-impl-akk}
 \end{table}
 
 \begin{table}[h]
