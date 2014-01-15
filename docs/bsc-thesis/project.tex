@@ -39,6 +39,16 @@ To see how the system basically works, see \cref{fig:diagram-components-system}.
 	\label{fig:diagram-components-system}
 \end{figure}
 
+Basic communication flow is as follows:
+
+\begin{itemize}
+	\item any local change introduced by the user within the UI module of the Android application is saved to the local SQLite database and the Synchronizer module is notified,
+	\item the Synchronizer will communicate local updates to the http.Updater actor via REST call---\inlinecode{POST /update}---over HTTP,
+	\item the Synchronizer will also long-poll the remote updates from http.Poller actor, again, via REST call of \inlinecode{GET /poll/since/\$TIME} (\inlinecode{\$TIME} is a lower bound for a remote to-be-returned update timestamp),
+  \item these http.* actors communicate with the MapsSupervisor which forwards their messages to appropriate MindMap actors (there's one such actor for each mind map document),
+  \item what is not shown on the diagram is that MindMap actors flush their in-memory data structures to an underlying PostgreSQL database, which allows the system to keep its state in case of a restart).
+\end{itemize}
+
 \input{main-components}
 \input{data-representation}
 \input{xmind-import}
