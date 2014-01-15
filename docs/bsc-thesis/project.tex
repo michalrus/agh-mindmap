@@ -15,7 +15,7 @@
 %   limitations under the License.
 %
 
-\chapter{Project}
+\chapter{Design}
 \label{chap:project}
 
 \input{requirements}
@@ -23,7 +23,7 @@
 \section{Planned solution}
 \label{sec:plan}
 
-Our application allows its users to edit maps collaboratively, either over the Internet in real time, or offline with later online synchronization. This system consists of two main components:
+Our application allows its users to edit maps collaboratively, either over the Internet in real time, or offline with later online synchronization. To achieve this, we are going to use Akka.io and Spray.io, an actor system with REST communication model designed for Scala. The whole system consists of two main components:
 
 \begin{itemize}
 	\item an Android application running on any number of Android powered devices,
