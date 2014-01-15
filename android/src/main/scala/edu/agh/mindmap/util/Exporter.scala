@@ -21,15 +21,25 @@ import edu.agh.mindmap.model.MindMap
 import android.content.Context
 import android.widget.Toast
 import edu.agh.mindmap.R
+import android.os.Environment
 
 object Exporter {
   import com.michalrus.helper.MiscHelper.log
 
+  private val SanitizeRegex = """[^A-Za-z0-9]+""".r
+  private val SanitizeWith = "_"
+  private def fileName(in: String): String = {
+    val clean = SanitizeRegex replaceAllIn (in, SanitizeWith) stripPrefix SanitizeWith stripSuffix SanitizeWith
+    val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+    dir + "/" + clean + ".xmind"
+  }
+
   def export(context: Context, map: MindMap) {
     val ctx = context.getApplicationContext
-    val title = map.root flatMap (_.content) getOrElse ""
+    val title = map.root flatMap (_.content) getOrElse SanitizeWith
+    val filename = fileName(title)
     log(s"exporting mind map ${map.uuid}") // FIXME
-    Toast makeText (ctx, ctx getString (R.string.export_error, title), Toast.LENGTH_SHORT) show()
+    Toast makeText (ctx, ctx getString (R.string.export_error, filename), Toast.LENGTH_SHORT) show()
   }
 
 }
