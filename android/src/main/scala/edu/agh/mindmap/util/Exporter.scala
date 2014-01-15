@@ -56,7 +56,7 @@ object Exporter {
     xmlns:svg="http://www.w3.org/2000/svg"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    timestamp="1389783862526"
+    timestamp={timestamp}
     version="2.0">
       <sheet id={randomId} timestamp={timestamp}>
         {topic2Xml(root, timestamp)}
