@@ -22,12 +22,14 @@ import android.os.Bundle
 import android.view.{View, ViewGroup, LayoutInflater}
 import edu.agh.mindmap.R
 import android.widget.{AdapterView, ArrayAdapter, TextView, ListView}
+import AdapterView.OnItemLongClickListener
 import com.michalrus.helper.ScalaFragment
 import edu.agh.mindmap.model.MindMap
 import android.widget.AdapterView.OnItemClickListener
 import edu.agh.mindmap.activity.MainActivity
 import android.content.Context
 import java.util.UUID
+import edu.agh.mindmap.util.Exporter
 
 object MapListFragment {
   val ItemXml = R.layout.recent_list_item
@@ -108,6 +110,13 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
         override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
           val map = adapter getItem position
           withMainActivity (_ viewMindMap map)
+        }
+      }
+
+      listView setOnItemLongClickListener new OnItemLongClickListener {
+        def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long) = {
+          Exporter export (getActivity, adapter getItem position)
+          true
         }
       }
     }
