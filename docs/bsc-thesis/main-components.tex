@@ -15,12 +15,12 @@
 %   limitations under the License.
 %
 
-\subsection{Two main components: Android and Akka applications}
+\subsection{Android component}
 \label{subsec:component-android}
 
 % -------------------------------- Android
 
-The UI of our application consists of the following main components:
+Our application consists of the following main components:
 
 \begin{itemize}
 	\item an action bar at the top of user's display; on the left side of it, there should be our application's name displayed; on the right side: action items that enable the user to create/import/close a mind map,
@@ -66,6 +66,9 @@ The UI of our application consists of the following main components:
 	\label{fig:mockup-mindmap}
 \end{figure}
 
+
+\subsection{Akka applications}
+\label{subsec:proj-component-akka}
 % -------------------------------- Akka
 
 Akka, on the other hand, is used as a backend for the mobile application (and---possibly---for \emph{any other} client app yet-to-come into existence). It enables all mobile devices with the application installed to share maps and collaborate on them in real-time. Several REST web services are implemented using Spray.io (a REST interface to Akka) for communication between Android devices and actor system on the server-side.
