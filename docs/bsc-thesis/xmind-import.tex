@@ -15,7 +15,7 @@
 %   limitations under the License.
 %
 
-\subsection{XMind import}
+\subsection{XMind import and export}
 \label{subsec:xmind-exchange}
 
 Details of an XMind file format can be found in \cref{sec:xmind}. XML is a way of storing data as a labeled tree created of nested tags with various attributes. Most of the attributes in  XMind tags will not be necessary, and some of them are not even used in XMind. Specifically, we want to omit data that is used to determine a style assigned to the sheet. The first step to importing an {\em XMind} file is to open it as a ZIP archive. The inlinecode{content.xml} is wrapped in an \inlinecode{InputStream}, and converted to Scala's XML object. Then, the actual parsing may be started.
