@@ -42,7 +42,6 @@ class Settings(cf: Config) extends Extension {
     val update = "mindmapd.timeout.update".dur
     val internalMessage = "mindmapd.timeout.internal-message".dur
   }
-  val _ = timeout // create now
 
   object squeryl {
     val driver = "mindmapd.squeryl.driver".cls
@@ -50,7 +49,8 @@ class Settings(cf: Config) extends Extension {
     val user = "mindmapd.squeryl.user".str
     val password = "mindmapd.squeryl.password".str
   }
-  val __ = squeryl // create now
+
+  val _ = (timeout, squeryl) // ~hack: create the objects *now*
 
 }
 
