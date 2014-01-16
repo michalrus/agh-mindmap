@@ -43,35 +43,40 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
 
   val settings = Settings(context.system)
 
-  var requester: Option[ActorRef] = None
-  var cancellables = List.empty[Cancellable]
+  private case class State(requester: ActorRef, cancellables: List[Cancellable], data: List[MindNode])
 
   def initial: Receive = {
     case Process(since) =>
       mapsSupervisor ! MapsSupervisor.Subscribe(self, since)
-      requester = Some(sender)
-      cancellables ::= context.system.scheduler scheduleOnce (settings.timeout.poll, self, PollTimeout)
-      context become waitingForFirst
+      val tm = context.system.scheduler scheduleOnce (settings.timeout.poll, self, PollTimeout)
+      context become waitingForFirst(State(
+        requester = sender,
+        cancellables = tm :: Nil,
+        data = Nil))
   }
 
-  def waitingForFirst: Receive = {
-    case PollTimeout => complete(Nil)
+  def waitingForFirst(state: State): Receive = {
+    case PollTimeout => complete(state)
 
     case MindMap.Changed(node) =>
-      cancellables ::= context.system.scheduler scheduleOnce (settings.timeout.mapResponse, self, MapsTimeout)
-      context become waitingForRest(node :: Nil)
+      val tm = context.system.scheduler scheduleOnce(settings.timeout.mapResponse, self, MapsTimeout)
+      context become waitingForRest(state copy(
+        cancellables = tm :: state.cancellables,
+        data = node :: state.data))
   }
 
-  def waitingForRest(data: List[MindNode]): Receive = {
-    case PollTimeout | MapsTimeout => complete(data)
+  def waitingForRest(state: State): Receive = {
+    case PollTimeout | MapsTimeout => complete(state)
 
     case MindMap.Changed(node) =>
-      context become waitingForRest(node :: data)
+      context become waitingForRest(state copy (
+        data = node :: state.data))
   }
 
-  def complete(data: List[MindNode]) {
+  def complete(state: State) {
+    import state._
     cancellables foreach (_.cancel())
-    requester foreach (_ ! PollResponse(data))
+    requester ! PollResponse(data)
     mapsSupervisor ! MapsSupervisor.Unsubscribe(self)
     context stop self
   }

@@ -36,6 +36,10 @@ object Build extends Build {
       scalacOptions in Compile ++= Seq("-feature", "-deprecation", "-Yno-adapted-args", "-Ywarn-all", "-Xfatal-warnings",
         "-Xlint", "-Ywarn-value-discard", "-Ywarn-numeric-widen", "-Ywarn-dead-code", "-unchecked"),
 
+      resolvers += "michalrus.com repo" at "https://maven.michalrus.com/",
+      addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.6-SNAPSHOT" cross CrossVersion.full),
+      scalacOptions += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.Unsafe",
+
       resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
       libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.2.3",
 

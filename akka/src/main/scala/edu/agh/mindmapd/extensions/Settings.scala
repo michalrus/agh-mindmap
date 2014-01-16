@@ -18,14 +18,12 @@
 package edu.agh.mindmapd.extensions
 
 import scala.concurrent.duration._
-import akka.actor.{Extension, ExtendedActorSystem, ExtensionKey}
+import akka.actor.{ExtensionIdProvider, ExtensionId, Extension, ExtendedActorSystem}
+import com.typesafe.config.Config
 
-object Settings extends ExtensionKey[Settings]
-
-class Settings(system: ExtendedActorSystem) extends Extension {
+class Settings(cf: Config) extends Extension {
 
   private implicit class KeyOps(k: String) {
-    @inline private def cf = system.settings.config
     def boo = cf getBoolean k
     def dur = FiniteDuration(cf getMilliseconds k, MILLISECONDS)
     def int = cf getInt k
@@ -43,13 +41,20 @@ class Settings(system: ExtendedActorSystem) extends Extension {
     val mapResponse = "mindmapd.timeout.maps-response".dur
     val update = "mindmapd.timeout.update".dur
     val internalMessage = "mindmapd.timeout.internal-message".dur
-  }; timeout // create now
+  }
+  val _ = timeout // create now
 
   object squeryl {
     val driver = "mindmapd.squeryl.driver".cls
     val url = "mindmapd.squeryl.url".str
     val user = "mindmapd.squeryl.user".str
     val password = "mindmapd.squeryl.password".str
-  }; squeryl // create now
+  }
+  val __ = squeryl // create now
 
+}
+
+object Settings extends ExtensionId[Settings] with ExtensionIdProvider {
+  def lookup() = Settings
+  def createExtension(system: ExtendedActorSystem) = new Settings(system.settings.config)
 }

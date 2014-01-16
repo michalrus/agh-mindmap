@@ -79,8 +79,7 @@ class SquerylStorage private(val mindMap: UUID) extends Storage {
 
   def insertOrReplace(node: MindNode) = inTransaction {
     if (contains(node.uuid)) mindNodes update node
-    else mindNodes insert node
-    ()
+    else { val _ = mindNodes insert node }
   }
 
   private def children(parent: UUID): Iterable[MindNode] = inTransaction {
@@ -93,24 +92,22 @@ class SquerylStorage private(val mindMap: UUID) extends Storage {
   def deleteChildrenOf(parent: UUID) = inTransaction {
     for (ch <- children(parent)) deleteChildrenOf(ch.uuid)
     // *** DFS, DO NOT CHANGE ORDER! ***
-    mindNodes deleteWhere (n => n.mindMap.~ === mindMap and n.parent.~ === Some(parent))
-    ()
+    val _ = mindNodes deleteWhere (n => n.mindMap.~ === mindMap and n.parent.~ === Some(parent))
   }
 
   def touchTimesOfSubtree(parent: UUID) = inTransaction {
     val now = System.currentTimeMillis
-    def upd(f: MindNode => LogicalBoolean) =
-      update(mindNodes)(n => where(n.mindMap.~ === mindMap and f(n)) set(n.cloudTime := now))
+    def upd(f: MindNode => LogicalBoolean) {
+      val _ = update(mindNodes)(n => where(n.mindMap.~ === mindMap and f(n)) set(n.cloudTime := now))
+    }
 
     def touchChildrenOf(parent: UUID) {
       for (ch <- children(parent)) touchChildrenOf(ch.uuid)
       upd(_.parent.~ === Some(parent))
-      ()
     }
 
     touchChildrenOf(parent)
     upd(_.uuid.~ === parent)
-    ()
   }
 
   def wasAnyChangedInSubtree(parent: MindNode, since: Long): Boolean = inTransaction {

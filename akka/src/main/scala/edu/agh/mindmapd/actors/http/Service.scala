@@ -71,7 +71,7 @@ class Service(mapsSupervisor: ActorRef)
       if (Settings(context.system).isProduction) {
         (StatusCodes.Forbidden, "Won't die at production, u mad? =,=\n")
       } else {
-        context.system.scheduler scheduleOnce (100.millis, self, PoisonPill)
+        val _ = context.system.scheduler scheduleOnce (100.millis, self, PoisonPill)
         "Dying...\n"
       }
     }}}

@@ -41,27 +41,27 @@ class MindMap(mapUuid: UUID) extends Actor {
 
   val storage = SquerylStorage(mapUuid, Settings(context.system))
 
-  var subscribers = Set.empty[ActorRef]
+  def receive = initial(Set.empty)
 
-  def receive = {
+  def initial(subscribers: Set[ActorRef]): Receive = {
     case Subscribe(whom, since) =>
       storage findSince (since, limit = 50) foreach (whom ! Changed(_))
-      subscribers += whom
+      context become initial(subscribers + whom)
 
     case Unsubscribe(whom) =>
-      subscribers -= whom
+      context become initial(subscribers - whom)
 
     case Update(atTime, updates) =>
       orphanNodes(updates) match {
         case orphans if orphans.nonEmpty =>
           sender ! UpdateResult(orphans.toList)
         case _ =>
-          mergeIn(updates, atTime)
+          mergeIn(updates, atTime, subscribers)
           sender ! UpdateResult(orphanNodes = Nil)
       }
   }
 
-  def mergeIn(updates: List[MindNode], atTime: Long) =
+  def mergeIn(updates: List[MindNode], atTime: Long, subscribers: Set[ActorRef]) =
     updates foreach { suggestion =>
       val update = merged(suggestion, atTime).
         copy(cloudTime = System.currentTimeMillis)
@@ -106,7 +106,7 @@ class MindMap(mapUuid: UUID) extends Actor {
     var orphans = Set.empty[UUID]
     val request = (potentialUpdates map (n => n.uuid -> n)).toMap
 
-    request foreach { case (_, node) =>
+    for (node <- request.values) {
       if (storage contains node.uuid)
         () // cool, modifying already existing node
       else node.parent match {

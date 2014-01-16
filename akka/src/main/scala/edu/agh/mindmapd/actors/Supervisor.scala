@@ -27,7 +27,7 @@ class Supervisor extends Actor {
   val mapsSupervisor = context actorOf (MapsSupervisor.props, "maps")
 
   val httpService = context actorOf (http.Service.props(mapsSupervisor), "http-service")
-  context watch httpService
+  val _ = context watch httpService
 
   def receive = {
     case Terminated(`httpService`) => context stop self

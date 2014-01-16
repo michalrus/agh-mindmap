@@ -35,32 +35,30 @@ object MapsSupervisor {
 class MapsSupervisor extends Actor {
   import MapsSupervisor._
 
-  var subscribers = Map.empty[ActorRef, Long]
-
   // create MindMap actors for mind maps already existing in Storage
-  SquerylStorage allMaps Settings(context.system) map refFor
+  val _ = SquerylStorage allMaps Settings(context.system) map (refFor(_, Map.empty))
 
-  def receive = {
-    case Find(uuid) => sender ! refFor(uuid)
+  def receive = initial(Map.empty)
+
+  def initial(subscribers: Map[ActorRef, Long]): Receive = {
+    case Find(uuid) => sender ! refFor(uuid, subscribers)
 
     case Subscribe(whom, since) =>
-      subscribers += whom -> since
       context.children foreach (_ ! MindMap.Subscribe(whom, since))
+      context become initial(subscribers + (whom -> since))
 
     case Unsubscribe(whom) =>
-      subscribers -= whom
       context.children foreach (_ ! MindMap.Unsubscribe(whom))
+      context become initial(subscribers - whom)
   }
 
-  def refFor(uuid: UUID): ActorRef = {
+  def refFor(uuid: UUID, subscribers: Map[ActorRef, Long]): ActorRef = {
     val s = uuid.toString
     context child s match {
       case Some(ref) => ref
       case _ =>
         val ref = context actorOf (MindMap.props(uuid), s)
-        subscribers foreach { case (whom, since) =>
-          ref ! MindMap.Subscribe(whom, since)
-        }
+        for ((whom, since) <- subscribers) ref ! MindMap.Subscribe(whom, since)
         ref
     }
   }
