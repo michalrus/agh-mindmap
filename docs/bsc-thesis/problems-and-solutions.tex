@@ -21,11 +21,11 @@
 \subsection{Encapsulation of bidirectional message passing over request-response style HTTP protocol}
 \label{subsec:problem-longpolling}
 
-Most web browsers have a limit for concurrently open connections to the same server set to a value close to 2. This means it would be best to encapsulate message passing in \emph{one} constantly open connection, to leave the other free to be used in any way needed (e.g. to download some media resources).
+Most web browsers have some limit set for concurrently open connections to the same server. This means it would be best to encapsulate message passing in \emph{one} `concurrently' open connection and leave the others to be used in any way needed (e.g. to download media resources).
 
-This is not much of an issue when Android is concerned, because as many connections can be opened as we need. However, as it is really easy to add other front-ends (web application), it is wise to implement the REST actors (\cref{subsection:akka-actors}) and the client to be able to operate sequentially on one connection only.
+This is not much of an issue when Android is concerned, because as many connections can be opened, as we need. However, since it is not difficult to add other front-ends (web application), it is also wise to implement the REST actors (\cref{subsection:akka-actors}) and the client to be able to operate on one sequentially opened connection only.
 
-What has to be done on the client-side is to disconnect/destroy the connection with a request og \inlinecode{GET /poll/since/\$TIME} and only then send \inlinecode{POST /update}. This is almost equally straightforward with Spray: we have to overload \inlinecode{onConnectionClosed} method of \inlinecode{HttpServiceBase} and in its new, overloaded body stop an appriopriate Poller actor.
+What has to be done on the client-side is to disconnect/destroy the connection with a request of \inlinecode{GET /poll/since/\$TIME} and only then send \inlinecode{POST /update}. This is almost equally straightforward with Spray: we have to overload \inlinecode{onConnectionClosed} method of \inlinecode{HttpServiceBase} and in its new, overloaded body stop an appriopriate Poller actor.
 
 The final choice whether to use one or two connections is left to the client: to our Akka backend both of these cases are of completely no difference.
 
