@@ -103,27 +103,26 @@ class MindMap(mapUuid: UUID) extends Actor {
     }
 
   def orphanNodes(potentialUpdates: List[MindNode]): Set[UUID] = {
-    var orphans = Set.empty[UUID]
     val request = (potentialUpdates map (n => n.uuid -> n)).toMap
 
-    for (node <- request.values) {
+    def toOrphan(node: MindNode): Option[UUID] = {
       if (storage contains node.uuid)
-        () // cool, modifying already existing node
+        None // cool, modifying already existing node
       else node.parent match {
         case Some(parent) =>
           if ((storage find parent exists (_.content.isDefined)) || (request contains parent))
-            () // cool, adding a new child to a known and not already deleted parent
+            None // cool, adding a new child to a known and not already deleted parent
           else
-            orphans += node.uuid // not cool, no parent known for this node :(
+            Some(node.uuid) // not cool, no parent known for this node :(
         case None =>
           if (storage.hasNoNodesYet)
-            () // cool, new map creation
+            None // cool, new map creation
           else
-            orphans += node.uuid // not cool, should not happen (adding a second root?!?!)
+            Some(node.uuid) // not cool, should not happen (adding a second root?!?!)
       }
     }
 
-    orphans
+    request.values.toSet flatMap toOrphan
   }
 
 }
