@@ -22,17 +22,20 @@
 \label{sec:summary-testing}
 During the final stage of creating our application, we had to find a way to verify how it met the requirements and whether all the functionalities we implemented work in an anticipated way. We conducted application tests, mostly by ourselves. We also asked two of our friends to test this application for us. We wanted to find any bugs and verify whether the user interface is intuitive and handy. 
 
-We tested the following use cases both on 2.3.4 and 4.1.2 Android versions: 
-1. When user A deletes a whole subtree online, and other, user B, being offline, changes something in the structure of the same subtree, the application recreates the deleted structure and saves it as soon as user B's connection comes back.
+We tested the following use cases both on 2.3.4 and 4.1.2 Android versions:
 
-2.  When user A modifies online node a1, and other, user B, being offline, changes something in the content of the same node a1, the application merges content of two versions as soon as user B's connection comes back. 
-While testing this use case we encoutered a problem described below. 
+\begin{enumerate}
+	\item When user A deletes a whole subtree online, and other, user B, being offline, changes something in the structure of the same subtree, the application recreates the deleted structure and saves it as soon as user B's connection comes back.
+	
+	\item When user A modifies online node a1, and other, user B, being offline, changes something in the content of the same node a1, the application merges content of two versions as soon as user B's connection comes back. 
+	While testing this use case we encoutered a problem described below.
+	
+	\item When user A and user B are online and start editing the same node, when user A finishes  editing first, his version appears on other devices, even if other users were modifying it.
+	
+	\item Importing an XMind map, modifying it and then exporting.
+\end{enumerate}
 
-3. When user A and user B are online and start editing the same node, when user A finishes  editing first, his version appears on other devices, even if other users were modifying it.
-
-4. Importing an XMind map, modifying it and then exporting. 
-
-The results were satisfying - the users did not have problems using the application. The designed synchronization algorithm works as we thought. Also, the technologies we used for writing the server part turned out to be robust. We discovered only one bug, descibed below. 
+The results were satisfying, the users did not have problems using the application. The designed synchronization algorithm works as we thought. Also, the technologies we used for writing the server part turned out to be robust. We discovered only one bug, descibed below. 
 
 \section{How does the implementation solve the problem?}
 \label{sec:summary-how-solve}
