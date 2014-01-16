@@ -43,7 +43,7 @@ class Poller(mapsSupervisor: ActorRef) extends Actor {
 
   val settings = Settings(context.system)
 
-  private case class State(requester: ActorRef, cancellables: List[Cancellable], data: List[MindNode])
+  case class State(requester: ActorRef, cancellables: List[Cancellable], data: List[MindNode])
 
   def initial: Receive = {
     case Process(since) =>
