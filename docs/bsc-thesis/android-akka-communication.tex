@@ -16,8 +16,7 @@
 %
 \subsection{REST}
 \label{subsec:restful}
- Communication between Android devices and actor system on the server-side requires a REST web service with two paths using the DSL of Spray.io. It enables communication over HTTP between Akka and client applications using JSON format message. We will be using GET and POST HTTP methods in order to request and send updates. Default JSON format provided by Spray.io is not sufficient for sending our application's data, so we will need custom JSON.  
- 
+ Communication between Android devices and actor system on the server-side requires a REST web service with two paths, created using the DSL of Spray.io. It enables communication over HTTP between Akka and client applications using JSON-format messages. We will be using GET and POST HTTP methods in order to request and send updates. Default JSON (un-)marshallers provided by Spray.io are not sufficient for sending our application's data. We will also need a custom (un-)marshaller to handle the UUID type.
 
 \subsection{Communication}
 \label{subsec:android-akka-comm}
