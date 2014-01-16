@@ -1,4 +1,4 @@
-%
+\textit{}%
 %   Copyright 2013 Katarzyna Szawan <kat.szwn@gmail.com>
 %       and Michał Rus <m@michalrus.com>
 %
@@ -26,7 +26,7 @@ After some research and because of previous experience with Android development,
 
 \subsection{Is developing for Android in Scala a good idea?}
 \label{subsec:good-idea}
-Developing Android applications in Scala has recently become more and more popular. However, there is a number of possible problems that a developer can meet. One of the most important drawbacks is that the building is significantly slower than this of a regular Java application. It is due to the fact, that Scala's standard library need to be converted to Dalvik (Android's virtual machine) bytecode during the build process. There are many ways to make building faster, for example using ProGuard with cache turned on. It shrinks and optimizes code also remembering the optimisations, thus making it smaller and faster~\cite{Berkel:2011:preinstall}. Another way is to preload Scala dexed (JVM bytecode translated to Dalvik bytecode) libraries on the Android device and add them to the Android runtime, which eliminates the need to do it during the build process~\cite{Berkel:2011:preinstall}. However, it requires access to a root account on the device, which is usually not provided in stock Android ROMs. Moreover, rooting Android devices involves taking certain actions which most often leads to voiding a warranty.
+Developing Android applications in Scala has recently become more and more popular. However, there is a number of possible problems that a developer can meet. One of the most important drawbacks is that the building is significantly slower than this of a regular Java application. It is due to the fact, that Scala's standard library need to be converted to Dalvik (Android's virtual machine) bytecode during the build process. There are many ways to make building faster, for example using ProGuard with cache turned on. It shrinks and optimizes code also remembering the optimisations, thus making it smaller and faster~\cite{Berkel:2011:preinstall}. Another way is to preload Scala dexed (JVM bytecode translated to Dalvik bytecode) libraries on the Android device and add them to the Android runtime, which eliminates the need to do it during the build process~\cite{Berkel:2011:preinstall}. However, it requires access to a root account on the device, which is usually not provided in stock Android ROMs. Moreover, rooting Android devices involves taking certain actions which most often leads to voiding the warranty.
 
 \subsection{Android integration with SBT}
 \label{subsec:android-sbt}
