@@ -67,7 +67,7 @@ class MapListFragment extends SherlockFragment with ScalaFragment {
             } else i += 1
           }
         }
-        uuids += m.uuid
+        val _ = uuids += m.uuid
         adapter add m
       }
       adapter notifyDataSetChanged()

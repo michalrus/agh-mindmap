@@ -32,10 +32,11 @@ import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}
 import edu.agh.mindmap.model.{MindNode, MindMap}
-import edu.agh.mindmap.util.{Refresher, Synchronizer, DBHelper, ImporterException}
+import edu.agh.mindmap.util._
 import java.util.UUID
 import scala.util.Try
 import android.text.Html
+import scala.Some
 
 object MainActivity {
   val FileChooserRequestCode = 31337
@@ -55,7 +56,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     Synchronizer.resume(getString(R.string.sync_base_url))
   }
 
-  private lazy val tabHost = find[TabHost](R.id.tabhost).get // safe to throw here, application entry point, no way to deploy missing this
+  private lazy val tabHost = find[TabHost](R.id.tabhost).
+    fold { (throw new NoSuchElementException): TabHost } { x => x } // safe to throw here, application entry point, no way to deploy missing this
   private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
 
   // /me hates you, Android, for this:
@@ -133,9 +135,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   def alertOk(title: Int, message: Int) {
     val b = new AlertDialog.Builder(this)
-    b setMessage message setTitle title setCancelable false
-    b setPositiveButton (R.string.button_ok, null)
-    b.create.show()
+    val _ = (b setMessage message setTitle title setCancelable false setPositiveButton (R.string.button_ok, ExplicitNull.OnClickListener)).
+      create.show()
   }
 
   def withMapListFragment(f: MapListFragment => Unit) {
@@ -200,7 +201,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
   override def onBackPressed() {
     tabHost.getCurrentTabTag match {
       case MainActivity.MapListTabTag => super.onBackPressed()
-      case _ => tabManager focusTabOfTag MainActivity.MapListTabTag; ()
+      case _ => val _ = tabManager focusTabOfTag MainActivity.MapListTabTag
     }
   }
 
@@ -212,8 +213,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
       tabManager.addTab[MapFragment](uuid, map.root flatMap (_.content) getOrElse "", b)
       if (switchTab) laterOnUiThread { () =>
-        tabManager.focusTabOfTag(uuid)
-        ()
+        val _ = tabManager.focusTabOfTag(uuid)
       }
     }
   }
@@ -229,7 +229,8 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
     tabHost.setOnTabChangedListener(this)
 
-    val scrollView = activity.find[HorizontalScrollView](scrollId).get // safe to throw here, too; the app won't start at all
+    val scrollView = activity.find[HorizontalScrollView](scrollId).
+      fold { (throw new NoSuchElementException): HorizontalScrollView } { x => x } // safe to throw here, too; the app won't start at all
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
 
@@ -257,9 +258,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       tabHost newTabSpec tag setIndicator shortenLabel(label) setContent new DummyTabFactory(activity)
     }
 
-    def addTab[F: Manifest](tag: String, label: String, args: Bundle = null) {
+    def addTab[F: Manifest](tag: String, label: String, args: Bundle = ExplicitNull.Bundle) {
       val tabSpec = tabSpecFor(tag, label)
-      creators += tag -> (() => Fragment.instantiate(activity, implicitly[Manifest[F]].runtimeClass.getName, args))
+      val _ = creators += tag -> (() => Fragment.instantiate(activity, implicitly[Manifest[F]].runtimeClass.getName, args))
 
       // Check to see if we already have a fragment for this tab, probably
       // from a previously saved state.  If so, deactivate it, because our
@@ -268,10 +269,9 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         case Some(f) =>
           if (!f.isDetached) {
             val ft = activity.getSupportFragmentManager.beginTransaction
-            ft.detach(f)
-            ft.commit()
+            val _ = ft.detach(f).commit()
           }
-          fragments += tag -> f
+          val _ = fragments += tag -> f
         case _ =>
       }
 
@@ -285,7 +285,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       val ts = tabSpecs.zipWithIndex filter { case (t, i) => t.spec.getTag == tag }
 
       ts foreach { case (t, i) =>
-        t.spec setIndicator shortenedLabel
+        val _ = t.spec setIndicator shortenedLabel
         tabSpecs = tabSpecs updated (i, MyTabSpec(t.spec, label))
       }
 
@@ -316,21 +316,19 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         tabHost scrollTo (scrollX, scrollY)
 
         // switch to another tab
-        focusTabOfTag(tagAfterwards)
+        val _ = focusTabOfTag(tagAfterwards)
       }
 
       // update creators map
-      creators -= tag
+      val _ = creators -= tag
 
       // update fragments map, remove the fragment
       fragments get tag match {
         case Some(fragment) =>
           val ft = activity.getSupportFragmentManager.beginTransaction
-          ft remove fragment
-          ft commit()
+          val _ = ft remove fragment commit()
 
-          fragments -= tag
-          ()
+          { val _ = fragments -= tag }
         case _ =>
       }
     }
@@ -352,7 +350,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         val ft = activity.getSupportFragmentManager.beginTransaction
         lastTabTag match {
           case Some(t) => fragments.get(t) match {
-            case Some(f) => ft.hide(f)
+            case Some(f) => val _ = ft.hide(f)
             case _ =>
           }
           case _ =>
@@ -360,14 +358,15 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         (creators.get(tag), fragments.get(tag)) match {
           case (Some(creator), None) =>
             val f = creator()
-            fragments += tag -> f
-            ft.add(realContainerId, f, tag)
-          case (_, Some(f)) => if (f.isHidden) ft.show(f) else ft.attach(f)
+            val _ = fragments += tag -> f
+
+            { val _ = ft.add(realContainerId, f, tag) }
+          case (_, Some(f)) => val _ = if (f.isHidden) ft.show(f) else ft.attach(f)
           case _ =>
         }
         lastTabTag = Some(tag)
-        Try { // might throw if this gets called after activity is destroyed... Android. :(
-          ft.commit()
+        val _ = Try { // might throw if this gets called after activity is destroyed... Android. :(
+          val _ = ft.commit()
           activity.getSupportFragmentManager.executePendingTransactions()
         }
         laterOnUiThread { () =>

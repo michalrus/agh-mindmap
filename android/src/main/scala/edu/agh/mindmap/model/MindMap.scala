@@ -19,7 +19,7 @@ package edu.agh.mindmap.model
 
 import java.util.UUID
 import java.io.File
-import edu.agh.mindmap.util.{DBHelper, Importer}
+import edu.agh.mindmap.util.{ExplicitNull, DBHelper, Importer}
 import com.michalrus.android.helper.MiscHelper
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
@@ -35,10 +35,9 @@ class MindMap private(val uuid: UUID,
     val v = new ContentValues
     v put (CUuid, uuid.toString)
 
-    MindMap.dbw insertWithOnConflict (TMap, null, v, SQLiteDatabase.CONFLICT_REPLACE)
+    val _ = MindMap.dbw insertWithOnConflict (TMap, CUuid, v, SQLiteDatabase.CONFLICT_REPLACE)
 
     // FIXME: sync? But what?
-    ()
   }
 
 }
@@ -49,7 +48,7 @@ object MindMap extends DBUser {
 
   def create(title: String): MindMap = {
     val map = createWith(uuid = UUID.randomUUID)
-    MindNode createRootOf (map, title)
+    val _ = MindNode createRootOf (map, title)
     map
   }
 
@@ -61,15 +60,16 @@ object MindMap extends DBUser {
   }
 
   def findAll: Vector[MindMap] = {
-    val cur = dbr query (TMap, Array(CUuid), null, null, null, null, null)
+    val cur = dbr query (TMap, Array(CUuid), ExplicitNull.String, ExplicitNull.StringArray,
+      ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
 
-    cur moveToFirst()
+    val _ = cur moveToFirst()
     var uuids = Vector.empty[UUID]
     while (!cur.isAfterLast) {
       for {
         uuid <- safen(UUID fromString (cur getString 0))
       } uuids :+= uuid
-      cur moveToNext()
+      val _ = cur moveToNext()
     }
 
     uuids map { uuid =>
@@ -83,8 +83,9 @@ object MindMap extends DBUser {
 
   private var memo = Map.empty[UUID, MindMap]
   def findByUuid(uuid: UUID): Option[MindMap] = memo.synchronized { memo get uuid orElse {
-    val cur = dbr query (TMap, Array(CUuid), s"$CUuid = ?", Array(uuid.toString), null, null, null)
-    cur moveToFirst()
+    val cur = dbr query (TMap, Array(CUuid), s"$CUuid = ?", Array(uuid.toString),
+      ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
+    val _ = cur moveToFirst()
 
     val candidate = for {
       uuid <- safen(UUID fromString (cur getString 0))

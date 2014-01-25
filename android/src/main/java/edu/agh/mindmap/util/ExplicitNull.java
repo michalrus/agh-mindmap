@@ -15,22 +15,23 @@
  * limitations under the License.
  */
 
-package edu.agh.mindmap.model
+package edu.agh.mindmap.util;
 
-import edu.agh.mindmap.util.{ExplicitNull, DBHelper}
-import android.database.sqlite.SQLiteDatabase
+import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 
-trait DBUser {
+public final class ExplicitNull {
 
-  private var _db: Option[DBHelper] = None
-  def setDb(dbHelper: DBHelper) = _db = Some(dbHelper)
-  def dbr = {
-    require(_db.isDefined) // safe to throw here, crucial functionality
-    _db.map(_.getReadableDatabase).fold { (throw new Exception): SQLiteDatabase } { x => x }
-  }
-  def dbw = {
-    require(_db.isDefined) // safe to throw here, crucial functionality
-    _db.map(_.getWritableDatabase).fold { (throw new Exception): SQLiteDatabase } { x => x }
-  }
+    public static final SQLiteDatabase.CursorFactory CursorFactory = null;
+
+    public static final String String = null;
+    public static final String[] StringArray = null;
+
+    public static final Long Long = null;
+
+    public static final Bundle Bundle = null;
+
+    public static final DialogInterface.OnClickListener OnClickListener = null;
 
 }

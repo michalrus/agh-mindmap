@@ -55,7 +55,7 @@ object Synchronizer {
   def update() {
     if (updating compareAndSet (false, true)) {
       updateOnceMore set false
-      realUpdate andThen {
+      val _ = realUpdate andThen {
         case Success(true) =>
           updating set false
           if (updateOnceMore.get) update()
@@ -63,7 +63,6 @@ object Synchronizer {
           updating set false
           update()
       }
-      ()
     } else {
       updateOnceMore set true
     }
@@ -72,11 +71,10 @@ object Synchronizer {
   private val polling = new AtomicBoolean(false)
   private def poll() {
     if (polling compareAndSet (false, true)) {
-      realPoll andThen { case _ =>
+      val _ = realPoll andThen { case _ =>
         polling set false
         if (pollShouldRun.get) poll()
       }
-      ()
     }
   }
 

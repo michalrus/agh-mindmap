@@ -40,7 +40,7 @@ class MapPainter(dp2px: Int => Int,
 
     def apply(node: MindNode): SubtreeWrapper = memo get node.uuid getOrElse {
       val wr = new SubtreeWrapper(node)
-      memo += node.uuid -> wr
+      val _ = memo += node.uuid -> wr
       wr
     }
 
@@ -146,8 +146,7 @@ class MapPainter(dp2px: Int => Int,
     def disappearFrom(vg: RelativeLayout) {
       val vs = List(nodeView, arrowView).flatten
       vs foreach vg.removeView
-      SubtreeWrapper.memo -= mindNode.uuid
-      ()
+      val _ = SubtreeWrapper.memo -= mindNode.uuid
     }
 
     def drawOn(vg: RelativeLayout, recreateAllViews: Boolean, inflater: LayoutInflater, unusedSubtrees: mutable.Set[SubtreeWrapper]) {
@@ -211,7 +210,7 @@ class MapPainter(dp2px: Int => Int,
           }
       }
 
-      unusedSubtrees -= this
+      val _ = unusedSubtrees -= this // why is this not a statement? o_O
       mindNode.children map (SubtreeWrapper(_)) foreach (_ drawOn (vg, recreateAllViews, inflater, unusedSubtrees))
     }
   }

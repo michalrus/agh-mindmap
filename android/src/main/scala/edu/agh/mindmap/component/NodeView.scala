@@ -27,7 +27,7 @@ class NodeView(context: Context, attrs: AttributeSet)
   extends FrameLayout(context, attrs) with ViewHelperWithoutContext {
 
   // Ad. `Option#get`: safe to throw here, crucial functionality
-  lazy val content = this.find[EditText](R.id.content).get
-  lazy val addButton = this.find[Button](R.id.add_button).get
+  lazy val content = this.find[EditText](R.id.content).fold { (throw new NoSuchElementException): EditText } { x => x }
+  lazy val addButton = this.find[Button](R.id.add_button).fold { (throw new NoSuchElementException): Button } { x => x }
 
 }

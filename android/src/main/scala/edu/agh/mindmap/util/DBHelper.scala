@@ -57,10 +57,10 @@ object DBHelper {
 }
 
 class DBHelper(context: Context)
-  extends SQLiteOpenHelper(context, DBHelper.Name, null, DBHelper.Version) {
+  extends SQLiteOpenHelper(context, DBHelper.Name, ExplicitNull.CursorFactory, DBHelper.Version) {
   import DBHelper._
 
-  getWritableDatabase // wtf, Android? it won't call DBHelper#onCreate if you delete this =,=
+  val _ = getWritableDatabase // wtf, Android? it won't call DBHelper#onCreate if you delete this =,=
 
   def onCreate(db: SQLiteDatabase) {
     CreateQs foreach (db execSQL _)

@@ -44,7 +44,7 @@ class HorizontalScrollViewWithPropagation(context: Context, attrs: AttributeSet)
       }
       inner dispatchTouchEvent transformed
     }
-    onTouchEvent(ev)
+    val _ = onTouchEvent(ev)
     true
   }
 

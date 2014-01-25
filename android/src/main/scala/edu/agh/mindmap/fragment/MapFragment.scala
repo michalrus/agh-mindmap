@@ -145,15 +145,14 @@ class MapFragment extends SherlockFragment with ScalaFragment {
   }
 
   def focusOn(t: EditText) {
-    t requestFocus()
-    for (imm <- inputManager) laterOnUiThread { () => imm showSoftInput (t, 0); () }
+    val _ = t requestFocus()
+    for (imm <- inputManager) laterOnUiThread { () => val _ = imm showSoftInput (t, 0) }
   }
 
   def defocus(hideIME: Boolean = true) = for (dummy <- dummyFocus) {
-    dummy requestFocus()
+    val _ = dummy requestFocus()
     if (hideIME) for (imm <- inputManager) laterOnUiThread { () =>
-      imm hideSoftInputFromWindow (dummy.getWindowToken, 0)
-      ()
+      val _ = imm hideSoftInputFromWindow (dummy.getWindowToken, 0)
     }
   }
 
@@ -177,7 +176,7 @@ class MapFragment extends SherlockFragment with ScalaFragment {
     if (node.isRoot) false
     else {
       val builder = new AlertDialog.Builder(getActivity)
-      builder setMessage
+      val _ = builder setMessage
         getString(R.string.sure_to_delete_node, node.content getOrElse "") setPositiveButton(android.R.string.yes,
         new DialogInterface.OnClickListener {
           def onClick(dialog: DialogInterface, which: Int) =

@@ -37,13 +37,15 @@ object Exporter {
 
     def toast(id: Int) =
       Toast makeText (ctx, ctx getString (id, file.getAbsolutePath), Toast.LENGTH_SHORT) show()
+    def error() = toast(R.string.export_error)
     try {
-      val root = map.root.get // safe to throw here (won't happen anywayz)
-      exportImpl(file, root, ctx getString R.string.export_sheet_title)
-      toast(R.string.export_success)
+      map.root.fold { error() } { root: MindNode =>
+        exportImpl(file, root, ctx getString R.string.export_sheet_title)
+        toast(R.string.export_success)
+      }
     } catch {
       case e: Throwable =>
-        toast(R.string.export_error)
+        error()
         log(s"$e\n${e.getStackTraceString}\n")
     }
   }
@@ -98,7 +100,7 @@ object Exporter {
   private def fileFor(title: String): File = {
     val clean = SanitizeRegex replaceAllIn (title, SanitizeWith) stripPrefix SanitizeWith stripSuffix SanitizeWith
     val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-    new File(dir + "/" + clean + ".xmind")
+    new File(dir.getAbsolutePath + "/" + clean + ".xmind")
   }
 
 }

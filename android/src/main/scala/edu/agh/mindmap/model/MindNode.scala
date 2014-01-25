@@ -82,14 +82,14 @@ class MindNode private(val uuid: UUID,
       val _children = new mutable.TreeSet[MindNode]
 
       val cur = MindNode.dbr query (TNode, Array(CUuid),
-        s"$CParent = ?", Array(uuid.toString), null, null, null)
-      cur moveToFirst()
+        s"$CParent = ?", Array(uuid.toString), ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
+      val _ = cur moveToFirst()
       while (!cur.isAfterLast) {
         for {
           uuid <- safen(UUID fromString (cur getString 0))
           node <- MindNode findByUuid uuid
         } _children += node
-        cur moveToNext()
+        val _ = cur moveToNext()
       }
 
 //      childrenRead = true
@@ -112,13 +112,13 @@ class MindNode private(val uuid: UUID,
     val v = new ContentValues
     v put (CUuid, uuid.toString)
     v put (CMap, map.uuid.toString)
-    v put (CParent, parent map (_.toString) getOrElse null)
+    v put (CParent, parent map (_.toString) getOrElse ExplicitNull.String)
     v put (COrdering, ordering)
-    v put (CContent, content getOrElse null)
+    v put (CContent, content getOrElse ExplicitNull.String)
     v put (CHasConflict, Long box (if (hasConflict) 1L else 0L))
-    v put (CCloudTime, cloudTime map Long.box getOrElse null)
+    v put (CCloudTime, cloudTime map Long.box getOrElse ExplicitNull.Long)
 
-    MindNode.dbw insertWithOnConflict (TNode, null, v, SQLiteDatabase.CONFLICT_REPLACE)
+    val _ = MindNode.dbw insertWithOnConflict (TNode, CUuid, v, SQLiteDatabase.CONFLICT_REPLACE)
     MindNode.memo += uuid -> this
     Synchronizer.update()
   }
@@ -131,8 +131,8 @@ object MindNode extends DBUser {
   private var memo = Map.empty[UUID, MindNode]
   def findByUuid(uuid: UUID): Option[MindNode] = memo get uuid orElse {
     val cur = dbr query (TNode, Array(CMap, CParent, COrdering, CContent, CHasConflict, CCloudTime),
-      s"$CUuid = ?", Array(uuid.toString), null, null, null)
-    cur moveToFirst()
+      s"$CUuid = ?", Array(uuid.toString), ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
+    val _ = cur moveToFirst()
     val candidate = for {
       map <- safen(UUID fromString (cur getString 0))
       mindMap <- MindMap findByUuid map
@@ -150,8 +150,8 @@ object MindNode extends DBUser {
 
   def findRootOf(map: MindMap): Option[MindNode] = {
     val cur = dbr query (TNode, Array(CUuid),
-      s"$CMap = ? AND $CParent IS NULL", Array(map.uuid.toString), null, null, null)
-    cur moveToFirst()
+      s"$CMap = ? AND $CParent IS NULL", Array(map.uuid.toString), ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
+    val _ = cur moveToFirst()
     for {
       uuid <- safen(UUID fromString (cur getString 0))
       node <- findByUuid(uuid)
@@ -169,21 +169,21 @@ object MindNode extends DBUser {
   def findModified: Set[MindNode] = {
     var ns = Set.empty[MindNode]
     val cur = dbr query (TNode, Array(CUuid),
-      s"$CCloudTime IS NULL", Array(), null, null, null)
-    cur moveToFirst()
+      s"$CCloudTime IS NULL", Array(), ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
+    val _ = cur moveToFirst()
     while (!cur.isAfterLast) {
       for {
         uuid <- safen(UUID fromString (cur getString 0))
         node <- findByUuid(uuid)
       } ns += node
-      cur moveToNext()
+      val _ = cur moveToNext()
     }
     ns
   }
 
   def lastTimeWithAkka: Long = {
-    val cur = dbr query (TPrefs, Array(CVal), s"$CKey = ?", Array(FLatestAkka), null, null, null)
-    cur moveToFirst()
+    val cur = dbr query (TPrefs, Array(CVal), s"$CKey = ?", Array(FLatestAkka), ExplicitNull.String, ExplicitNull.String, ExplicitNull.String)
+    val _ = cur moveToFirst()
     safen(cur getLong 0) getOrElse 0L
   }
 
@@ -192,8 +192,7 @@ object MindNode extends DBUser {
       val v = new ContentValues
       v put (CKey, FLatestAkka)
       v put (CVal, Long box to)
-      dbw insertWithOnConflict (TPrefs, null, v, SQLiteDatabase.CONFLICT_REPLACE)
-      ()
+      val _ = dbw insertWithOnConflict (TPrefs, CKey, v, SQLiteDatabase.CONFLICT_REPLACE)
     }
   }
 
@@ -208,7 +207,7 @@ object MindNode extends DBUser {
     import DBHelper._
     node.children foreach { ch =>
       deleteChildrenOf(ch)
-      MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
+      val _ = MindNode.dbw delete (TNode, s"$CUuid = ?", Array(ch.uuid.toString))
       MindNode.memo -= ch.uuid
     }
   }

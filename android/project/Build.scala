@@ -86,6 +86,8 @@ object Build extends Build {
 
       resolvers += "michalrus.com repo" at "https://maven.michalrus.com/",
       libraryDependencies += "com.michalrus" %% "android-scala-helpers" % "0.1-SNAPSHOT",
+      addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.6-SNAPSHOT" cross CrossVersion.full),
+      scalacOptions += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.UnsafeWithVar",
 
       proguardInputs in Android ~= (p => p.copy(injars = p.injars filterNot inUnwantedSubprojectJars)),
       dexInputs in Android ~= (_ filterNot inUnwantedSubprojectJars),
