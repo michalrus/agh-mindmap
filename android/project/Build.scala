@@ -84,6 +84,9 @@ object Build extends Build {
       resolvers += "spray" at "http://repo.spray.io/",
       libraryDependencies += "io.spray" %% "spray-json" % "1.2.5",
 
+      resolvers += "michalrus.com repo" at "https://maven.michalrus.com/",
+      libraryDependencies += "com.michalrus" %% "android-scala-helpers" % "0.1-SNAPSHOT",
+
       proguardInputs in Android ~= (p => p.copy(injars = p.injars filterNot inUnwantedSubprojectJars)),
       dexInputs in Android ~= (_ filterNot inUnwantedSubprojectJars),
 

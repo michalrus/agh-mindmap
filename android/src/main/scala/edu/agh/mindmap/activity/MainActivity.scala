@@ -27,8 +27,7 @@ import android.support.v4.app.{Fragment, FragmentActivity}
 import android.content.{ActivityNotFoundException, Intent, Context}
 import android.view.{ViewGroup, View}
 import edu.agh.mindmap.fragment.{MapFragment, MapListFragment}
-import scala.reflect.ClassTag
-import com.michalrus.helper.ScalaActivity
+import com.michalrus.android.helper.ScalaActivity
 import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}

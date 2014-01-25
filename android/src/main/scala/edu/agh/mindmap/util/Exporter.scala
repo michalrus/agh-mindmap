@@ -28,7 +28,7 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.nio.charset.Charset
 
 object Exporter {
-  import com.michalrus.helper.MiscHelper.{rng, log}
+  import com.michalrus.android.helper.MiscHelper.{rng, log}
 
   def export(context: Context, map: MindMap) {
     val ctx = context.getApplicationContext

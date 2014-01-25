@@ -17,7 +17,7 @@
 
 package edu.agh.mindmap.fragment
 
-import com.michalrus.helper.ScalaFragment
+import com.michalrus.android.helper.ScalaFragment
 import com.actionbarsherlock.app.SherlockFragment
 import android.view._
 import android.os.Bundle
@@ -35,6 +35,8 @@ import android.view.View.OnFocusChangeListener
 import android.app.AlertDialog
 
 class MapFragment extends SherlockFragment with ScalaFragment {
+  def currentActivity = getActivity
+
   private var painter: Option[MapPainter] = None
 
   private lazy val dummyFocus = getView.find[View](R.id.dummy_focus)
@@ -191,5 +193,4 @@ class MapFragment extends SherlockFragment with ScalaFragment {
       true
     }
   }
-
 }

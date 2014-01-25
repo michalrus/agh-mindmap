@@ -21,7 +21,7 @@ import android.widget.{Button, EditText, FrameLayout}
 import android.content.Context
 import android.util.AttributeSet
 import edu.agh.mindmap.R
-import com.michalrus.helper.ViewHelperWithoutContext
+import com.michalrus.android.helper.ViewHelperWithoutContext
 
 class NodeView(context: Context, attrs: AttributeSet)
   extends FrameLayout(context, attrs) with ViewHelperWithoutContext {

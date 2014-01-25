@@ -20,7 +20,7 @@ package edu.agh.mindmap.model
 import java.util.UUID
 import java.io.File
 import edu.agh.mindmap.util.{DBHelper, Importer}
-import com.michalrus.helper.MiscHelper
+import com.michalrus.android.helper.MiscHelper
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 

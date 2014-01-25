@@ -20,7 +20,7 @@ package edu.agh.mindmap.util
 import concurrent._
 import ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
-import com.michalrus.helper.MiscHelper.log
+import com.michalrus.android.helper.MiscHelper.log
 import scala.util.{Failure, Try, Success}
 import spray.json._
 import org.apache.http.impl.client.DefaultHttpClient
