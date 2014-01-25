@@ -9,7 +9,7 @@ How to run it
 Connect your phone via USB, turn on USB debugging and:
 
     $ git clone https://github.com/michalrus/agh-mindmap.git
-    $ cd agh-mindmap
+    $ cd agh-mindmap/android/
     $ sbt run
 
 ... where `sbt` is [Scala Build Tool](http://www.scala-sbt.org/0.13.1/docs/Getting-Started/Setup.html).
