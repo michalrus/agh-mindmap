@@ -35,7 +35,7 @@ import android.view.View.OnFocusChangeListener
 import android.app.AlertDialog
 
 class MapFragment extends SherlockFragment with Helper {
-  implicit val activity = getActivity
+  implicit def activity = getActivity
 
   private var painter: Option[MapPainter] = None
 
