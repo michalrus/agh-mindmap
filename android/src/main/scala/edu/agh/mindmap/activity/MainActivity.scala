@@ -57,8 +57,7 @@ class MainActivity extends SherlockFragmentActivity with Helper {
     Synchronizer.resume(getString(R.string.sync_base_url))
   }
 
-  private lazy val tabHost = find[TabHost](R.id.tabhost).
-    fold { (throw new NoSuchElementException): TabHost } { x => x } // safe to throw here, application entry point, no way to deploy missing this
+  private lazy val tabHost = find[TabHost](R.id.tabhost)
   private lazy val tabManager = new TabManager(tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
 
   // /me hates you, Android, for this:
@@ -230,8 +229,7 @@ class MainActivity extends SherlockFragmentActivity with Helper {
 
     tabHost.setOnTabChangedListener(this)
 
-    val scrollView = find[HorizontalScrollView](scrollId).
-      fold { (throw new NoSuchElementException): HorizontalScrollView } { x => x } // safe to throw here, too; the app won't start at all
+    val scrollView = find[HorizontalScrollView](scrollId)
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
 

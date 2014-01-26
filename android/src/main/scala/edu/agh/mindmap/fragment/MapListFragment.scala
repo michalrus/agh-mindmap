@@ -83,11 +83,11 @@ class MapListFragment extends SherlockFragment with Helper {
 
       val map = getItem(position)
 
-      for (name <- v.find[TextView](R.id.recent_list_item_name))
-        name setText (map.root flatMap (_.content) getOrElse "")
+      val name = v.find[TextView](R.id.recent_list_item_name)
+      name setText (map.root flatMap (_.content) getOrElse "")
 
-      for (detail <- v.find[TextView](R.id.recent_list_item_detail))
-        detail setText new java.util.Date(map.lastMod).toString
+      val detail = v.find[TextView](R.id.recent_list_item_detail)
+      detail setText new java.util.Date(map.lastMod).toString
 
       v
     }
@@ -102,22 +102,21 @@ class MapListFragment extends SherlockFragment with Helper {
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, bundle: Bundle) = {
     val view = inflater.inflate(R.layout.recent_list, container, false)
+    val listView = view.find[ListView](R.id.listview)
 
-    view.find[ListView](R.id.listview) foreach { listView =>
-      listView setAdapter adapter
+    listView setAdapter adapter
 
-      listView setOnItemClickListener new OnItemClickListener {
-        override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-          val map = adapter getItem position
-          withMainActivity (_ viewMindMap map)
-        }
+    listView setOnItemClickListener new OnItemClickListener {
+      override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
+        val map = adapter getItem position
+        withMainActivity (_ viewMindMap map)
       }
+    }
 
-      listView setOnItemLongClickListener new OnItemLongClickListener {
-        def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long) = {
-          Exporter export (getActivity, adapter getItem position)
-          true
-        }
+    listView setOnItemLongClickListener new OnItemLongClickListener {
+      def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long) = {
+        Exporter export (getActivity, adapter getItem position)
+        true
       }
     }
 

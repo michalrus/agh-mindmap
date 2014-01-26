@@ -58,14 +58,14 @@ class MapFragment extends SherlockFragment with Helper {
     ))
 
     for {
-      hScroll <- view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
-      vScroll = view.find[ScrollView](R.id.vscroll)
       uuid <- Try(UUID fromString (getArguments getString "uuid"))
       map <- MindMap findByUuid uuid
-      paper <- view.find[RelativeLayout](R.id.paper)
       painter <- painter
+      paper = view.find[RelativeLayout](R.id.paper)
+      hScroll = view.find[HorizontalScrollViewWithPropagation](R.id.hscroll)
+      vScroll = view.find[ScrollView](R.id.vscroll)
     } {
-      hScroll.inner = vScroll
+      hScroll.inner = Some(vScroll)
       paper onClick defocus()
       laterOnUiThread { () =>
         painter paint (map, paper, inflater)
@@ -149,10 +149,10 @@ class MapFragment extends SherlockFragment with Helper {
     for (imm <- inputManager) laterOnUiThread { () => val _ = imm showSoftInput (t, 0) }
   }
 
-  def defocus(hideIME: Boolean = true) = for (dummy <- dummyFocus) {
-    val _ = dummy requestFocus()
+  def defocus(hideIME: Boolean = true) {
+    val _ = dummyFocus requestFocus()
     if (hideIME) for (imm <- inputManager) laterOnUiThread { () =>
-      val _ = imm hideSoftInputFromWindow (dummy.getWindowToken, 0)
+      val _ = imm hideSoftInputFromWindow (dummyFocus.getWindowToken, 0)
     }
   }
 
@@ -166,8 +166,7 @@ class MapFragment extends SherlockFragment with Helper {
       for {
         painter <- painter
         v <- painter viewFor newNode
-        text <- v.find[EditText](R.id.content)
-      } focusOn(text)
+      } focusOn(v.find[EditText](R.id.content))
     }
   }
 
