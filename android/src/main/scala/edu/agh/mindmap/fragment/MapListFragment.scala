@@ -23,7 +23,7 @@ import android.view.{View, ViewGroup, LayoutInflater}
 import edu.agh.mindmap.R
 import android.widget.{AdapterView, ArrayAdapter, TextView, ListView}
 import AdapterView.OnItemLongClickListener
-import com.michalrus.android.helper.ScalaFragment
+import com.michalrus.android.helper.Helper
 import edu.agh.mindmap.model.MindMap
 import android.widget.AdapterView.OnItemClickListener
 import edu.agh.mindmap.activity.MainActivity
@@ -35,9 +35,7 @@ object MapListFragment {
   val ItemXml = R.layout.recent_list_item
 }
 
-class MapListFragment extends SherlockFragment with ScalaFragment {
-  def currentActivity = getActivity
-
+class MapListFragment extends SherlockFragment with Helper {
   import collection.mutable
 
   private val uuids = new mutable.TreeSet[UUID]

@@ -20,7 +20,7 @@ package edu.agh.mindmap.model
 import java.util.UUID
 import java.io.File
 import edu.agh.mindmap.util.{ExplicitNull, DBHelper, Importer}
-import com.michalrus.android.helper.MiscHelper
+import com.michalrus.android.helper.Helper
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 
@@ -44,7 +44,7 @@ class MindMap private(val uuid: UUID,
 
 object MindMap extends DBUser {
   import DBHelper._
-  import MiscHelper.safen
+  import Helper.safen
 
   def create(title: String): MindMap = {
     val map = createWith(uuid = UUID.randomUUID)

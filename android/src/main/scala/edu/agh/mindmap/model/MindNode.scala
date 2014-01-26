@@ -20,7 +20,7 @@ package edu.agh.mindmap.model
 import scala.collection.mutable
 import java.util.UUID
 import edu.agh.mindmap.util._
-import com.michalrus.android.helper.MiscHelper.safen
+import com.michalrus.android.helper.Helper.safen
 import android.database.sqlite.SQLiteDatabase
 import android.content.ContentValues
 import scala.Some

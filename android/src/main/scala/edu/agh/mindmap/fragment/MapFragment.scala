@@ -17,7 +17,7 @@
 
 package edu.agh.mindmap.fragment
 
-import com.michalrus.android.helper.ScalaFragment
+import com.michalrus.android.helper.Helper
 import com.actionbarsherlock.app.SherlockFragment
 import android.view._
 import android.os.Bundle
@@ -34,8 +34,8 @@ import android.widget.TextView.OnEditorActionListener
 import android.view.View.OnFocusChangeListener
 import android.app.AlertDialog
 
-class MapFragment extends SherlockFragment with ScalaFragment {
-  def currentActivity = getActivity
+class MapFragment extends SherlockFragment with Helper {
+  implicit val activity = getActivity
 
   private var painter: Option[MapPainter] = None
 

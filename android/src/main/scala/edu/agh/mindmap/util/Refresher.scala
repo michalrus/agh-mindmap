@@ -19,10 +19,9 @@ package edu.agh.mindmap.util
 
 import java.util.UUID
 import edu.agh.mindmap.activity.MainActivity
-import com.michalrus.android.helper.MiscHelper
 import edu.agh.mindmap.model.MindMap
 
-object Refresher extends MiscHelper {
+object Refresher {
 
   case class State(online: Boolean)
 

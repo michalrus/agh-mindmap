@@ -23,11 +23,11 @@ import com.actionbarsherlock.app.SherlockFragmentActivity
 import android.os.Bundle
 import edu.agh.mindmap.R
 import android.widget.{TextView, HorizontalScrollView, TabHost}
-import android.support.v4.app.{Fragment, FragmentActivity}
+import android.support.v4.app.Fragment
 import android.content.{ActivityNotFoundException, Intent, Context}
 import android.view.{ViewGroup, View}
 import edu.agh.mindmap.fragment.{MapFragment, MapListFragment}
-import com.michalrus.android.helper.ScalaActivity
+import com.michalrus.android.helper.Helper
 import com.actionbarsherlock.view.{MenuItem, Menu}
 import com.ipaulpro.afilechooser.utils.FileUtils
 import android.app.{AlertDialog, Activity}
@@ -44,7 +44,8 @@ object MainActivity {
   val TabTitleMaxLength = 8
 }
 
-class MainActivity extends SherlockFragmentActivity with ScalaActivity {
+class MainActivity extends SherlockFragmentActivity with Helper {
+  implicit val activity = this
 
   override def onPause() {
     super.onPause()
@@ -58,7 +59,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
 
   private lazy val tabHost = find[TabHost](R.id.tabhost).
     fold { (throw new NoSuchElementException): TabHost } { x => x } // safe to throw here, application entry point, no way to deploy missing this
-  private lazy val tabManager = new TabManager(this, tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
+  private lazy val tabManager = new TabManager(tabHost, android.R.id.tabcontent, R.id.real_tabcontent, R.id.tab_scroll)
 
   // /me hates you, Android, for this:
   private var actionImport: Option[MenuItem] = None
@@ -225,11 +226,11 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
     getSupportActionBar setTitle title
   }
 
-  class TabManager(val activity: FragmentActivity with ScalaActivity, tabHost: TabHost, fakeContainerId: Int, realContainerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {
+  class TabManager(tabHost: TabHost, fakeContainerId: Int, realContainerId: Int, scrollId: Int) extends TabHost.OnTabChangeListener {
 
     tabHost.setOnTabChangedListener(this)
 
-    val scrollView = activity.find[HorizontalScrollView](scrollId).
+    val scrollView = find[HorizontalScrollView](scrollId).
       fold { (throw new NoSuchElementException): HorizontalScrollView } { x => x } // safe to throw here, too; the app won't start at all
     val creators = new mutable.HashMap[String, () => Fragment]
     val fragments = new mutable.HashMap[String, Fragment]
@@ -265,10 +266,10 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       // Check to see if we already have a fragment for this tab, probably
       // from a previously saved state.  If so, deactivate it, because our
       // initial state is that a tab isn't shown. (On orientation change.)
-      Option(activity.getSupportFragmentManager.findFragmentByTag(tag)) match {
+      Option(getSupportFragmentManager.findFragmentByTag(tag)) match {
         case Some(f) =>
           if (!f.isDetached) {
-            val ft = activity.getSupportFragmentManager.beginTransaction
+            val ft = getSupportFragmentManager.beginTransaction
             val _ = ft.detach(f).commit()
           }
           val _ = fragments += tag -> f
@@ -325,7 +326,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
       // update fragments map, remove the fragment
       fragments get tag match {
         case Some(fragment) =>
-          val ft = activity.getSupportFragmentManager.beginTransaction
+          val ft = getSupportFragmentManager.beginTransaction
           val _ = ft remove fragment commit()
 
           { val _ = fragments -= tag }
@@ -367,7 +368,7 @@ class MainActivity extends SherlockFragmentActivity with ScalaActivity {
         lastTabTag = Some(tag)
         val _ = Try { // might throw if this gets called after activity is destroyed... Android. :(
           val _ = ft.commit()
-          activity.getSupportFragmentManager.executePendingTransactions()
+          getSupportFragmentManager.executePendingTransactions()
         }
         laterOnUiThread { () =>
           rescrollTabView()

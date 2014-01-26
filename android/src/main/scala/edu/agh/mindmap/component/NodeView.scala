@@ -21,13 +21,14 @@ import android.widget.{Button, EditText, FrameLayout}
 import android.content.Context
 import android.util.AttributeSet
 import edu.agh.mindmap.R
-import com.michalrus.android.helper.ViewHelperWithoutContext
+import com.michalrus.android.helper.Helper
+import android.view.View
 
 class NodeView(context: Context, attrs: AttributeSet)
-  extends FrameLayout(context, attrs) with ViewHelperWithoutContext {
+  extends FrameLayout(context, attrs) with Helper {
 
   // Ad. `Option#get`: safe to throw here, crucial functionality
-  lazy val content = this.find[EditText](R.id.content).fold { (throw new NoSuchElementException): EditText } { x => x }
-  lazy val addButton = this.find[Button](R.id.add_button).fold { (throw new NoSuchElementException): Button } { x => x }
+  lazy val content = (this: View).find[EditText](R.id.content).fold { (throw new NoSuchElementException): EditText } { x => x }
+  lazy val addButton = (this: View).find[Button](R.id.add_button).fold { (throw new NoSuchElementException): Button } { x => x }
 
 }

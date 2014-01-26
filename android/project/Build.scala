@@ -85,7 +85,8 @@ object Build extends Build {
       libraryDependencies += "io.spray" %% "spray-json" % "1.2.5",
 
       resolvers += "michalrus.com repo" at "https://maven.michalrus.com/",
-      libraryDependencies += "com.michalrus" %% "android-scala-helpers" % "0.1-SNAPSHOT",
+      libraryDependencies += "com.michalrus" %% "android-scala-helpers" % "0.2-SNAPSHOT",
+
       addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.6-SNAPSHOT" cross CrossVersion.full),
       scalacOptions += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.UnsafeWithVar",
 
