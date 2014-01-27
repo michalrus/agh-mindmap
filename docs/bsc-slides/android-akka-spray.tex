@@ -22,11 +22,12 @@
 	\begin{column}[t]{.45\textwidth}
 		\vskip-6em
 		\begin{enumerate}
-			\item Scala na Androidzie --- można?
-			\only<2->{\item Serwer(y): Akka + Spray.io.
-				\item Telefon --- aktor (\emph{stateless!}).}
-			\only<3->{\item Push? REST Spray.io z long-pollingiem.
-				\item To samo API dla webapp.}
+			\item Scala na Androidzie
+			\only<2->{\item Akka+ Sy.io (RESTowy interfejs do Akki)
+				\item Każdy podłączony telefon --- aktor }
+			\only<3->{\item Komunikacja przez HTTP przy użyciu JSON
+				\item POST /update
+				\item GET /poll/since/\$TIME }
 		\end{enumerate}
 	\end{column}
 	\begin{column}{.45\textwidth}
