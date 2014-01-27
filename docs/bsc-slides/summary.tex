@@ -18,21 +18,21 @@
 \begin{frame}
 \frametitle{Podsumowanie}
 
-\todo{No, co tutaj, to no freakin' idea. o\_O}
+Udało się zrealizować:
+\begin{itemize}
+		\item kompatybilność z Android API >= 10,
+		\item zapis i odczyt plików .xmind,
+		\item działający zgodnie z wymaganiami algorytm synchronizacji,
+		\item tworzenia map myśli, edycja i usuwanie węzłów,
+\end{itemize}
 
-\todo{Co się udało, co się nie udało!}
+\vspace{+1.5em}
 
-\todo{Future works z pracy:{\tiny\tiny\begin{itemize}
-		\item adding users, privileges, explicit sharing etc. (the most important feature the system is now lacking),
-		\item subtree folding,
-		\item copy/paste operations on nodes and their subtrees,
-		\item zoom,
-		\item better XMind compatibility, support for node--node relations, folding, floating objects and attachments, custom icons, as well as some predefined styles,
-		\item a web application using only static HTML/JS/CSS files (and, what's most important, \emph{the same} highly-scalable Akka as a backend),
-		\item a move of Akka's storage from PostgreSQL to a more scalable NoSQL store (probably MongoDB),
-		\item an involvement of a professional UI designer; having him draw all UI elements would add to a beautiful user experience,
-		\item making use of a new \inlinecode{akka-cluster} Akka subproject to have no central/main Akka node; instead, a completely self-organizing cluster of servers would be more fault-tolerant,
-		\item adding map-wide blocking of currently-edited node for other, non-editing users to improve the UX even more.
-	\end{itemize}}}
+Nie udało się zrealizować: 
+\begin{itemize}
+		\item obsługi węzłów swobodnych (relacji)  i notatek,
+		\item blokowanie edytowanych węzłów w czasie rzeczywistym,
+		\item zaznaczania konfliktu w zawartości węzła,
+\end{itemize}
 
 \end{frame}
