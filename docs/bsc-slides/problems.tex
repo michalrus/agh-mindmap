@@ -15,25 +15,21 @@
 %   limitations under the License.
 %
 
-\begin{frame}
-\frametitle{Podsumowanie}
+\begin{frame}[t]
+\frametitle{Problemy}
 
-Udało się zrealizować:
+\vskip+6em
+
 \begin{itemize}
-		\item kompatybilność z Android API >= 10,
-		\item zapis i odczyt plików .xmind,
-		\item działający zgodnie z wymaganiami algorytm synchronizacji,
-		\item tworzenia map myśli, edycja i usuwanie węzłów.
+	\item Pozycjonowanie węzłów.
 \end{itemize}
 
-\vspace{+1.5em}
+\only<2->{\begin{itemize}
+	\item Usuwanie Tabów.
+\end{itemize}}
 
-Nie udało się zrealizować: 
-\begin{itemize}
-		\item obsługi węzłów swobodnych (relacji)  i notatek,
-		\item blokowanie edytowanych węzłów w czasie rzeczywistym,
-		\item przesuwania węzłów (zmiany rodzica),
-		\item zaznaczania konfliktu w zawartości węzła.
-\end{itemize}
+\only<3->{\begin{itemize}
+  \item Wielokierunkowy ScrollView.
+\end{itemize}}
 
 \end{frame}
